@@ -7,7 +7,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -61,7 +60,7 @@ public class MCF {
 		
 		//ModConfigs.preInit(event);//Naturally this comes first so we can react to settings
 		
-		//ModBlocks.preInit();
+		ModBlocks.preInit();
 		//ModItems.preInit();
 		//ModTrees.preInit();
 		
@@ -78,7 +77,7 @@ public class MCF {
 		
 		@SubscribeEvent
 		public static void registerBlocks(RegistryEvent.Register<Block> event) {
-			//ModBlocks.registerBlocks(event.getRegistry());
+			ModBlocks.registerBlocks(event.getRegistry());
 		}
 		
 		@SubscribeEvent
@@ -89,12 +88,6 @@ public class MCF {
 		@SubscribeEvent
 		public static void registerRecipes(RegistryEvent.Register<IRecipe> event) {
 			//ModRecipes.registerRecipes(event.getRegistry());
-		}
-		
-		@SubscribeEvent
-		@SideOnly(Side.CLIENT)
-		public static void registerModels(ModelRegistryEvent event) {
-			//ModModels.registerModels(event);
 		}
 		
 	}
