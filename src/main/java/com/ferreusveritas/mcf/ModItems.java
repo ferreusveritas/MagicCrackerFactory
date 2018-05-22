@@ -7,7 +7,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 public class ModItems {
 
 	public static void registerItems(IForgeRegistry<Item> registry) {
-		registry.register( new ItemBlock(ModBlocks.blockMapManipulator) .setRegistryName(ModBlocks.blockMapManipulator.getRegistryName()) );
+		registry.register( new ItemBlock(ModBlocks.blockCartographer) .setRegistryName(ModBlocks.blockCartographer.getRegistryName()) );
 	}
 
 }

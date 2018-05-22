@@ -8,17 +8,17 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModBlocks {
 	
-	public static Block blockMapManipulator;
+	public static Block blockCartographer;
 	
 	public static void preInit() {
 		
-		blockMapManipulator = new BlockCartographer(Material.IRON);
+		blockCartographer = new BlockCartographer(Material.IRON);
 		
 	}
 
 	public static void registerBlocks(IForgeRegistry<Block> registry) {
 		
-		registry.register(blockMapManipulator);
+		registry.register(blockCartographer);
 		
 	}
 

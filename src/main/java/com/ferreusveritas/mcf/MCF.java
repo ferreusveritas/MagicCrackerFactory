@@ -5,10 +5,10 @@ import com.ferreusveritas.mcf.proxy.CommonProxy;
 
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -52,7 +52,7 @@ public class MCF {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public ItemStack getTabIconItem() {
-			return new ItemStack(Items.NETHER_STAR);
+			return new ItemStack(ModBlocks.blockCartographer);
 		}
 	};
 	
@@ -91,6 +91,11 @@ public class MCF {
 			//ModRecipes.registerRecipes(event.getRegistry());
 		}
 		
+		@SubscribeEvent
+		@SideOnly(Side.CLIENT)
+		public static void registerModels(ModelRegistryEvent event) {
+			ModModels.registerModels(event);
+		}
 	}
 	
 }
