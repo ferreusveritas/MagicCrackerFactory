@@ -10,6 +10,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -83,9 +84,12 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		getMapDimension("", false),
 		updateMap("", true),
 		getBiome("nn", false, "xCoord", "zCoord"),
+		getBiomeArray("nnnnn", false, "xStart", "zStart", "xEnd", "yEnd", "step"),
 		getYTop("nn", false, "xCoord", "zCoord"),
 		getYTopSolid("nn", false, "xCoord", "zCoord"),
-		getTemperature("nnn", false, "xCoord", "yCoord", "zCoord");
+		getTemperature("nnn", false, "xCoord", "yCoord", "zCoord"),
+		getBlockMapColor("nnn", false, "xCoord", "yCoord", "zCoord"),
+		getRGBfromMapColor("n", false, "index");
 		
 		private final String argTypes;
 		private final String args[];
@@ -247,8 +251,12 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 					case getMapScale:
 						return new Object[] { getCurrMapData().scale };
 					case getMapDimension:
-						return new Object[] { getCurrMapData().dimension }; 
-					case getBiome:
+						return new Object[] { getCurrMapData().dimension };
+					case getBiome: {
+						Biome biome = world.getBiome(new BlockPos(getInt(arguments, 0), 0, getInt(arguments, 1)));
+						return new Object[] { biome.getBiomeName(), Biome.getIdForBiome(biome) };
+						}
+					case getBiomeArray:
 						int xPosStart = getInt(arguments, 0);
 						int zPosStart = getInt(arguments, 1);
 						int xPosEnd = 	getInt(arguments, 2);
@@ -274,14 +282,33 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 							
 						return new Object[] { biomeNames, biomeIds };
 					case getYTop:
-						return new Object[] { getYTop(getInt(arguments, 0), getInt(arguments, 0)) };
+						return new Object[] { getYTop(getInt(arguments, 0), getInt(arguments, 1)) };
 					case getYTopSolid:
-						return new Object[] { getYTopSolid(getInt(arguments, 0), getInt(arguments, 0)) };
-					case getTemperature:
+						return new Object[] { getYTopSolid(getInt(arguments, 0), getInt(arguments, 1)) };
+					case getTemperature:{
 						BlockPos pos = new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2));
 				        Biome biome = world.getBiome(pos);
 				        float temp = biome.getTemperature(pos);
 						return new Object[] { temp };
+						}
+					case getBlockMapColor:{
+						BlockPos pos = new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2));
+						return new Object[] { world.getBlockState(pos).getMapColor(world, pos).colorIndex };
+						}
+					case getRGBfromMapColor:{
+						int arg = getInt(arguments, 0);
+						int color = arg >> 2;
+						int index = arg & 3;
+							
+						if(color >= 0 && color < 64) {
+							MapColor mapColor = MapColor.COLORS[color];
+							if(mapColor != null) {
+								int rgbInt = mapColor.getMapColor(index);
+								return new Object[] { (rgbInt >> 16) & 0xFF, (rgbInt >> 8) & 0xFF, rgbInt & 0xFF };
+							}
+						}
+						return new Object[] { 0, 0, 0 }; 
+					}
 					default:
 						if(method.isCached()) {
 							cacheCommand(methodNum, arguments);
@@ -333,7 +360,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	}
 	
 	public int getYTop(int x, int z) {
-		MutableBlockPos top = new MutableBlockPos(pos.getX() + x - 64, 0, pos.getZ() + z - 64);
+		MutableBlockPos top = new MutableBlockPos(x, 0, z);
 		Chunk chunk = world.getChunkFromBlockCoords(top);
 		top.setY(chunk.getTopFilledSegment() + 16);
 
@@ -349,7 +376,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	}
 
 	public int getYTopSolid(int x, int z) {
-		MutableBlockPos top = new MutableBlockPos(pos.getX() + x - 64, 0, pos.getZ() + z - 64);
+		MutableBlockPos top = new MutableBlockPos(x, 0, z);
 		Chunk chunk = world.getChunkFromBlockCoords(top);
 		top.setY(chunk.getTopFilledSegment() + 16);
 
