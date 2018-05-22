@@ -10,6 +10,10 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketMaps;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
@@ -37,24 +41,27 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	}
 	
 	public void setMapPixel(int x, int z, int colorFull) {
-
-		MapData mapData = getCurrMapData();
-		
-		if(colorFull > (51 * 4) + 1) {
-			colorFull = 0;
-		}
-		
 		if(x >= 0 && x < 128 && z >= 0 && z < 128) {
-			mapData.colors[x + z * 128] = (byte) colorFull;
+			getCurrMapData().colors[x + z * 128] = (byte) (colorFull >= 0 && colorFull <= (51 * 4) ? colorFull : 0);
 		}
 	}
 
-	public void markMapDirty() {
-		getCurrMapData().markDirty();
+	public void updateMap() {
+		MapData mapData = getCurrMapData();
+		mapData.markDirty();//Mark as dirty so the changes save to disk
+		Packet<?> packet = new SPacketMaps(mapNum, mapData.scale, mapData.trackingPosition, mapData.mapDecorations.values(), mapData.colors, 0, 0, 128, 128);
+
+		for(EntityPlayer player : world.playerEntities) {
+			if(player instanceof EntityPlayerMP) {
+				((EntityPlayerMP)player).connection.sendPacket(packet);
+			}
+		}
 	}
 	
 	public enum ComputerMethod {
+		setMapNum("n", true, "mapNum"),
 		setPixel("nn", true, "x", "z"),
+		updateMap("", true),
 		getBiome("nn", false, "xCoord", "zCoord");
 		
 		private final String argTypes;
@@ -117,13 +124,13 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 			return ((Double)arguments[argRead++]).intValue();
 		}
 		
-		public String s() {
+		/*public String s() {
 			return ((String)arguments[argRead++]);
-		}
+		}*/
 		
-		public boolean b() {
+		/*public boolean b() {
 			return ((Boolean)arguments[argRead++]).booleanValue();
-		}
+		}*/
 	}
 	
 	private ArrayList<CachedCommand> cachedCommands = new ArrayList<CachedCommand>(1);
@@ -157,7 +164,9 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 				if(cartographer != null) {
 					for(CachedCommand cmd:  cachedCommands) {
 						switch(cmd.method) {
+							case setMapNum: setCurrMapData(cmd.i()); break;
 							case setPixel: setMapPixel(cmd.i(), cmd.i(), cmd.i()); break;
+							case updateMap: updateMap(); break;
 							default: break;
 						}
 					}
