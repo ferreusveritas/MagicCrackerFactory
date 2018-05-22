@@ -1,6 +1,6 @@
 package com.ferreusveritas.mcf;
 
-import com.ferreusveritas.mcf.blocks.BlockMapManipulator;
+import com.ferreusveritas.mcf.blocks.BlockCartographer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -12,7 +12,7 @@ public class ModBlocks {
 	
 	public static void preInit() {
 		
-		blockMapManipulator = new BlockMapManipulator(Material.IRON);
+		blockMapManipulator = new BlockCartographer(Material.IRON);
 		
 	}
 

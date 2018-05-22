@@ -60,7 +60,7 @@ public class MCF {
 	public void preInit(FMLPreInitializationEvent event) {
 		
 		//ModConfigs.preInit(event);//Naturally this comes first so we can react to settings
-		
+				
 		ModBlocks.preInit();
 		//ModItems.preInit();
 		//ModTrees.preInit();
