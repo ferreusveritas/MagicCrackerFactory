@@ -10,6 +10,8 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.Packet;
@@ -17,8 +19,11 @@ import net.minecraft.network.play.server.SPacketMaps;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapData;
 
 public class TileCartographer extends TileEntity implements IPeripheral, ITickable  {
@@ -38,6 +43,13 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	
 	public void setMapPixel(int x, int z, int color52, int index4) {
 		setMapPixel(x, z, color52 * 4 | index4);
+	}
+	
+	public int getMapPixel(int x, int z) {
+		if(x >= 0 && x < 128 && z >= 0 && z < 128) {
+			return getCurrMapData().colors[x + z * 128];
+		}
+		return 0;
 	}
 	
 	public void setMapPixel(int x, int z, int colorFull) {
@@ -60,9 +72,20 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	
 	public enum ComputerMethod {
 		setMapNum("n", true, "mapNum"),
-		setPixel("nn", true, "x", "z"),
+		getMapNum("n", true, "mapNum"),
+		setMapPixel("nn", true, "x", "z"),
+		getMapPixel("nn", false, "x", "z"),
+		setMapCenter("nn", true, "x", "z"),
+		getMapCenter("", false),
+		setMapScale("n", true, "scale"),
+		getMapScale("", false),
+		setMapDimension("n", true, "dimension"),
+		getMapDimension("", false),
 		updateMap("", true),
-		getBiome("nn", false, "xCoord", "zCoord");
+		getBiome("nn", false, "xCoord", "zCoord"),
+		getYTop("nn", false, "xCoord", "zCoord"),
+		getYTopSolid("nn", false, "xCoord", "zCoord"),
+		getTemperature("nnn", false, "xCoord", "yCoord", "zCoord");
 		
 		private final String argTypes;
 		private final String args[];
@@ -165,7 +188,10 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 					for(CachedCommand cmd:  cachedCommands) {
 						switch(cmd.method) {
 							case setMapNum: setCurrMapData(cmd.i()); break;
-							case setPixel: setMapPixel(cmd.i(), cmd.i(), cmd.i()); break;
+							case setMapPixel: setMapPixel(cmd.i(), cmd.i(), cmd.i()); break;
+							case setMapCenter: getCurrMapData().xCenter = cmd.i(); getCurrMapData().zCenter = cmd.i(); break;
+							case setMapScale: getCurrMapData().scale = (byte) MathHelper.clamp(cmd.i(), 0, 4);
+							case setMapDimension: getCurrMapData().dimension = cmd.i(); break;
 							case updateMap: updateMap(); break;
 							default: break;
 						}
@@ -191,6 +217,10 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		return methodNames;
 	}
 	
+	private int getInt(Object[] arguments, int arg) {
+		return ((Double)arguments[arg]).intValue();
+	}
+	
 	/**
 	* I hear ya Dan!  Make the function threadsafe by caching the commmands to run in the main world server thread and not the lua thread.
 	*/
@@ -200,46 +230,58 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 			throw new IllegalArgumentException("Invalid method number");
 		}
 		
-		BlockCartographer dendroCoil = (BlockCartographer)getBlockType();
+		BlockCartographer cartographer = (BlockCartographer)getBlockType();
 		World world = getWorld();
 		
-		if(!world.isRemote && dendroCoil != null) {
+		if(!world.isRemote && cartographer != null) {
 			ComputerMethod method = ComputerMethod.values()[methodNum];
 
 			if(method.validateArguments(arguments)) {
 				switch(method) {
+					case getMapNum:
+						return new Object[] { mapNum };
+					case getMapPixel:
+						return new Object[] { getMapPixel(getInt(arguments, 0), getInt(arguments, 1)) };
+					case getMapCenter:
+						return new Object[] { getCurrMapData().xCenter, getCurrMapData().zCenter };
+					case getMapScale:
+						return new Object[] { getCurrMapData().scale };
+					case getMapDimension:
+						return new Object[] { getCurrMapData().dimension }; 
 					case getBiome:
-						if( (arguments[0] instanceof Double) &&
-							(arguments[1] instanceof Double) &&
-							(arguments[2] instanceof Double) &&
-							(arguments[3] instanceof Double) &&
-							(arguments[4] instanceof Double) ) {
-							int xPosStart = ((Double)arguments[0]).intValue();
-							int zPosStart = ((Double)arguments[1]).intValue();
-							int xPosEnd = ((Double)arguments[2]).intValue();
-							int zPosEnd = ((Double)arguments[3]).intValue();
-							int step = ((Double)arguments[4]).intValue();
+						int xPosStart = getInt(arguments, 0);
+						int zPosStart = getInt(arguments, 1);
+						int xPosEnd = 	getInt(arguments, 2);
+						int zPosEnd = 	getInt(arguments, 3);
+						int step = 		getInt(arguments, 4);
 							
-							biomeRequest = new BiomeRequest(
-								new BlockPos(xPosStart, 0, zPosStart),
-								new BlockPos(xPosEnd, 0, zPosEnd),
-								step);
+						biomeRequest = new BiomeRequest(
+							new BlockPos(xPosStart, 0, zPosStart),
+							new BlockPos(xPosEnd, 0, zPosEnd),
+							step);
 					
-							Map<Integer, String> biomeNames = new HashMap<>();
-							Map<Integer, Integer> biomeIds = new HashMap<>();
+						Map<Integer, String> biomeNames = new HashMap<>();
+						Map<Integer, Integer> biomeIds = new HashMap<>();
 							
-							int i = 1;
-							for(Biome biome: biomeRequest.getBiomes()) {
-								biomeNames.put(i, biome.getBiomeName());
-								biomeIds.put(i, Biome.getIdForBiome(biome));
-								i++;
-							}
-							
-							biomeRequest = null;
-							
-							return new Object[] { biomeNames, biomeIds };
+						int i = 1;
+						for(Biome biome: biomeRequest.getBiomes()) {
+							biomeNames.put(i, biome.getBiomeName());
+							biomeIds.put(i, Biome.getIdForBiome(biome));
+							i++;
 						}
-						return new Object[] { new Object[] {}, new Object[] {} };
+						
+						biomeRequest = null;
+							
+						return new Object[] { biomeNames, biomeIds };
+					case getYTop:
+						return new Object[] { getYTop(getInt(arguments, 0), getInt(arguments, 0)) };
+					case getYTopSolid:
+						return new Object[] { getYTopSolid(getInt(arguments, 0), getInt(arguments, 0)) };
+					case getTemperature:
+						BlockPos pos = new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2));
+				        Biome biome = world.getBiome(pos);
+				        float temp = biome.getTemperature(pos);
+						return new Object[] { temp };
 					default:
 						if(method.isCached()) {
 							cacheCommand(methodNum, arguments);
@@ -289,6 +331,39 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		}
 
 	}
+	
+	public int getYTop(int x, int z) {
+		MutableBlockPos top = new MutableBlockPos(pos.getX() + x - 64, 0, pos.getZ() + z - 64);
+		Chunk chunk = world.getChunkFromBlockCoords(top);
+		top.setY(chunk.getTopFilledSegment() + 16);
+
+		while (top.getY() > 0) {
+			IBlockState s = chunk.getBlockState(top);
+			if (s.getMaterial() != Material.AIR) {
+				return top.getY();
+			}
+			top.setY(top.getY() - 1);
+		}
+
+		return 0;
+	}
+
+	public int getYTopSolid(int x, int z) {
+		MutableBlockPos top = new MutableBlockPos(pos.getX() + x - 64, 0, pos.getZ() + z - 64);
+		Chunk chunk = world.getChunkFromBlockCoords(top);
+		top.setY(chunk.getTopFilledSegment() + 16);
+
+		while (top.getY() > 0) {
+			IBlockState s = chunk.getBlockState(top);
+			if (s.getMaterial().blocksMovement()) {
+				return top.getY();
+			}
+			top.setY(top.getY() - 1);
+		}
+
+		return 0;
+	}
+
 	
 	@Override
 	public boolean equals(IPeripheral other) {
