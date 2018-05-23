@@ -1,0 +1,16 @@
+[
+{
+  "modid": "mcf",
+  "name": "Magic Cracker Factory",
+  "description": "Adds Computer Craft peripherals for creative mode world building",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "https://github.com/ferreusveritas/MagicCrackerFactory",
+  "authorList": [ "FerreusVeritas" ],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
