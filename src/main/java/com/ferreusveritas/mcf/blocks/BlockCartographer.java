@@ -1,6 +1,5 @@
 package com.ferreusveritas.mcf.blocks;
 
-import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.tileentity.TileCartographer;
 
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -14,6 +13,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import util.Util;
 
 public class BlockCartographer extends Block implements ITileEntityProvider, IPeripheralProvider {
 	
@@ -23,7 +23,7 @@ public class BlockCartographer extends Block implements ITileEntityProvider, IPe
 		super(materialIn);
 		setRegistryName(name);
 		setUnlocalizedName(name);
-		setCreativeTab(MCF.mcfTab);
+		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
 		ComputerCraftAPI.registerPeripheralProvider(this);
 		GameRegistry.registerTileEntity(TileCartographer.class, "cartographer");
 	}

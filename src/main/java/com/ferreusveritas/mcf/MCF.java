@@ -4,9 +4,7 @@ package com.ferreusveritas.mcf;
 import com.ferreusveritas.mcf.proxy.CommonProxy;
 
 import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
@@ -39,22 +37,25 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 * </p>
 *
 */
-@Mod(modid = ModConstants.MODID, version=ModConstants.VERSION,dependencies="")
+@Mod(modid = ModConstants.MODID, version=ModConstants.VERSION,dependencies=MCF.DEPEND)
 public class MCF {
 	
 	@Mod.Instance(ModConstants.MODID)
 	public static MCF instance;
 	
+	public static final String DEPEND = 
+			"required-after:computercraft";
+	
 	@SidedProxy(clientSide = "com.ferreusveritas.mcf.proxy.ClientProxy", serverSide = "com.ferreusveritas.mcf.proxy.CommonProxy")
 	public static CommonProxy proxy;
 	
-	public static final CreativeTabs mcfTab = new CreativeTabs(ModConstants.MODID) {
+	/*public static final CreativeTabs mcfTab = new CreativeTabs(ModConstants.MODID) {
 		@SideOnly(Side.CLIENT)
 		@Override
 		public ItemStack getTabIconItem() {
 			return new ItemStack(ModBlocks.blockCartographer);
 		}
-	};
+	};*/
 	
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
