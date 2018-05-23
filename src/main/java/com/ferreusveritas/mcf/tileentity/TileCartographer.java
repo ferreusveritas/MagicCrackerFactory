@@ -277,7 +277,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 						Map<Integer, Integer> biomeIds = new HashMap<>();
 						
 						int i = 1;
-						for(Biome biome: biomeRequest.getBiomes()) {
+						for(Biome biome: biomeRequest.getBiomes()) {//This waits for the request to be fulfilled
 							biomeNames.put(i, biome.getBiomeName());
 							biomeIds.put(i, Biome.getIdForBiome(biome));
 							i++;
