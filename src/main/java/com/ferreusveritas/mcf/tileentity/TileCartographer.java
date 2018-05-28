@@ -1,10 +1,6 @@
 package com.ferreusveritas.mcf.tileentity;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 import com.ferreusveritas.mcf.blocks.BlockCartographer;
 
@@ -13,21 +9,15 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.network.play.server.SPacketMaps;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapData;
 
 public class TileCartographer extends TileEntity implements IPeripheral, ITickable  {
@@ -86,12 +76,6 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		setMapDimension("n", true, "dimension"),
 		getMapDimension("", false),
 		updateMap("", true),
-		getBiome("nn", false, "xCoord", "zCoord"),
-		setBiome("nnnnn", true,  "xStart", "zStart", "xStop", "zStop", "biomeId"),
-		getBiomeArray("nnnnn", false, "xStart", "zStart", "xEnd", "yEnd", "step"),
-		getYTop("nn", false, "xCoord", "zCoord"),
-		getYTopSolid("nn", false, "xCoord", "zCoord"),
-		getTemperature("nnn", false, "xCoord", "yCoord", "zCoord"),
 		getBlockMapColor("nnn", false, "xCoord", "yCoord", "zCoord"),
 		getRGBfromMapColor("n", false, "index");
 		
@@ -165,9 +149,6 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	}
 	
 	private ArrayList<CachedCommand> cachedCommands = new ArrayList<CachedCommand>(1);
-
-	//Dealing with multithreaded biome requests
-	BiomeRequest biomeRequest = null;
 	
 	public static final int numMethods = ComputerMethod.values().length;
 	public static final String[] methodNames = new String[numMethods]; 
@@ -187,7 +168,6 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	public void update() {
 		
 		BlockCartographer cartographer = (BlockCartographer)getBlockType();
-		World world = getWorld();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
 		synchronized(cachedCommands) {
@@ -201,7 +181,6 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 							case setMapScale: getCurrMapData().scale = (byte) MathHelper.clamp(cmd.i(), 0, 4);
 							case setMapDimension: getCurrMapData().dimension = cmd.i(); break;
 							case updateMap: updateMap(); break;
-							case setBiome: setBiome(cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i()); break;
 							default: break;
 						}
 					}
@@ -210,10 +189,6 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 			}
 		}
 		
-		//Fulfill data requests
-		if(biomeRequest != null) {
-			biomeRequest.process(world);
-		}
 	}
 	
 	@Override
@@ -244,7 +219,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		
 		if(!world.isRemote && cartographer != null) {
 			ComputerMethod method = ComputerMethod.values()[methodNum];
-
+			
 			if(method.validateArguments(arguments)) {
 				switch(method) {
 					case getMapNum:
@@ -257,45 +232,6 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 						return new Object[] { getCurrMapData().scale };
 					case getMapDimension:
 						return new Object[] { getCurrMapData().dimension };
-					case getBiome: {
-						Biome biome = world.getBiome(new BlockPos(getInt(arguments, 0), 0, getInt(arguments, 1)));
-						return new Object[] { biome.getBiomeName(), Biome.getIdForBiome(biome) };
-						}
-					case getBiomeArray:
-						int xPosStart = getInt(arguments, 0);
-						int zPosStart = getInt(arguments, 1);
-						int xPosEnd = 	getInt(arguments, 2);
-						int zPosEnd = 	getInt(arguments, 3);
-						int step = 		getInt(arguments, 4);
-							
-						biomeRequest = new BiomeRequest(
-							new BlockPos(xPosStart, 0, zPosStart),
-							new BlockPos(xPosEnd, 0, zPosEnd),
-							step);
-						
-						Map<Integer, String> biomeNames = new HashMap<>();
-						Map<Integer, Integer> biomeIds = new HashMap<>();
-						
-						int i = 1;
-						for(Biome biome: biomeRequest.getBiomes()) {//This waits for the request to be fulfilled
-							biomeNames.put(i, biome.getBiomeName());
-							biomeIds.put(i, Biome.getIdForBiome(biome));
-							i++;
-						}
-						
-						biomeRequest = null;
-							
-						return new Object[] { biomeNames, biomeIds };
-					case getYTop:
-						return new Object[] { getYTop(getInt(arguments, 0), getInt(arguments, 1)) };
-					case getYTopSolid:
-						return new Object[] { getYTopSolid(getInt(arguments, 0), getInt(arguments, 1)) };
-					case getTemperature:{
-						BlockPos pos = new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2));
-						Biome biome = world.getBiome(pos);
-						float temp = biome.getTemperature(pos);
-						return new Object[] { temp };
-						}
 					case getBlockMapColor:{
 						BlockPos pos = new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2));
 						return new Object[] { world.getBlockState(pos).getMapColor(world, pos).colorIndex };
@@ -324,128 +260,6 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		
 		return null;
 	}
-	
-	public void setBiome(int xStart, int zStart, int xStop, int zStop, int biomeId) {
-		
-		if(Biome.REGISTRY.getObjectById(biomeId) != null) { //Verify the biomeId is tied to a valid Biome
-
-			//Open up the blockBiomeArray field in the Chunk class
-			Field blockBiomeArrayField = null;
-			for(String field : new String[] {"field_76651_r", "blockBiomeArray"}) {//Obfuscated and Deobfuscated field names
-				try {
-					blockBiomeArrayField = Chunk.class.getDeclaredField(field);
-					break;//If we get this far then no exception occurred and we can break out of the search loop
-				} catch (NoSuchFieldException | SecurityException e) { }
-			}
-
-			if(blockBiomeArrayField != null) {
-				blockBiomeArrayField.setAccessible(true);
-
-				byte[] blockBiomeArray;
-
-				HashSet<Chunk> chunksToUpdate = new HashSet<>();
-
-				for(int z = zStart; z <= zStop; z++) {
-					for(int x = xStart; x <= xStop; x++) {
-						Chunk chunk = world.getChunkFromBlockCoords(new BlockPos(x, 0, z));
-						if(chunk != null) {
-							try {
-								blockBiomeArray = (byte[]) blockBiomeArrayField.get(chunk);
-							} catch (IllegalArgumentException | IllegalAccessException e) {
-								e.printStackTrace();
-								return;
-							}
-							blockBiomeArray[((z & 0xF) * 16) + (x & 0xF)] = (byte) MathHelper.clamp(biomeId, 0, 255);//Squirt in the new biome id
-							chunk.markDirty();
-							chunksToUpdate.add(chunk);//Add to the list of chunks to send to the player clients
-						}
-					}
-				}
-				
-				//Update all of the clients with new chunk data
-				for(Chunk chunk: chunksToUpdate) {
-					SPacketChunkData packet = new SPacketChunkData(chunk, 0xFFFF);//We send the whole chunk since it's the only way to send the biome data
-					for(EntityPlayer player : world.playerEntities) {
-						if(player instanceof EntityPlayerMP) {
-							((EntityPlayerMP)player).connection.sendPacket(packet);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private class BiomeRequest {
-		public BlockPos startPos;
-		public BlockPos endPos;
-		public int step;
-		public boolean fulfilled = false;
-		public ArrayList<Biome> result = new ArrayList<Biome>();
-		
-		public BiomeRequest(BlockPos start, BlockPos end, int step) {
-			this.startPos = start;
-			this.endPos = end;
-			this.step = step;
-		}
-		
-		//This is run by the server thread
-		public synchronized void process(World world) {
-			if(!fulfilled) {
-				for(int z = startPos.getZ(); z < endPos.getZ(); z += step) {
-					for(int x = startPos.getX(); x < endPos.getX(); x += step) {
-						Biome biome = world.getBiomeProvider().getBiome(new BlockPos(x, 0, z));
-						result.add(biome);
-					}
-				}
-				fulfilled = true;
-				notifyAll();
-			}
-		}
-		
-		//This is run by the CC thread
-		public synchronized ArrayList<Biome> getBiomes() {
-			while(!fulfilled) {
-				try {
-					wait();
-				} catch (InterruptedException e) {}
-			}
-			return result;
-		}
-		
-	}
-	
-	public int getYTop(int x, int z) {
-		MutableBlockPos top = new MutableBlockPos(x, 0, z);
-		Chunk chunk = world.getChunkFromBlockCoords(top);
-		top.setY(chunk.getTopFilledSegment() + 16);
-		
-		while (top.getY() > 0) {
-			IBlockState s = chunk.getBlockState(top);
-			if (s.getMaterial() != Material.AIR) {
-				return top.getY();
-			}
-			top.setY(top.getY() - 1);
-		}
-		
-		return 0;
-	}
-
-	public int getYTopSolid(int x, int z) {
-		MutableBlockPos top = new MutableBlockPos(x, 0, z);
-		Chunk chunk = world.getChunkFromBlockCoords(top);
-		top.setY(chunk.getTopFilledSegment() + 16);
-		
-		while (top.getY() > 0) {
-			IBlockState s = chunk.getBlockState(top);
-			if (s.getMaterial().blocksMovement()) {
-				return top.getY();
-			}
-			top.setY(top.getY() - 1);
-		}
-		
-		return 0;
-	}
-	
 	
 	@Override
 	public boolean equals(IPeripheral other) {

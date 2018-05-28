@@ -12,6 +12,9 @@ public class ModModels {
 	public static void registerModels(ModelRegistryEvent event) {
 		Block cartographer = Block.REGISTRY.getObject(new ResourceLocation(ModConstants.MODID, "cartographer"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(cartographer), 0, new ModelResourceLocation(cartographer.getRegistryName(), "inventory"));
+		
+		Block terraformer = Block.REGISTRY.getObject(new ResourceLocation(ModConstants.MODID, "terraformer"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(terraformer), 0, new ModelResourceLocation(terraformer.getRegistryName(), "inventory"));
 	}
 
 }

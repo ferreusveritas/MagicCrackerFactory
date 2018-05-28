@@ -1,6 +1,6 @@
 package com.ferreusveritas.mcf.blocks;
 
-import com.ferreusveritas.mcf.tileentity.TileCartographer;
+import com.ferreusveritas.mcf.tileentity.TileTerraformer;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -15,22 +15,22 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import util.Util;
 
-public class BlockCartographer extends Block implements ITileEntityProvider, IPeripheralProvider {
+public class BlockTerraformer extends Block implements ITileEntityProvider, IPeripheralProvider {
 	
-	String name = "cartographer";
+	String name = "terraformer";
 	
-	public BlockCartographer(Material materialIn) {
+	public BlockTerraformer(Material materialIn) {
 		super(materialIn);
 		setRegistryName(name);
 		setUnlocalizedName(name);
 		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
 		ComputerCraftAPI.registerPeripheralProvider(this);
-		GameRegistry.registerTileEntity(TileCartographer.class, name);
+		GameRegistry.registerTileEntity(TileTerraformer.class, name);
 	}
 	
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
-		return new TileCartographer();
+		return new TileTerraformer();
 	}
 	
 	@Override
@@ -42,8 +42,8 @@ public class BlockCartographer extends Block implements ITileEntityProvider, IPe
 	public IPeripheral getPeripheral(World world, BlockPos pos, EnumFacing facing) {
 		TileEntity te = world.getTileEntity(pos);
 		
-		if(te instanceof TileCartographer) {
-			return (TileCartographer)te;
+		if(te instanceof TileTerraformer) {
+			return (TileTerraformer)te;
 		}
 		
 		return null;

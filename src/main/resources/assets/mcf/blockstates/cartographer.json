@@ -1,5 +1,5 @@
 {
-    "variants": {
-        "normal": {"model":"mcf:cartographer"}
-    }   
+	"variants": {
+		"normal": {"model":"mcf:cartographer"}
+	}
 }
