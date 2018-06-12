@@ -1,6 +1,7 @@
 package com.ferreusveritas.mcf.blocks;
 
 import com.ferreusveritas.mcf.tileentity.TileTerraformer;
+import com.ferreusveritas.mcf.util.Util;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -13,7 +14,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import util.Util;
 
 public class BlockTerraformer extends Block implements ITileEntityProvider, IPeripheralProvider {
 	

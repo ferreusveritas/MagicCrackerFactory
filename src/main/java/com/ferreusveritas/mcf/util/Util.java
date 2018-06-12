@@ -1,4 +1,4 @@
-package util;
+package com.ferreusveritas.mcf.util;
 
 import net.minecraft.creativetab.CreativeTabs;
 
