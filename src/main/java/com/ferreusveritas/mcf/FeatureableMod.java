@@ -20,7 +20,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class FeatureableMod {
 
-	public static ArrayList<IFeature> features = new ArrayList<>();
+	public ArrayList<IFeature> features = new ArrayList<>();
 	
 	public FeatureableMod() {
 		setupFeatures();
@@ -62,26 +62,26 @@ public abstract class FeatureableMod {
 	}
 	
 	@Mod.EventBusSubscriber
-	public static class RegistrationHandler {
+	public class RegistrationHandler {
 		
 		@SubscribeEvent
-		public static void registerBlocks(RegistryEvent.Register<Block> event) {
+		public void registerBlocks(RegistryEvent.Register<Block> event) {
 			features.forEach(i -> i.registerBlocks(event.getRegistry()));
 		}
 		
 		@SubscribeEvent
-		public static void registerItems(RegistryEvent.Register<Item> event) {
+		public void registerItems(RegistryEvent.Register<Item> event) {
 			features.forEach(i -> i.registerItems(event.getRegistry()));
 		}
 		
 		@SubscribeEvent
-		public static void registerRecipes(RegistryEvent.Register<IRecipe> event) {
+		public void registerRecipes(RegistryEvent.Register<IRecipe> event) {
 			features.forEach(i -> i.registerRecipes(event.getRegistry()));
 		}
 		
 		@SubscribeEvent
 		@SideOnly(Side.CLIENT)
-		public static void registerModels(ModelRegistryEvent event) {
+		public void registerModels(ModelRegistryEvent event) {
 			features.forEach(i -> i.registerModels());
 		}
 	}
