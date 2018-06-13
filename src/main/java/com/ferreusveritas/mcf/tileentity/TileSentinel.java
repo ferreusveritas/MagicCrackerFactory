@@ -1,9 +1,9 @@
 package com.ferreusveritas.mcf.tileentity;
 
-import com.ferreusveritas.mcf.blocks.BlockCartographer;
-import com.ferreusveritas.mcf.event.SecurityHandler;
+import com.ferreusveritas.mcf.blocks.BlockSentinel;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.ZoneManager;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -16,14 +16,14 @@ import net.minecraft.world.World;
 public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 	
 	public enum ComputerMethod {
-		addBreakDenyBounds  ("nnnnnnn", true, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		addPlaceDenyBounds  ("nnnnnnn", true, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		addExplodeDenyBounds("nnnnnnn", true, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		addSpawnDenyBounds  ("nnnnnnn", true, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remBreakDenyBounds  ("nnnnnnn", true, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remPlaceDenyBounds  ("nnnnnnn", true, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remExplodeDenyBounds("nnnnnnn", true, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remSpawnDenyBounds  ("nnnnnnn", true, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim");
+		addBreakDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
+		addPlaceDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
+		addExplodeDenyBounds("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
+		addSpawnDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
+		remBreakDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
+		remPlaceDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
+		remExplodeDenyBounds("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
+		remSpawnDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim");
 		
 		final MethodDescriptor md;
 		ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
@@ -34,21 +34,21 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 	@Override
 	public void update() {
 		
-		BlockCartographer cartographer = (BlockCartographer)getBlockType();
+		BlockSentinel cartographer = (BlockSentinel)getBlockType();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
 		synchronized(commandManager.getCachedCommands()) {
 			if(cartographer != null) {
 				for(CommandManager<ComputerMethod>.CachedCommand cmd: commandManager.getCachedCommands()) {
 					switch(cmd.method) {
-					case addBreakDenyBounds  : SecurityHandler.addBreakDenyBounds  ( cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addPlaceDenyBounds  : SecurityHandler.addPlaceDenyBounds  ( cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addExplodeDenyBounds: SecurityHandler.addExplodeDenyBounds( cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addSpawnDenyBounds  : SecurityHandler.addSpawnDenyBounds  ( cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addBreakDenyBounds  : ZoneManager.addBreakDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addPlaceDenyBounds  : ZoneManager.addPlaceDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addExplodeDenyBounds: ZoneManager.addExplodeDenyBounds( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addSpawnDenyBounds  : ZoneManager.addSpawnDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
 					case remBreakDenyBounds  : cmd.i(); break;
 					case remPlaceDenyBounds  : cmd.i(); break;
 					case remExplodeDenyBounds: cmd.i(); break;
-					case remSpawnDenyBounds  : cmd.i(); break;				
+					case remSpawnDenyBounds  : cmd.i(); break;
 					default: break;
 					}
 				}
@@ -77,7 +77,7 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 			throw new IllegalArgumentException("Invalid method number");
 		}
 		
-		BlockCartographer cartographer = (BlockCartographer)getBlockType();
+		BlockSentinel cartographer = (BlockSentinel)getBlockType();
 		World world = getWorld();
 		
 		if(!world.isRemote && cartographer != null) {

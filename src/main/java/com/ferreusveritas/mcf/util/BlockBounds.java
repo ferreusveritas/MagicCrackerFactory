@@ -6,17 +6,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
-public class BlockBounds {
+public class BlockBounds implements IBounds {
 
-	public static final BlockBounds INVALID = new BlockBounds() {
-		@Override public boolean inBounds(BlockPos pos) { return false; }
-	};
-	
 	private int minX, minY, minZ;
 	private int maxX, maxY, maxZ;
-	
-	private BlockBounds() { }
-	
+		
 	public BlockBounds(BlockPos pos) {
 		minX = maxX = pos.getX();
 		minY = maxY = pos.getY();
@@ -81,7 +75,8 @@ public class BlockBounds {
 		return this;
 	}
 	
-	public boolean inBounds(BlockPos pos) {
+	@Override
+	public boolean inBounds(BlockPos pos, int dim) {
 		return !(	pos.getX() < minX ||
 					pos.getX() > maxX ||
 					pos.getZ() < minZ ||

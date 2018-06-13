@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public class Sentinal implements IFeature {
+public class Sentinel implements IFeature {
 	
 	public static Block blockSentinel;
 	

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.ferreusveritas.mcf.event.SecurityHandler;
 import com.ferreusveritas.mcf.util.DimBlockBounds;
+import com.ferreusveritas.mcf.util.ZoneManager;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -38,10 +39,10 @@ public class Security implements IFeature {
 		corners.add(new BlockPos(128, 256, 128));
 		
 		DimBlockBounds bb = new DimBlockBounds(corners, 0);
-		SecurityHandler.addExplodeDenyBounds(bb);
-		SecurityHandler.addSpawnDenyBounds(bb);
-		SecurityHandler.addBreakDenyBounds(bb);
-		SecurityHandler.addPlaceDenyBounds(bb);
+		ZoneManager.addExplodeDenyBounds("test", bb);
+		ZoneManager.addSpawnDenyBounds("test", bb);
+		ZoneManager.addBreakDenyBounds("test", bb);
+		ZoneManager.addPlaceDenyBounds("test", bb);
 		
 	}
 	

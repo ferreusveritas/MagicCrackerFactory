@@ -38,7 +38,7 @@ public class DimBlockBounds extends BlockBounds {
 	}
 	
 	public boolean inBounds(BlockPos pos, int dim) {
-		return this.dim == dim && super.inBounds(pos);
+		return this.dim == dim && super.inBounds(pos, 0);
 	}
 	
 	@Override
