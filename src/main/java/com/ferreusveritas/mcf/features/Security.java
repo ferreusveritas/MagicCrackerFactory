@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.ferreusveritas.mcf.event.SecurityHandler;
 import com.ferreusveritas.mcf.util.DimBlockBounds;
 
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.math.BlockPos;
@@ -16,7 +17,16 @@ import net.minecraftforge.registries.IForgeRegistry;
 public class Security implements IFeature {
 	
 	@Override
-	public void preInit() {
+	public void preInit() { }
+
+	@Override
+	public void createBlocks() { }
+
+	@Override
+	public void createItems() { }
+
+	@Override
+	public void registerEvents() {
 		MinecraftForge.EVENT_BUS.register(new SecurityHandler());
 	}
 	
@@ -40,6 +50,9 @@ public class Security implements IFeature {
 	
 	@Override
 	public void onLoadComplete() { }
+
+	@Override
+	public void registerBlocks(IForgeRegistry<Block> event) { }
 	
 	@Override
 	public void registerItems(IForgeRegistry<Item> registry) { }
