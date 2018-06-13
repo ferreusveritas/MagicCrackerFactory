@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.event;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 import com.ferreusveritas.mcf.util.DimBlockBounds;
@@ -25,18 +26,34 @@ public class SecurityHandler {
 	public static HashSet<DimBlockBounds> explodeDenyBounds = new HashSet<>();
 	public static HashSet<DimBlockBounds> spawnDenyBounds = new HashSet<>();
 	
+	public static void addBreakDenyBounds( int minX, int minY, int minZ, int maxX, int maxY, int maxZ, int dim) {
+		breakDenyBounds.add(new DimBlockBounds(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ)), dim));
+	}
+	
 	public static void addBreakDenyBounds( DimBlockBounds bb ) {
 		breakDenyBounds.add(bb);
 	}
 
+	public static void addPlaceDenyBounds( int minX, int minY, int minZ, int maxX, int maxY, int maxZ, int dim) {
+		placeDenyBounds.add(new DimBlockBounds(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ)), dim));
+	}
+	
 	public static void addPlaceDenyBounds( DimBlockBounds bb ) {
 		placeDenyBounds.add(bb);
 	}
 
+	public static void addExplodeDenyBounds( int minX, int minY, int minZ, int maxX, int maxY, int maxZ, int dim) {
+		explodeDenyBounds.add(new DimBlockBounds(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ)), dim));
+	}
+	
 	public static void addExplodeDenyBounds( DimBlockBounds bb ) {
 		explodeDenyBounds.add(bb);
 	}
 
+	public static void addSpawnDenyBounds( int minX, int minY, int minZ, int maxX, int maxY, int maxZ, int dim) {
+		spawnDenyBounds.add(new DimBlockBounds(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ)), dim));
+	}
+	
 	public static void addSpawnDenyBounds( DimBlockBounds bb ) {
 		spawnDenyBounds.add(bb);
 	}

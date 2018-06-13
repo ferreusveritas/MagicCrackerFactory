@@ -8,6 +8,8 @@ import java.util.Map;
 
 import com.ferreusveritas.mcf.blocks.BlockCartographer;
 import com.ferreusveritas.mcf.blocks.BlockTerraformer;
+import com.ferreusveritas.mcf.util.CommandManager;
+import com.ferreusveritas.mcf.util.MethodDescriptor;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -82,93 +84,14 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 		getYTopSolid("nn", false, "xCoord", "zCoord"),
 		getTemperature("nnn", false, "xCoord", "yCoord", "zCoord");
 		
-		private final String argTypes;
-		private final String args[];
-		private final boolean cached;
-		
-		private ComputerMethod(String argTypes, boolean cached, String ... args) {
-			this.argTypes = argTypes;
-			this.args = args;
-			this.cached = cached;
-		}
-		
-		public boolean isCached() {
-			return cached;
-		}
-		
-		public boolean isValidArguments(Object[] arguments) {
-			if(arguments.length >= argTypes.length()) {
-				for (int i = 0; i < argTypes.length(); i++){
-					if(!CCDataType.byIdent(argTypes.charAt(i)).isInstance(arguments[i])) {
-						return false;
-					}
-				}
-				return true;
-			}
-			return false;
-		}
-		
-		public boolean validateArguments(Object[] arguments) throws LuaException {
-			if(isValidArguments(arguments)) {
-				return true;
-			}
-			throw new LuaException(invalidArgumentsError());
-		}
-		
-		public String invalidArgumentsError() {
-			String error = "Expected: " + this.toString();
-			for (int i = 0; i < argTypes.length(); i++){
-				error += " " + args[i] + "<" + CCDataType.byIdent(argTypes.charAt(i)).name + ">";
-			}
-			return error;
-		}
+		final MethodDescriptor md;
+		private ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
 	}
 	
-	private class CachedCommand {
-		ComputerMethod method;
-		Object[] arguments;
-		int argRead = 0;
-		
-		public CachedCommand(int method, Object[] args) {
-			this.method = ComputerMethod.values()[method];
-			this.arguments = args;
-		}
-		
-		/*public double d() {
-			return ((Double)arguments[argRead++]).doubleValue();
-		}*/
-		
-		public int i() {
-			return ((Double)arguments[argRead++]).intValue();
-		}
-		
-		/*public String s() {
-			return ((String)arguments[argRead++]);
-		}*/
-		
-		/*public boolean b() {
-			return ((Boolean)arguments[argRead++]).booleanValue();
-		}*/
-	}
-	
-	private ArrayList<CachedCommand> cachedCommands = new ArrayList<CachedCommand>(1);
-	
+	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
+
 	//Dealing with multithreaded biome requests
 	BiomeRequest biomeRequest = null;
-	
-	public static final int numMethods = ComputerMethod.values().length;
-	public static final String[] methodNames = new String[numMethods]; 
-	static {
-		for(ComputerMethod method : ComputerMethod.values()) { 
-			methodNames[method.ordinal()] = method.toString(); 
-		}
-	}
-	
-	public void cacheCommand(int method, Object[] args) {
-		synchronized (cachedCommands) {
-			cachedCommands.add(new CachedCommand(method, args));
-		}
-	}
 	
 	@Override
 	public void update() {
@@ -177,20 +100,18 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 		World world = getWorld();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
-		synchronized(cachedCommands) {
-			if(cachedCommands.size() > 0) { 
-				if(cartographer != null) {
-					for(CachedCommand cmd:  cachedCommands) {
-						switch(cmd.method) {
-							case setBiome: setBiome(cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i()); break;
-							default: break;
-						}
+		synchronized(commandManager.getCachedCommands()) {
+			if(cartographer != null) {
+				for(CommandManager<ComputerMethod>.CachedCommand cmd:  commandManager.getCachedCommands()) {
+					switch(cmd.method) {
+					case setBiome: setBiome(cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i()); break;
+					default: break;
 					}
-					cachedCommands.clear();
 				}
+				commandManager.clear();
 			}
 		}
-		
+
 		//Fulfill data requests
 		if(biomeRequest != null) {
 			biomeRequest.process(world);
@@ -204,7 +125,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 	
 	@Override
 	public String[] getMethodNames() {
-		return methodNames;
+		return commandManager.getMethodNames();
 	}
 	
 	private int getInt(Object[] arguments, int arg) {
@@ -216,7 +137,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 	*/
 	@Override
 	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int methodNum, Object[] arguments) throws LuaException {
-		if(methodNum < 0 || methodNum >= numMethods) {
+		if(methodNum < 0 || methodNum >= commandManager.getNumMethods()) {
 			throw new IllegalArgumentException("Invalid method number");
 		}
 		
@@ -226,7 +147,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 		if(!world.isRemote && cartographer != null) {
 			ComputerMethod method = ComputerMethod.values()[methodNum];
 			
-			if(method.validateArguments(arguments)) {
+			if(method.md.validateArguments(arguments)) {
 				switch(method) {
 					case getBiome: {
 						Biome biome = world.getBiome(new BlockPos(getInt(arguments, 0), 0, getInt(arguments, 1)));
@@ -268,8 +189,8 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 						return new Object[] { temp };
 						}
 					default:
-						if(method.isCached()) {
-							cacheCommand(methodNum, arguments);
+						if(method.md.isCached()) {
+							commandManager.cacheCommand(methodNum, arguments);
 						}
 				}
 			}

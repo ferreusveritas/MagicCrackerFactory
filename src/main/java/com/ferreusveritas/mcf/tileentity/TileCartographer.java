@@ -1,8 +1,8 @@
 package com.ferreusveritas.mcf.tileentity;
 
-import java.util.ArrayList;
-
 import com.ferreusveritas.mcf.blocks.BlockCartographer;
+import com.ferreusveritas.mcf.util.CommandManager;
+import com.ferreusveritas.mcf.util.MethodDescriptor;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -79,90 +79,11 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		getBlockMapColor("nnn", false, "xCoord", "yCoord", "zCoord"),
 		getRGBfromMapColor("n", false, "index");
 		
-		private final String argTypes;
-		private final String args[];
-		private final boolean cached;
-		
-		private ComputerMethod(String argTypes, boolean cached, String ... args) {
-			this.argTypes = argTypes;
-			this.args = args;
-			this.cached = cached;
-		}
-		
-		public boolean isCached() {
-			return cached;
-		}
-		
-		public boolean isValidArguments(Object[] arguments) {
-			if(arguments.length >= argTypes.length()) {
-				for (int i = 0; i < argTypes.length(); i++){
-					if(!CCDataType.byIdent(argTypes.charAt(i)).isInstance(arguments[i])) {
-						return false;
-					}
-				}
-				return true;
-			}
-			return false;
-		}
-		
-		public boolean validateArguments(Object[] arguments) throws LuaException {
-			if(isValidArguments(arguments)) {
-				return true;
-			}
-			throw new LuaException(invalidArgumentsError());
-		}
-		
-		public String invalidArgumentsError() {
-			String error = "Expected: " + this.toString();
-			for (int i = 0; i < argTypes.length(); i++){
-				error += " " + args[i] + "<" + CCDataType.byIdent(argTypes.charAt(i)).name + ">";
-			}
-			return error;
-		}
+		final MethodDescriptor md;
+		private ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
 	}
 	
-	private class CachedCommand {
-		ComputerMethod method;
-		Object[] arguments;
-		int argRead = 0;
-		
-		public CachedCommand(int method, Object[] args) {
-			this.method = ComputerMethod.values()[method];
-			this.arguments = args;
-		}
-		
-		/*public double d() {
-			return ((Double)arguments[argRead++]).doubleValue();
-		}*/
-		
-		public int i() {
-			return ((Double)arguments[argRead++]).intValue();
-		}
-		
-		/*public String s() {
-			return ((String)arguments[argRead++]);
-		}*/
-		
-		/*public boolean b() {
-			return ((Boolean)arguments[argRead++]).booleanValue();
-		}*/
-	}
-	
-	private ArrayList<CachedCommand> cachedCommands = new ArrayList<CachedCommand>(1);
-	
-	public static final int numMethods = ComputerMethod.values().length;
-	public static final String[] methodNames = new String[numMethods]; 
-	static {
-		for(ComputerMethod method : ComputerMethod.values()) { 
-			methodNames[method.ordinal()] = method.toString(); 
-		}
-	}
-	
-	public void cacheCommand(int method, Object[] args) {
-		synchronized (cachedCommands) {
-			cachedCommands.add(new CachedCommand(method, args));
-		}
-	}
+	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
 	
 	@Override
 	public void update() {
@@ -170,22 +91,20 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		BlockCartographer cartographer = (BlockCartographer)getBlockType();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
-		synchronized(cachedCommands) {
-			if(cachedCommands.size() > 0) { 
-				if(cartographer != null) {
-					for(CachedCommand cmd:  cachedCommands) {
-						switch(cmd.method) {
-							case setMapNum: setCurrMapData(cmd.i()); break;
-							case setMapPixel: setMapPixel(cmd.i(), cmd.i(), cmd.i()); break;
-							case setMapCenter: getCurrMapData().xCenter = cmd.i(); getCurrMapData().zCenter = cmd.i(); break;
-							case setMapScale: getCurrMapData().scale = (byte) MathHelper.clamp(cmd.i(), 0, 4);
-							case setMapDimension: getCurrMapData().dimension = cmd.i(); break;
-							case updateMap: updateMap(); break;
-							default: break;
-						}
+		synchronized(commandManager.getCachedCommands()) {
+			if(cartographer != null) {
+				for(CommandManager<ComputerMethod>.CachedCommand cmd:  commandManager.getCachedCommands()) {
+					switch(cmd.method) {
+					case setMapNum: setCurrMapData(cmd.i()); break;
+					case setMapPixel: setMapPixel(cmd.i(), cmd.i(), cmd.i()); break;
+					case setMapCenter: getCurrMapData().xCenter = cmd.i(); getCurrMapData().zCenter = cmd.i(); break;
+					case setMapScale: getCurrMapData().scale = (byte) MathHelper.clamp(cmd.i(), 0, 4);
+					case setMapDimension: getCurrMapData().dimension = cmd.i(); break;
+					case updateMap: updateMap(); break;
+					default: break;
 					}
-					cachedCommands.clear();
 				}
+				commandManager.clear();
 			}
 		}
 		
@@ -198,7 +117,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	
 	@Override
 	public String[] getMethodNames() {
-		return methodNames;
+		return commandManager.getMethodNames();
 	}
 	
 	private int getInt(Object[] arguments, int arg) {
@@ -210,7 +129,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	*/
 	@Override
 	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int methodNum, Object[] arguments) throws LuaException {
-		if(methodNum < 0 || methodNum >= numMethods) {
+		if(methodNum < 0 || methodNum >= commandManager.getNumMethods()) {
 			throw new IllegalArgumentException("Invalid method number");
 		}
 		
@@ -220,7 +139,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		if(!world.isRemote && cartographer != null) {
 			ComputerMethod method = ComputerMethod.values()[methodNum];
 			
-			if(method.validateArguments(arguments)) {
+			if(method.md.validateArguments(arguments)) {
 				switch(method) {
 					case getMapNum:
 						return new Object[] { mapNum };
@@ -251,8 +170,8 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 						return new Object[] { 0, 0, 0 }; 
 					}
 					default:
-						if(method.isCached()) {
-							cacheCommand(methodNum, arguments);
+						if(method.md.isCached()) {
+							commandManager.cacheCommand(methodNum, arguments);
 						}
 				}
 			}
