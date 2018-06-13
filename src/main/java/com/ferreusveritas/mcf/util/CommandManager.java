@@ -30,7 +30,9 @@ public class CommandManager<E extends Enum<E>> {
 	}
 	
 	public void clear() {
-		cachedCommands.clear();
+		if(cachedCommands.size() > 0) {
+			cachedCommands.clear();
+		}
 	}
 	
 	public String[] getMethodNames() {
