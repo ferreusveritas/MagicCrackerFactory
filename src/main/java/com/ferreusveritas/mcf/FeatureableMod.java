@@ -10,7 +10,10 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -36,27 +39,25 @@ public abstract class FeatureableMod {
 		}
 	}
 	
-	public void stateEvent(FMLStateEvent event) {
-		switch(event.getModState()) {
-			case PREINITIALIZED: 
-				features.forEach(i -> i.preInit());
-				features.forEach(i -> i.createBlocks());
-				features.forEach(i -> i.createItems());
-				features.forEach(i -> i.registerEvents());
-				break;
-			case INITIALIZED:
-				features.forEach(i -> i.init());
-				break;
-			case POSTINITIALIZED:
-				features.forEach(i -> i.postInit());
-				break;
-			case AVAILABLE:
-				features.forEach(i -> i.onLoadComplete());
-				break;
-			default: break;
-		}
+	public void preInit(FMLPreInitializationEvent event) {
+		features.forEach(i -> i.preInit());
+		features.forEach(i -> i.createBlocks());
+		features.forEach(i -> i.createItems());
+		features.forEach(i -> i.registerEvents());
 	}
-		
+	
+	public void init(FMLInitializationEvent event) {
+		features.forEach(i -> i.init());
+	}
+	
+	public void postInit(FMLPostInitializationEvent event) {
+		features.forEach(i -> i.postInit());
+	}
+	
+	public void onLoadComplete(FMLLoadCompleteEvent event) {
+		features.forEach(i -> i.onLoadComplete());
+	}
+	
 	public class RegistrationHandler {
 		
 		@SubscribeEvent

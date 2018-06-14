@@ -20,10 +20,10 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 		addPlaceDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
 		addExplodeDenyBounds("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
 		addSpawnDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remBreakDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remPlaceDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remExplodeDenyBounds("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remSpawnDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim");
+		remBreakDenyBounds  ("s", true, "name"),
+		remPlaceDenyBounds  ("s", true, "name"),
+		remExplodeDenyBounds("s", true, "name"),
+		remSpawnDenyBounds  ("s", true, "name");
 		
 		final MethodDescriptor md;
 		ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
@@ -45,10 +45,10 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 					case addPlaceDenyBounds  : ZoneManager.addPlaceDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
 					case addExplodeDenyBounds: ZoneManager.addExplodeDenyBounds( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
 					case addSpawnDenyBounds  : ZoneManager.addSpawnDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case remBreakDenyBounds  : cmd.i(); break;
-					case remPlaceDenyBounds  : cmd.i(); break;
-					case remExplodeDenyBounds: cmd.i(); break;
-					case remSpawnDenyBounds  : cmd.i(); break;
+					case remBreakDenyBounds  : ZoneManager.remBreakDenyBounds(cmd.s()); break;
+					case remPlaceDenyBounds  : ZoneManager.remPlaceDenyBounds(cmd.s()); break;
+					case remExplodeDenyBounds: ZoneManager.remExplodeDenyBounds(cmd.s()); break;
+					case remSpawnDenyBounds  : ZoneManager.remSpawnDenyBounds(cmd.s()); break;
 					default: break;
 					}
 				}
