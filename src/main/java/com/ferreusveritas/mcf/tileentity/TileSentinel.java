@@ -45,10 +45,10 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 					case addPlaceDenyBounds  : ZoneManager.addPlaceDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
 					case addExplodeDenyBounds: ZoneManager.addExplodeDenyBounds( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
 					case addSpawnDenyBounds  : ZoneManager.addSpawnDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case remBreakDenyBounds  : ZoneManager.remBreakDenyBounds(cmd.s()); break;
-					case remPlaceDenyBounds  : ZoneManager.remPlaceDenyBounds(cmd.s()); break;
-					case remExplodeDenyBounds: ZoneManager.remExplodeDenyBounds(cmd.s()); break;
-					case remSpawnDenyBounds  : ZoneManager.remSpawnDenyBounds(cmd.s()); break;
+					case remBreakDenyBounds  : ZoneManager.remBreakDenyBounds  (cmd.s(), cmd.i()); break;
+					case remPlaceDenyBounds  : ZoneManager.remPlaceDenyBounds  (cmd.s(), cmd.i()); break;
+					case remExplodeDenyBounds: ZoneManager.remExplodeDenyBounds(cmd.s(), cmd.i()); break;
+					case remSpawnDenyBounds  : ZoneManager.remSpawnDenyBounds  (cmd.s(), cmd.i()); break;
 					default: break;
 					}
 				}

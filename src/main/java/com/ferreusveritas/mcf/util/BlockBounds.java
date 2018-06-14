@@ -76,7 +76,7 @@ public class BlockBounds implements IBounds {
 	}
 	
 	@Override
-	public boolean inBounds(BlockPos pos, int dim) {
+	public boolean inBounds(BlockPos pos) {
 		return !(	pos.getX() < minX ||
 					pos.getX() > maxX ||
 					pos.getZ() < minZ ||

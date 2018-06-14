@@ -3,7 +3,7 @@ package com.ferreusveritas.mcf.features;
 import java.util.ArrayList;
 
 import com.ferreusveritas.mcf.event.SecurityHandler;
-import com.ferreusveritas.mcf.util.DimBlockBounds;
+import com.ferreusveritas.mcf.util.BlockBounds;
 import com.ferreusveritas.mcf.util.ZoneManager;
 
 import net.minecraft.block.Block;
@@ -38,11 +38,11 @@ public class Security implements IFeature {
 		corners.add(new BlockPos(-128, 0, -128));
 		corners.add(new BlockPos(128, 256, 128));
 		
-		DimBlockBounds bb = new DimBlockBounds(corners, 0);
-		ZoneManager.addExplodeDenyBounds("test", bb);
-		ZoneManager.addSpawnDenyBounds("test", bb);
-		ZoneManager.addBreakDenyBounds("test", bb);
-		ZoneManager.addPlaceDenyBounds("test", bb);
+		BlockBounds bb = new BlockBounds(corners);
+		ZoneManager.addExplodeDenyBounds("test", bb, 0);
+		ZoneManager.addSpawnDenyBounds("test", bb, 0);
+		ZoneManager.addBreakDenyBounds("test", bb, 0);
+		ZoneManager.addPlaceDenyBounds("test", bb, 0);
 		
 	}
 	
