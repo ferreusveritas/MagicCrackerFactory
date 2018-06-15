@@ -1,6 +1,7 @@
 package com.ferreusveritas.mcf.tileentity;
 
 import com.ferreusveritas.mcf.blocks.BlockSentinel;
+import com.ferreusveritas.mcf.util.BoundsStorage.EnumBoundsType;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
 import com.ferreusveritas.mcf.util.ZoneManager;
@@ -16,14 +17,9 @@ import net.minecraft.world.World;
 public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 	
 	public enum ComputerMethod {
-		addBreakDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		addPlaceDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		addExplodeDenyBounds("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		addSpawnDenyBounds  ("snnnnnnn", true, "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "dim"),
-		remBreakDenyBounds  ("s", true, "name"),
-		remPlaceDenyBounds  ("s", true, "name"),
-		remExplodeDenyBounds("s", true, "name"),
-		remSpawnDenyBounds  ("s", true, "name");
+		addBounds("ssnnnnnn", true, "type", "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ"),
+		remBounds("ss", true, "type", "name"),
+		listBounds("s", false, "type", "type");
 		
 		final MethodDescriptor md;
 		ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
@@ -37,18 +33,12 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 		BlockSentinel cartographer = (BlockSentinel)getBlockType();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
-		synchronized(commandManager.getCachedCommands()) {
+		synchronized(commandManager) {
 			if(cartographer != null) {
 				for(CommandManager<ComputerMethod>.CachedCommand cmd: commandManager.getCachedCommands()) {
 					switch(cmd.method) {
-					case addBreakDenyBounds  : ZoneManager.addBreakDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addPlaceDenyBounds  : ZoneManager.addPlaceDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addExplodeDenyBounds: ZoneManager.addExplodeDenyBounds( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addSpawnDenyBounds  : ZoneManager.addSpawnDenyBounds  ( cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case remBreakDenyBounds  : ZoneManager.remBreakDenyBounds  (cmd.s(), cmd.i()); break;
-					case remPlaceDenyBounds  : ZoneManager.remPlaceDenyBounds  (cmd.s(), cmd.i()); break;
-					case remExplodeDenyBounds: ZoneManager.remExplodeDenyBounds(cmd.s(), cmd.i()); break;
-					case remSpawnDenyBounds  : ZoneManager.remSpawnDenyBounds  (cmd.s(), cmd.i()); break;
+					case addBounds: ZoneManager.getZoneManager(world).addBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case remBounds: ZoneManager.getZoneManager(world).remBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
 					default: break;
 					}
 				}
@@ -85,9 +75,12 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 			
 			if(method.md.validateArguments(arguments)) {
 				switch(method) {
+					case listBounds: return ZoneManager.getZoneManager(world).listBounds( EnumBoundsType.getType((String) arguments[0]) );
 					default:
 						if(method.md.isCached()) {
-							commandManager.cacheCommand(methodNum, arguments);
+							synchronized(commandManager) {
+								commandManager.cacheCommand(methodNum, arguments);
+							}
 						}
 				}
 			}

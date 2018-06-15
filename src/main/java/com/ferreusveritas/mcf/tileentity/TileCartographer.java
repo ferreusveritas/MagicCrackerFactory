@@ -91,7 +91,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		BlockCartographer cartographer = (BlockCartographer)getBlockType();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
-		synchronized(commandManager.getCachedCommands()) {
+		synchronized(commandManager) {
 			if(cartographer != null) {
 				for(CommandManager<ComputerMethod>.CachedCommand cmd:  commandManager.getCachedCommands()) {
 					switch(cmd.method) {
@@ -171,7 +171,9 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 					}
 					default:
 						if(method.md.isCached()) {
-							commandManager.cacheCommand(methodNum, arguments);
+							synchronized (commandManager) {
+								commandManager.cacheCommand(methodNum, arguments);
+							}
 						}
 				}
 			}

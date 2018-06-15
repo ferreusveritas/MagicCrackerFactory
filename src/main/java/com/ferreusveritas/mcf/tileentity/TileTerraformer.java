@@ -100,7 +100,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 		World world = getWorld();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
-		synchronized(commandManager.getCachedCommands()) {
+		synchronized(commandManager) {
 			if(cartographer != null) {
 				for(CommandManager<ComputerMethod>.CachedCommand cmd:  commandManager.getCachedCommands()) {
 					switch(cmd.method) {
@@ -190,7 +190,9 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 						}
 					default:
 						if(method.md.isCached()) {
-							commandManager.cacheCommand(methodNum, arguments);
+							synchronized (commandManager) {
+								commandManager.cacheCommand(methodNum, arguments);
+							}
 						}
 				}
 			}

@@ -1,15 +1,10 @@
 package com.ferreusveritas.mcf.features;
 
-import java.util.ArrayList;
-
 import com.ferreusveritas.mcf.event.SecurityHandler;
-import com.ferreusveritas.mcf.util.BlockBounds;
-import com.ferreusveritas.mcf.util.ZoneManager;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -32,19 +27,7 @@ public class Security implements IFeature {
 	}
 	
 	@Override
-	public void init() { 
-		
-		ArrayList<BlockPos> corners = new ArrayList<>();
-		corners.add(new BlockPos(-128, 0, -128));
-		corners.add(new BlockPos(128, 256, 128));
-		
-		BlockBounds bb = new BlockBounds(corners);
-		ZoneManager.addExplodeDenyBounds("test", bb, 0);
-		ZoneManager.addSpawnDenyBounds("test", bb, 0);
-		ZoneManager.addBreakDenyBounds("test", bb, 0);
-		ZoneManager.addPlaceDenyBounds("test", bb, 0);
-		
-	}
+	public void init() { }
 	
 	@Override
 	public void postInit() { }

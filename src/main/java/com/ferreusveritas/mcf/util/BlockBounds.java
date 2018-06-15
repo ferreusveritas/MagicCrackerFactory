@@ -2,11 +2,12 @@ package com.ferreusveritas.mcf.util;
 
 import java.util.List;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
-public class BlockBounds implements IBounds {
+public class BlockBounds extends Bounds {
 
 	private int minX, minY, minZ;
 	private int maxX, maxY, maxZ;
@@ -39,6 +40,18 @@ public class BlockBounds implements IBounds {
 	public BlockBounds(List<BlockPos> blockPosList) {
 		this(blockPosList.get(0));
 		union(blockPosList);
+	}
+	
+	public BlockBounds(NBTTagCompound nbt) {
+		int[] bounds = nbt.getIntArray("bounds");
+		if(bounds.length == 6) {
+			minX = bounds[0];
+			minY = bounds[1];
+			minZ = bounds[2];
+			maxX = bounds[3];
+			maxY = bounds[4];
+			maxZ = bounds[5];
+		}
 	}
 	
 	public BlockBounds union(BlockPos pos) {
@@ -146,8 +159,19 @@ public class BlockBounds implements IBounds {
 	}
 	
 	@Override
+	public String getBoundType() {
+		return "cuboid";
+	}
+	
+	public NBTTagCompound toNBTTagCompound() {
+		NBTTagCompound nbt = super.toNBTTagCompound();
+		nbt.setIntArray("bounds", new int[] {minX, minY, minZ, maxX, maxY, maxZ});
+		return nbt;
+	}
+	
+	@Override
 	public String toString() {
-		return this != INVALID ? "Bounds{x1=" + minX + ", y1=" + minY + ", z1=" + minZ + " -> x2=" + maxX + ", y2=" + maxY + ", z2=" + maxZ + "}" : "Invalid";
+		return "Bounds {x1=" + minX + ", y1=" + minY + ", z1=" + minZ + " -> x2=" + maxX + ", y2=" + maxY + ", z2=" + maxZ + "}";
 	}
 	
 	@Override
