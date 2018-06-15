@@ -15,9 +15,10 @@ public class BoundsStorage {
 		BREAK,
 		PLACE,
 		BLAST,
-		SPAWN;
+		SPAWN,
+		ENDER;
 
-		public final static List<EnumBoundsType> valid = Arrays.asList(BREAK, PLACE, BLAST, SPAWN);
+		public final static List<EnumBoundsType> valid = Arrays.asList(BREAK, PLACE, BLAST, SPAWN, ENDER);
 		
 		public static EnumBoundsType getType(String type) {
 			for(EnumBoundsType t: EnumBoundsType.values()) {
@@ -34,30 +35,32 @@ public class BoundsStorage {
 	}
 	
 	//Simple Bounds type factory registry
-	public static Map<String, Function<NBTTagCompound, Bounds> > boundsProviders = new HashMap<>();
+	public static Map<String, Function<NBTTagCompound, BaseBounds> > boundsProviders = new HashMap<>();
 	
 	static { //This gives us the ability to add new bound types in the future
-		boundsProviders.put("cuboid", n -> new BlockBounds(n) );
+		boundsProviders.put("cuboid", n -> new CuboidBounds(n) );
+		boundsProviders.put("cylinder", n -> new CylinderBounds(n) );
 	}
 	
-	public static Bounds loadBounds(NBTTagCompound nbt) {
-		return boundsProviders.getOrDefault(nbt.getString("type").toLowerCase(), n -> Bounds.INVALID ).apply(nbt);
+	public static BaseBounds loadBounds(NBTTagCompound nbt) {
+		return boundsProviders.getOrDefault(nbt.getString("type").toLowerCase(), n -> BaseBounds.INVALID ).apply(nbt);
 	}
 	
-	public Map<String, Bounds> breakBounds = new HashMap<>();
-	public Map<String, Bounds> placeBounds = new HashMap<>();
-	public Map<String, Bounds> blastBounds = new HashMap<>();
-	public Map<String, Bounds> spawnBounds = new HashMap<>();
+	public Map<String, BaseBounds> breakBounds = new HashMap<>();
+	public Map<String, BaseBounds> placeBounds = new HashMap<>();
+	public Map<String, BaseBounds> blastBounds = new HashMap<>();
+	public Map<String, BaseBounds> spawnBounds = new HashMap<>();
+	public Map<String, BaseBounds> enderBounds = new HashMap<>();
 	
-	public Map<String, Bounds>[] allBounds = new Map[] {
-			new VoidMap<>(), breakBounds, placeBounds, blastBounds, spawnBounds
+	public Map<String, BaseBounds>[] allBounds = new Map[] {
+			new VoidMap<>(), breakBounds, placeBounds, blastBounds, spawnBounds, enderBounds
 	};
 	
-	public Map<String, Bounds> getByType(EnumBoundsType type) {
+	public Map<String, BaseBounds> getByType(EnumBoundsType type) {
 		return allBounds[type.ordinal()];
 	}
 	
-	public Map<String, Bounds> getByType(String type) {
+	public Map<String, BaseBounds> getByType(String type) {
 		return allBounds[EnumBoundsType.getType(type).ordinal()];
 	}
 	
@@ -73,14 +76,13 @@ public class BoundsStorage {
 	}
 	
 	public NBTTagCompound toNBTTagCompound() {
-
 		NBTTagCompound nbt = new NBTTagCompound();
 		
 		EnumBoundsType.valid.forEach(
 			type -> {
 				NBTTagCompound n = new NBTTagCompound();
 				getByType(type).forEach((key, val) -> n.setTag(key, val.toNBTTagCompound()) );
-				nbt.setTag(type.getLabel(), n);		
+				nbt.setTag(type.getLabel(), n);
 			}
 		);
 		

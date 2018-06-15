@@ -17,9 +17,11 @@ import net.minecraft.world.World;
 public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 	
 	public enum ComputerMethod {
-		addBounds("ssnnnnnn", true, "type", "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ"),
+		addCuboidBounds("ssnnnnnn", true, "type", "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ"),
+		addCylinderBounds("ssnnnnn", true, "type", "name", "posX", "posZ", "minY", "maxY", "radius"),
 		remBounds("ss", true, "type", "name"),
-		listBounds("s", false, "type", "type");
+		listBounds("s", false, "type"),
+		getBoundsData("ss", false, "type", "name");
 		
 		final MethodDescriptor md;
 		ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
@@ -37,7 +39,8 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 			if(cartographer != null) {
 				for(CommandManager<ComputerMethod>.CachedCommand cmd: commandManager.getCachedCommands()) {
 					switch(cmd.method) {
-					case addBounds: ZoneManager.getZoneManager(world).addBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addCuboidBounds: ZoneManager.getZoneManager(world).addCuboidBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addCylinderBounds: ZoneManager.getZoneManager(world).addCylinderBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i()); break;
 					case remBounds: ZoneManager.getZoneManager(world).remBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
 					default: break;
 					}
@@ -76,6 +79,7 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 			if(method.md.validateArguments(arguments)) {
 				switch(method) {
 					case listBounds: return ZoneManager.getZoneManager(world).listBounds( EnumBoundsType.getType((String) arguments[0]) );
+					case getBoundsData: return ZoneManager.getZoneManager(world).getBoundsData(EnumBoundsType.getType((String) arguments[0]), (String) arguments[1]);
 					default:
 						if(method.md.isCached()) {
 							synchronized(commandManager) {

@@ -3,6 +3,7 @@ package com.ferreusveritas.mcf.util;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.ferreusveritas.mcf.util.BoundsStorage.EnumBoundsType;
 
@@ -24,7 +25,7 @@ public class ZoneManager extends WorldSavedData {
 	
 	protected BoundsStorage boundsStorage = new BoundsStorage(new NBTTagCompound());
 	
-	public ZoneManager(String name, World world) {
+	public ZoneManager(String name) {
 		super(name);
 	}
 	
@@ -32,7 +33,7 @@ public class ZoneManager extends WorldSavedData {
 		MapStorage storage = world.getPerWorldStorage();
 		ZoneManager result = (ZoneManager)storage.getOrLoadData(ZoneManager.class, key);
 		if (result == null) {
-			result = new ZoneManager(key, world);
+			result = new ZoneManager(key);
 			storage.setData(key, result);
 		}
 		
@@ -41,13 +42,11 @@ public class ZoneManager extends WorldSavedData {
 	
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
-		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX READING XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		boundsStorage = new BoundsStorage(nbt.getCompoundTag("zones"));
 	}
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX WRITING XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		nbt.setTag("zones", boundsStorage.toNBTTagCompound());
 		return nbt;
 	}
@@ -63,13 +62,18 @@ public class ZoneManager extends WorldSavedData {
 	
 	//Additions
 	
-	public void addBounds(EnumBoundsType type, String name, Bounds bb) {
+	public void addBounds(EnumBoundsType type, String name, BaseBounds bb) {
 		getBoundsStorage().getByType(type).put(name, bb);
 		markDirty();
 	}
 	
-	public void addBounds(EnumBoundsType type, String name, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-		addBounds(type, name, new BlockBounds(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))));
+	public void addCuboidBounds(EnumBoundsType type, String name, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+		addBounds(type, name, new CuboidBounds(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))));
+	}
+	
+	public void addCylinderBounds(EnumBoundsType type, String name, int posX, int posZ, int minY, int maxY, int radius) {
+		getBoundsStorage().getByType(type).put(name, new CylinderBounds(new BlockPos(posX, minY, posZ), maxY - minY, radius));
+		markDirty();
 	}
 	
 	//Removals
@@ -83,18 +87,27 @@ public class ZoneManager extends WorldSavedData {
 		return getBoundsStorage().getByType(type).keySet().toArray(new String[0]);
 	}
 	
-	//Tests
+	public Object[] getBoundsData(EnumBoundsType type, String name) {
+		BaseBounds bound = getBoundsStorage().getByType(type).get(name);
+		if(bound != null) {
+			return bound.toLuaObject();
+		}
+
+		return new Object[0];
+	}
+	
+	//Tests and Filters
 	
 	public boolean testBreakBounds(EntityPlayer player, BlockPos pos) {
-		return player != null && !player.isCreative() && getBoundsStorage().breakBounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
+		return player != null && !player.isCreative() && boundsTest(pos, getBoundsStorage().breakBounds);
 	}
 	
 	public boolean testPlaceBounds(EntityPlayer player, BlockPos pos) {
-		return player != null && !player.isCreative() && getBoundsStorage().placeBounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
+		return player != null && !player.isCreative() && boundsTest(pos, getBoundsStorage().placeBounds);
 	}
 	
 	public boolean testBlastStart(BlockPos pos) {
-		return getBoundsStorage().blastBounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
+		return boundsTest(pos, getBoundsStorage().blastBounds);
 	}
 	
 	public void filterBlastDetonate(List<BlockPos> blocks) {
@@ -102,7 +115,15 @@ public class ZoneManager extends WorldSavedData {
 	}
 	
 	public boolean testSpawnBounds(BlockPos pos) {
-		return getBoundsStorage().spawnBounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
+		return boundsTest(pos, getBoundsStorage().spawnBounds);
+	}
+	
+	public boolean testEnderBounds(BlockPos pos) {
+		return boundsTest(pos, getBoundsStorage().enderBounds);
+	}
+
+	public boolean boundsTest(BlockPos pos, Map<String, BaseBounds> bounds) {
+		return bounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
 	}
 	
 }

@@ -21,7 +21,6 @@ public class SecurityHandler {
 	@SubscribeEvent
 	public static void onWorldLoad(WorldEvent.Load event) {
 		if(!event.getWorld().isRemote) {
-			System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX TEST " + event.getPhase() + " Dim: " + event.getWorld().provider.getDimension());
 			ZoneManager.forWorld(event.getWorld());
 		}
 	}
@@ -69,7 +68,7 @@ public class SecurityHandler {
 	@SubscribeEvent
 	public static void onEnderTeleportEvent(EnderTeleportEvent event) {
 		EntityLivingBase living = event.getEntityLiving();
-		if(ZoneManager.getZoneManager(living.world).testSpawnBounds(new BlockPos(event.getTargetX(), event.getTargetY(), event.getTargetZ()))) {
+		if(ZoneManager.getZoneManager(living.world).testEnderBounds(new BlockPos(event.getTargetX(), event.getTargetY(), event.getTargetZ()))) {
 			event.setCanceled(true);
 		}
 	}
