@@ -7,7 +7,9 @@ import net.minecraft.world.storage.WorldSavedData;
 
 public class MyWorldData extends WorldSavedData {
 	
-	final static String key = "my.unique.string";
+	final static String key = "SecurityZones";
+	
+	public String m = "";
 	
 	public MyWorldData(String name) {
 		super(name);
@@ -17,27 +19,28 @@ public class MyWorldData extends WorldSavedData {
 	
 	public static MyWorldData forWorld(World world) {
 		// Retrieves the MyWorldData instance for the given world, creating it if necessary
+		
 		MapStorage storage = world.getPerWorldStorage();
 		MyWorldData result = (MyWorldData)storage.getOrLoadData(MyWorldData.class, key);
 		if (result == null) {
-			result = new MyWorldData("test");
+			result = new MyWorldData(key);
 			storage.setData(key, result);
 		}
+		
 		return result;
 	}
 	
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
-		// Get your data from the nbt here
+		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX READING XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+		m = nbt.getString("Malcom");
 	}
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		
-		nbt.toString();
-		
-		return null;
-		// Put your data in the nbt here
+		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX WRITING XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+		nbt.setString("Malcom", m);
+		return nbt;
 	}
 	
 }
