@@ -1,4 +1,4 @@
-package com.ferreusveritas.mcf.util;
+package com.ferreusveritas.mcf.util.bounds;
 
 import java.util.HashMap;
 import java.util.List;
@@ -165,12 +165,14 @@ public class CuboidBounds extends BaseBounds {
 		return "cuboid";
 	}
 	
+	@Override
 	public NBTTagCompound toNBTTagCompound() {
 		NBTTagCompound nbt = super.toNBTTagCompound();
 		nbt.setIntArray("bounds", new int[] {minX, minY, minZ, maxX, maxY, maxZ});
 		return nbt;
 	}
 	
+	@Override
 	public Object[] toLuaObject() {
 		Map<String, Object> contents = new HashMap<>();
 		contents.put("type", getBoundType());

@@ -1,4 +1,4 @@
-package com.ferreusveritas.mcf.util;
+package com.ferreusveritas.mcf.util.bounds;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,12 +91,14 @@ public class CylinderBounds extends BaseBounds {
 		return "cylinder";
 	}
 	
+	@Override
 	public NBTTagCompound toNBTTagCompound() {
 		NBTTagCompound nbt = super.toNBTTagCompound();
 		nbt.setIntArray("bounds", new int[] {posX, posZ, minY, maxY, radius});
 		return nbt;
 	}
 	
+	@Override
 	public Object[] toLuaObject() {
 		Map<String, Object> contents = new HashMap<>();
 		contents.put("type", getBoundType());

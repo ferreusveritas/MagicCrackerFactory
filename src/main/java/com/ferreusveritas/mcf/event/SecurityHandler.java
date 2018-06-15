@@ -17,17 +17,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Mod.EventBusSubscriber
 public class SecurityHandler {
-
+	
 	@SubscribeEvent
 	public static void onWorldLoad(WorldEvent.Load event) {
 		if(!event.getWorld().isRemote) {
 			ZoneManager.forWorld(event.getWorld());
 		}
-	}
-	
-	@SubscribeEvent
-	public static void onWorldSave(WorldEvent.Save event) {
-		
 	}
 	
 	@SubscribeEvent
@@ -50,7 +45,7 @@ public class SecurityHandler {
 			event.setCanceled(true);
 		}
 	}
-
+	
 	@SubscribeEvent
 	public static void onExplosionEvent(ExplosionEvent.Detonate event) {
 		ZoneManager.getZoneManager(event.getWorld()).filterBlastDetonate(event.getAffectedBlocks() );

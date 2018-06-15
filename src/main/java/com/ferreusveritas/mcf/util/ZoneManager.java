@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.ferreusveritas.mcf.util.BoundsStorage.EnumBoundsType;
+import com.ferreusveritas.mcf.util.bounds.BaseBounds;
+import com.ferreusveritas.mcf.util.bounds.CuboidBounds;
+import com.ferreusveritas.mcf.util.bounds.CylinderBounds;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -92,7 +95,7 @@ public class ZoneManager extends WorldSavedData {
 		if(bound != null) {
 			return bound.toLuaObject();
 		}
-
+		
 		return new Object[0];
 	}
 	
@@ -121,7 +124,7 @@ public class ZoneManager extends WorldSavedData {
 	public boolean testEnderBounds(BlockPos pos) {
 		return boundsTest(pos, getBoundsStorage().enderBounds);
 	}
-
+	
 	public boolean boundsTest(BlockPos pos, Map<String, BaseBounds> bounds) {
 		return bounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
 	}

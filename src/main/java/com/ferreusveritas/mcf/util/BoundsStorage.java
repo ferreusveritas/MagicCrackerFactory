@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.ferreusveritas.mcf.util.bounds.BaseBounds;
+import com.ferreusveritas.mcf.util.bounds.CuboidBounds;
+import com.ferreusveritas.mcf.util.bounds.CylinderBounds;
+
 import net.minecraft.nbt.NBTTagCompound;
 
 public class BoundsStorage {
