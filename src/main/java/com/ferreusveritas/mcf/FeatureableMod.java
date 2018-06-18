@@ -24,16 +24,13 @@ public abstract class FeatureableMod {
 	
 	public FeatureableMod() {
 		MinecraftForge.EVENT_BUS.register(new RegistrationHandler());
-		setupFeatures();
 	}
 	
-	protected abstract void setupFeatures();
-	
-	protected void addFeature(IFeature feature) {
+	public void addFeature(IFeature feature) {
 		features.add(feature);
 	}
 	
-	protected void addFeatures(IFeature ... features ) {
+	public void addFeatures(IFeature ... features ) {
 		for(IFeature feature : features) {
 			addFeature(feature);
 		}

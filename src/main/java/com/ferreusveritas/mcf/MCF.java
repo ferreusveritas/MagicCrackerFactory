@@ -39,7 +39,6 @@ public class MCF extends FeatureableMod {
 	@Mod.Instance(ModConstants.MODID)
 	public static MCF instance;
 	
-	@Override
 	protected void setupFeatures() {
 		addFeatures(
 			new Security(),
@@ -51,6 +50,7 @@ public class MCF extends FeatureableMod {
 	
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
+		setupFeatures();
 		super.preInit(event);
 	}
 
