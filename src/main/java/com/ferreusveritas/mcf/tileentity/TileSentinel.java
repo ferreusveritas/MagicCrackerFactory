@@ -1,6 +1,6 @@
 package com.ferreusveritas.mcf.tileentity;
 
-import com.ferreusveritas.mcf.blocks.BlockSentinel;
+import com.ferreusveritas.mcf.blocks.BlockMCFPeripheral;
 import com.ferreusveritas.mcf.util.BoundsStorage.EnumBoundsType;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
@@ -32,7 +32,7 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 	@Override
 	public void update() {
 		
-		BlockSentinel cartographer = (BlockSentinel)getBlockType();
+		BlockMCFPeripheral cartographer = (BlockMCFPeripheral)getBlockType();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
 		synchronized(commandManager) {
@@ -70,7 +70,7 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 			throw new IllegalArgumentException("Invalid method number");
 		}
 		
-		BlockSentinel cartographer = (BlockSentinel)getBlockType();
+		BlockMCFPeripheral cartographer = (BlockMCFPeripheral)getBlockType();
 		World world = getWorld();
 		
 		if(!world.isRemote && cartographer != null) {

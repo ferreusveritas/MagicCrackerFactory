@@ -1,9 +1,9 @@
 package com.ferreusveritas.mcf.features;
 
-import com.ferreusveritas.mcf.blocks.BlockSentinel;
+import com.ferreusveritas.mcf.blocks.BlockMCFPeripheral;
+import com.ferreusveritas.mcf.blocks.PeripheralType;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -22,7 +22,7 @@ public class Sentinel implements IFeature {
 	
 	@Override
 	public void createBlocks() {
-		blockSentinel = new BlockSentinel(Material.IRON);
+		blockSentinel = new BlockMCFPeripheral(PeripheralType.SENTINEL);
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package com.ferreusveritas.mcf.blocks;
 
-import com.ferreusveritas.mcf.tileentity.TileSentinel;
 import com.ferreusveritas.mcf.util.Util;
 
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -15,22 +14,23 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class BlockSentinel extends Block implements ITileEntityProvider, IPeripheralProvider {
+public class BlockMCFPeripheral extends Block implements ITileEntityProvider, IPeripheralProvider {
 	
-	String name = "sentinel";
+	PeripheralType type;
 	
-	public BlockSentinel(Material materialIn) {
-		super(materialIn);
-		setRegistryName(name);
-		setUnlocalizedName(name);
+	public BlockMCFPeripheral(PeripheralType type) {
+		super(Material.IRON);
+		this.type = type;
+		setRegistryName(type.getName());
+		setUnlocalizedName(type.getName());
 		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
 		ComputerCraftAPI.registerPeripheralProvider(this);
-		GameRegistry.registerTileEntity(TileSentinel.class, name);
+		GameRegistry.registerTileEntity(type.getTileEntityClass(), type.getName());
 	}
 	
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
-		return new TileSentinel();
+		return type.newTileEntity();
 	}
 	
 	@Override
@@ -42,8 +42,8 @@ public class BlockSentinel extends Block implements ITileEntityProvider, IPeriph
 	public IPeripheral getPeripheral(World world, BlockPos pos, EnumFacing facing) {
 		TileEntity te = world.getTileEntity(pos);
 		
-		if(te instanceof TileSentinel) {
-			return (TileSentinel)te;
+		if(type.getTileEntityClass().isInstance(te)) {
+			return (IPeripheral) te;
 		}
 		
 		return null;

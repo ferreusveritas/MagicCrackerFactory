@@ -6,8 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import com.ferreusveritas.mcf.blocks.BlockCartographer;
-import com.ferreusveritas.mcf.blocks.BlockTerraformer;
+import com.ferreusveritas.mcf.blocks.BlockMCFPeripheral;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
 
@@ -96,7 +95,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 	@Override
 	public void update() {
 		
-		BlockTerraformer cartographer = (BlockTerraformer)getBlockType();
+		BlockMCFPeripheral cartographer = (BlockMCFPeripheral)getBlockType();
 		World world = getWorld();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
@@ -141,7 +140,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 			throw new IllegalArgumentException("Invalid method number");
 		}
 		
-		BlockCartographer cartographer = (BlockCartographer)getBlockType();
+		BlockMCFPeripheral cartographer = (BlockMCFPeripheral)getBlockType();
 		World world = getWorld();
 		
 		if(!world.isRemote && cartographer != null) {

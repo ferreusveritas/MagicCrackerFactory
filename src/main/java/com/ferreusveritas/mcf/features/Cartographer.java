@@ -1,9 +1,9 @@
 package com.ferreusveritas.mcf.features;
 
-import com.ferreusveritas.mcf.blocks.BlockCartographer;
+import com.ferreusveritas.mcf.blocks.BlockMCFPeripheral;
+import com.ferreusveritas.mcf.blocks.PeripheralType;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -22,7 +22,7 @@ public class Cartographer implements IFeature {
 	
 	@Override
 	public void createBlocks() {
-		blockCartographer = new BlockCartographer(Material.IRON);
+		blockCartographer = new BlockMCFPeripheral(PeripheralType.CARTOGRAPHER);
 	}
 
 	@Override
