@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -129,4 +130,23 @@ public class ZoneManager extends WorldSavedData {
 		return bounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
 	}
 	
+	public Object[] getPlayersInBounds(World world, String boundName) {
+		
+		BaseBounds bb = getBoundsStorage().identBounds.get(boundName);
+		
+		List<EntityPlayer> players = world.getEntitiesWithinAABB(EntityPlayer.class, bb.getAABB());
+		List<Map<String, Object>> allPlayerData = new ArrayList<>();
+			
+		for(EntityPlayer p : players) {
+			if(bb.inBounds(p.getPosition())) {
+				Map<String, Object> singlePlayerData = new HashMap<>();
+				singlePlayerData.put("name", p.getName());
+				singlePlayerData.put("pos", new Object[] { p.posX, p.posY, p.posZ } );
+				singlePlayerData.put("blockpos", new Object[] { p.getPosition().getX(), p.getPosition().getY(), p.getPosition().getZ() } );
+				allPlayerData.add(singlePlayerData);
+			}
+		}
+			
+		return allPlayerData.toArray(new Object[0]);
+	}
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
 public class CylinderBounds extends BaseBounds {
@@ -89,6 +90,11 @@ public class CylinderBounds extends BaseBounds {
 	@Override
 	public String getBoundType() {
 		return "cylinder";
+	}
+	
+	@Override
+	public AxisAlignedBB getAABB() {
+		return new AxisAlignedBB(new BlockPos(posX - radius, minY, posZ - radius), new BlockPos(posX + radius, maxY, posZ + radius));
 	}
 	
 	@Override

@@ -21,7 +21,8 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 		addCylinderBounds("ssnnnnn", true, "type", "name", "posX", "posZ", "minY", "maxY", "radius"),
 		remBounds("ss", true, "type", "name"),
 		listBounds("s", false, "type"),
-		getBoundsData("ss", false, "type", "name");
+		getBoundsData("ss", false, "type", "name"),
+		getPlayersInBounds("s", false, "name");
 		
 		final MethodDescriptor md;
 		ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
@@ -80,6 +81,7 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 				switch(method) {
 					case listBounds: return ZoneManager.getZoneManager(world).listBounds( EnumBoundsType.getType((String) arguments[0]) );
 					case getBoundsData: return ZoneManager.getZoneManager(world).getBoundsData(EnumBoundsType.getType((String) arguments[0]), (String) arguments[1]);
+					case getPlayersInBounds: return ZoneManager.getZoneManager(world).getPlayersInBounds(world, (String) arguments[0]);
 					default:
 						if(method.md.isCached()) {
 							synchronized(commandManager) {

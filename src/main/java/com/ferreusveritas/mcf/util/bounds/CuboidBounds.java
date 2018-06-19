@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
@@ -163,6 +164,11 @@ public class CuboidBounds extends BaseBounds {
 	@Override
 	public String getBoundType() {
 		return "cuboid";
+	}
+	
+	@Override
+	public AxisAlignedBB getAABB() {
+		return new AxisAlignedBB(getMin(), getMax());
 	}
 	
 	@Override
