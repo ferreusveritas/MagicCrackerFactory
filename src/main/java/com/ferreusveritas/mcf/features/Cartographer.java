@@ -1,6 +1,6 @@
 package com.ferreusveritas.mcf.features;
 
-import com.ferreusveritas.mcf.blocks.BlockMCFPeripheral;
+import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.blocks.PeripheralType;
 
 import net.minecraft.block.Block;
@@ -22,7 +22,7 @@ public class Cartographer implements IFeature {
 	
 	@Override
 	public void createBlocks() {
-		blockCartographer = new BlockMCFPeripheral(PeripheralType.CARTOGRAPHER);
+		blockCartographer = new BlockPeripheral(PeripheralType.CARTOGRAPHER);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.ferreusveritas.mcf.features;
 
-import com.ferreusveritas.mcf.blocks.BlockMCFPeripheral;
+import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.blocks.PeripheralType;
 
 import net.minecraft.block.Block;
@@ -22,7 +22,7 @@ public class Terraformer implements IFeature {
 	
 	@Override
 	public void createBlocks() {
-		blockTerraformer = new BlockMCFPeripheral(PeripheralType.TERRAFORMER);
+		blockTerraformer = new BlockPeripheral(PeripheralType.TERRAFORMER);
 	}
 
 	@Override

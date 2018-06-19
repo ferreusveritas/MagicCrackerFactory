@@ -1,6 +1,6 @@
 package com.ferreusveritas.mcf.tileentity;
 
-import com.ferreusveritas.mcf.blocks.BlockMCFPeripheral;
+import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
 
@@ -88,7 +88,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	@Override
 	public void update() {
 		
-		BlockMCFPeripheral cartographer = (BlockMCFPeripheral)getBlockType();
+		BlockPeripheral cartographer = (BlockPeripheral)getBlockType();
 		
 		//Run commands that are cached that shouldn't be in the lua thread
 		synchronized(commandManager) {
@@ -133,7 +133,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 			throw new IllegalArgumentException("Invalid method number");
 		}
 		
-		BlockMCFPeripheral cartographer = (BlockMCFPeripheral)getBlockType();
+		BlockPeripheral cartographer = (BlockPeripheral)getBlockType();
 		World world = getWorld();
 		
 		if(!world.isRemote && cartographer != null) {

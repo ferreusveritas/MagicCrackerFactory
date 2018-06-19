@@ -14,11 +14,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class BlockMCFPeripheral extends Block implements ITileEntityProvider, IPeripheralProvider {
+public class BlockPeripheral extends Block implements ITileEntityProvider, IPeripheralProvider {
 	
 	PeripheralType type;
 	
-	public BlockMCFPeripheral(PeripheralType type) {
+	public BlockPeripheral(PeripheralType type) {
 		super(Material.IRON);
 		this.type = type;
 		setRegistryName(type.getName());
