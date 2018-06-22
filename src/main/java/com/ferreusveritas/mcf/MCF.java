@@ -5,8 +5,10 @@ import com.ferreusveritas.mcf.features.Cartographer;
 import com.ferreusveritas.mcf.features.Security;
 import com.ferreusveritas.mcf.features.Sentinel;
 import com.ferreusveritas.mcf.features.Terraformer;
+import com.ferreusveritas.mcf.proxy.CommonProxy;
 
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -38,6 +40,9 @@ public class MCF extends FeatureableMod {
 	
 	@Mod.Instance(ModConstants.MODID)
 	public static MCF instance;
+	
+	@SidedProxy(clientSide = "com.ferreusveritas.mcf.proxy.ClientProxy", serverSide = "com.ferreusveritas.mcf.proxy.CommonProxy")
+	public static CommonProxy proxy;
 	
 	protected void setupFeatures() {
 		addFeatures(
