@@ -208,7 +208,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 	
 	//Biome#getBiomeName is sodding client side only.
 	public static String getBiomeName(Biome biome) {
-		return (String) Util.getRestrictedObject(Biome.class, biome, "field_185412_a", "biomeName");
+		return (String) Util.getRestrictedObject(Biome.class, biome, "field_76791_y", "biomeName");
 	}
 	
 	private void setBiome(int xStart, int zStart, int xStop, int zStop, int biomeId) {
