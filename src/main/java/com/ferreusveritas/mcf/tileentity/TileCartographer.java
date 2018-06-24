@@ -98,7 +98,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 					case setMapNum: setCurrMapData(cmd.i()); break;
 					case setMapPixel: setMapPixel(cmd.i(), cmd.i(), cmd.i()); break;
 					case setMapCenter: getCurrMapData().xCenter = cmd.i(); getCurrMapData().zCenter = cmd.i(); break;
-					case setMapScale: getCurrMapData().scale = (byte) MathHelper.clamp(cmd.i(), 0, 4);
+					case setMapScale: getCurrMapData().scale = (byte) MathHelper.clamp(cmd.i(), 0, 4); break;
 					case setMapDimension: getCurrMapData().dimension = cmd.i(); break;
 					case updateMap: updateMap(); break;
 					default: break;
