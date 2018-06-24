@@ -67,7 +67,7 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 	public enum ComputerMethod {
 		setMapNum("n", true, "mapNum"),
 		getMapNum("n", true, "mapNum"),
-		setMapPixel("nn", true, "x", "z"),
+		setMapPixel("nnn", true, "x", "z", "colorIndex"),
 		getMapPixel("nn", false, "x", "z"),
 		setMapCenter("nn", true, "x", "z"),
 		getMapCenter("", false),
