@@ -9,6 +9,7 @@ import java.util.Map;
 import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.Util;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -79,6 +80,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 		getBiome("nn", false, "xCoord", "zCoord"),
 		setBiome("nnnnn", true,  "xStart", "zStart", "xStop", "zStop", "biomeId"),
 		getBiomeArray("nnnnn", false, "xStart", "zStart", "xEnd", "yEnd", "step"),
+		getBiomeName("n", false, "BiomeID"),
 		getYTop("nn", false, "xCoord", "zCoord"),
 		getYTopSolid("nn", false, "xCoord", "zCoord"),
 		getTemperature("nnn", false, "xCoord", "yCoord", "zCoord");
@@ -150,7 +152,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 				switch(method) {
 					case getBiome: {
 						Biome biome = world.getBiome(new BlockPos(getInt(arguments, 0), 0, getInt(arguments, 1)));
-						return new Object[] { biome.getBiomeName(), Biome.getIdForBiome(biome) };
+						return new Object[] { getBiomeName(biome), Biome.getIdForBiome(biome) };
 						}
 					case getBiomeArray:
 						int xPosStart = getInt(arguments, 0);
@@ -164,19 +166,21 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 							new BlockPos(xPosEnd, 0, zPosEnd),
 							step);
 						
-						Map<Integer, String> biomeNames = new HashMap<>();
 						Map<Integer, Integer> biomeIds = new HashMap<>();
 						
 						int i = 1;
 						for(Biome biome: biomeRequest.getBiomes()) {//This waits for the request to be fulfilled
-							biomeNames.put(i, biome.getBiomeName());
 							biomeIds.put(i, Biome.getIdForBiome(biome));
 							i++;
 						}
 						
 						biomeRequest = null;
 							
-						return new Object[] { biomeNames, biomeIds };
+						return new Object[] { biomeIds };
+					case getBiomeName: {
+						Biome biome = Biome.getBiomeForId(getInt(arguments, 0));
+						return new Object[] { biome == null ? null : getBiomeName(biome) };
+						}
 					case getYTop:
 						return new Object[] { getYTop(getInt(arguments, 0), getInt(arguments, 1)) };
 					case getYTopSolid:
@@ -198,6 +202,11 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 		}
 		
 		return null;
+	}
+	
+	//Biome#getBiomeName is sodding client side only.
+	public static String getBiomeName(Biome biome) {
+		return (String) Util.getRestrictedObject(Biome.class, biome, "field_185412_a", "biomeName");
 	}
 	
 	private void setBiome(int xStart, int zStart, int xStop, int zStop, int biomeId) {
