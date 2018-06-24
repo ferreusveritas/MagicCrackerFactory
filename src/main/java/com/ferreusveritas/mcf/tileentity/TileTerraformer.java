@@ -160,6 +160,8 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 						int xPosEnd = 	getInt(arguments, 2);
 						int zPosEnd = 	getInt(arguments, 3);
 						int step = 		getInt(arguments, 4);
+						
+						step = MathHelper.clamp(step, 1, step);
 							
 						biomeRequest = new BiomeRequest(
 							new BlockPos(xPosStart, 0, zPosStart),
