@@ -121,7 +121,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 	
 	@Override
 	public String getType() {
-		return "cartographer";
+		return "terraformer";
 	}
 	
 	@Override
