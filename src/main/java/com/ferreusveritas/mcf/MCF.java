@@ -2,6 +2,7 @@
 package com.ferreusveritas.mcf;
 
 import com.ferreusveritas.mcf.features.Cartographer;
+import com.ferreusveritas.mcf.features.Dendrocoil;
 import com.ferreusveritas.mcf.features.Security;
 import com.ferreusveritas.mcf.features.Sentinel;
 import com.ferreusveritas.mcf.features.Terraformer;
@@ -49,7 +50,8 @@ public class MCF extends FeatureableMod {
 			new Security(),
 			new Cartographer(),
 			new Terraformer(),
-			new Sentinel()
+			new Sentinel(),
+			new Dendrocoil()
 		);
 	};
 	

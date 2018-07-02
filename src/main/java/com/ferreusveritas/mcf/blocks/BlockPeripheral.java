@@ -1,5 +1,7 @@
 package com.ferreusveritas.mcf.blocks;
 
+import java.util.List;
+
 import com.ferreusveritas.mcf.util.Util;
 
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -8,6 +10,8 @@ import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -47,6 +51,15 @@ public class BlockPeripheral extends Block implements ITileEntityProvider, IPeri
 		}
 		
 		return null;
+	}
+	
+	///////////////////////////////////////////
+	// RENDERING
+	///////////////////////////////////////////
+
+	@Override
+	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag advanced) {
+		tooltip.add("§6ComputerCraft Peripheral");
 	}
 	
 }
