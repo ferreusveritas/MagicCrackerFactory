@@ -21,9 +21,10 @@ public class BoundsStorage {
 		BLAST,
 		SPAWN,
 		ENDER,
-		IDENT;
+		IDENT,
+		SEEDS;
 
-		public final static List<EnumBoundsType> valid = Arrays.asList(BREAK, PLACE, BLAST, SPAWN, ENDER, IDENT);
+		public final static List<EnumBoundsType> valid = Arrays.asList(BREAK, PLACE, BLAST, SPAWN, ENDER, IDENT, SEEDS);
 		
 		public static EnumBoundsType getType(String type) {
 			for(EnumBoundsType t: EnumBoundsType.values()) {
@@ -57,9 +58,10 @@ public class BoundsStorage {
 	public Map<String, BaseBounds> spawnBounds = new HashMap<>();
 	public Map<String, BaseBounds> enderBounds = new HashMap<>();
 	public Map<String, BaseBounds> identBounds = new HashMap<>();
+	public Map<String, BaseBounds> seedsBounds = new HashMap<>();
 	
 	public Map<String, BaseBounds>[] allBounds = new Map[] {
-			new VoidMap<>(), breakBounds, placeBounds, blastBounds, spawnBounds, enderBounds, identBounds
+			new VoidMap<>(), breakBounds, placeBounds, blastBounds, spawnBounds, enderBounds, identBounds, seedsBounds
 	};
 	
 	public Map<String, BaseBounds> getByType(EnumBoundsType type) {

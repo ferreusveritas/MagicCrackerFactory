@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.event;
 
+import com.ferreusveritas.dynamictrees.event.SeedVoluntaryPlantEvent;
 import com.ferreusveritas.mcf.util.ZoneManager;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -64,6 +65,13 @@ public class SecurityHandler {
 	public static void onEnderTeleportEvent(EnderTeleportEvent event) {
 		EntityLivingBase living = event.getEntityLiving();
 		if(ZoneManager.getZoneManager(living.world).testEnderBounds(new BlockPos(event.getTargetX(), event.getTargetY(), event.getTargetZ()))) {
+			event.setCanceled(true);
+		}
+	}
+	
+	@SubscribeEvent
+	public static void SeedVoluntaryPlantEvent(SeedVoluntaryPlantEvent event) {
+		if(ZoneManager.getZoneManager(event.getEntityItem().world).testSeedsBounds(event.getPos())) {
 			event.setCanceled(true);
 		}
 	}
