@@ -7,13 +7,13 @@ import java.util.logging.Logger;
 import com.ferreusveritas.dynamictrees.api.TreeHelper;
 import com.ferreusveritas.dynamictrees.api.TreeRegistry;
 import com.ferreusveritas.dynamictrees.api.treedata.ITreePart;
-import com.ferreusveritas.dynamictrees.blocks.BlockRooty;
 import com.ferreusveritas.dynamictrees.trees.Species;
 import com.ferreusveritas.dynamictrees.util.SafeChunkBounds;
 import com.ferreusveritas.dynamictrees.worldgen.JoCode;
 import com.ferreusveritas.mcf.ModConstants;
 import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.util.CommandManager;
+import com.ferreusveritas.mcf.util.CommandManager.CachedCommand;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
 
 import dan200.computercraft.api.lua.ILuaContext;
@@ -32,14 +32,14 @@ import net.minecraft.world.World;
 public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable {
 	
 	public enum ComputerMethod {
-		growPulse("", true),
-		getCode("", false),
-		setCode("ss", true, "treeName", "joCode"),
-		getTree("", false),
-		plantTree("s", true, "treeName"),
-		killTree("", true),
-		getSoilLife("", false),
-		setSoilLife("n", true, "life"),
+		growPulse("nnn", true, "x", "y", "z"),
+		getCode("nnn", false, "x", "y", "z"),
+		setCode("nnnss", true, "x", "y", "z", "treeName", "joCode"),
+		getTree("nnn", false, "x", "y", "z"),
+		plantTree("nnns", true, "x", "y", "z", "treeName"),
+		killTree("nnn", true, "x", "y", "z"),
+		getSoilLife("nnn", false, "x", "y", "z"),
+		setSoilLife("nnnn", true, "x", "y", "z", "life"),
 		getSpeciesList("", false),
 		createStaff("sssb", true, "treeName", "joCode", "rgbColor", "readOnly");
 		
@@ -49,30 +49,22 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 	
 	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
 	
-	private String treeName;
-	private int soilLife;
-	
 	@Override
 	public void update() {
 		
 		BlockPeripheral dendroCoil = (BlockPeripheral)getBlockType();
 		World world = getWorld();
 		
-		synchronized(this) {
-			treeName = new String(getSpecies(world, getPos()));
-			soilLife = getSoilLife(world, getPos());
-		}
-		
 		//Run commands that are cached that shouldn't be in the lua thread
 		synchronized(commandManager) {
 			if(dendroCoil != null) {
 				for(CommandManager<ComputerMethod>.CachedCommand cmd:  commandManager.getCachedCommands()) {
 					switch(cmd.method) {
-						case growPulse: growPulse(world, getPos()); break;
-						case killTree: killTree(world, getPos()); break;
-						case plantTree: plantTree(world, getPos(), cmd.s()); break;
-						case setCode: setCode(world, getPos(), cmd.s(), cmd.s()); break;
-						case setSoilLife: setSoilLife(world, getPos(), cmd.i()); break;
+						case growPulse: growPulse(world, getCmdPos(cmd)); break;
+						case killTree: killTree(world, getCmdPos(cmd)); break;
+						case plantTree: plantTree(world, getCmdPos(cmd), cmd.s()); break;
+						case setCode: setCode(world, getCmdPos(cmd), cmd.s(), cmd.s()); break;
+						case setSoilLife: setSoilLife(world, getCmdPos(cmd), cmd.i()); break;
 						case createStaff: createStaff(world, getPos(), cmd.s(), cmd.s(), cmd.s(), cmd.b()); break;
 						default: break;
 					}
@@ -83,6 +75,10 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 		
 	}
 	
+	public BlockPos getCmdPos(CachedCommand cmd) {
+		return new BlockPos(cmd.i(), cmd.i(), cmd.i());
+	}
+	
 	@Override
 	public String getType() {
 		return "dendrocoil";
@@ -91,6 +87,10 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 	@Override
 	public String[] getMethodNames() {
 		return commandManager.getMethodNames();
+	}
+	
+	private int getInt(Object[] arguments, int arg) {
+		return ((Double)arguments[arg]).intValue();
 	}
 	
 	/**
@@ -111,15 +111,13 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 			if(method.md.validateArguments(arguments)) {
 				switch(method) {
 					case getCode:
-						return new Object[]{ getCode(world, getPos()) };
+						return new Object[]{ getCode(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))) };
 					case getTree:
-						synchronized(this) {
-							return new Object[]{treeName};
-						}
+						String treeName = new String(getSpecies(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))));
+						return new Object[]{treeName};
 					case getSoilLife:
-						synchronized(this) {
-							return new Object[]{soilLife};
-						}
+						int soilLife = getSoilLife(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2)));
+						return new Object[]{soilLife};
 					case getSpeciesList:
 						ArrayList<String> species = new ArrayList<String>();
 						TreeRegistry.getSpeciesDirectory().forEach(r -> species.add(r.toString()));
@@ -138,24 +136,22 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 	}
 	
 	private static String getCode(World world, BlockPos pos) {
-		pos = pos.up();
-		if(TreeHelper.isRooty(world.getBlockState(pos))) {
-			return new JoCode().buildFromTree(world, pos).toString();
+		BlockPos rootPos = TreeHelper.findRootNode(world.getBlockState(pos), world, pos);
+		if(rootPos != BlockPos.ORIGIN) {
+			return new JoCode().buildFromTree(world, rootPos).toString();
 		}
-		
 		return "";
 	}
 	
-	private static void setCode(World world, BlockPos pos, String treeName, String JoCode) {
+	private static void setCode(World world, BlockPos rootPos, String treeName, String JoCode) {
 		Species species = TreeRegistry.findSpeciesSloppy(treeName);
-		JoCode jo = species.getJoCode(JoCode);
 		if(species != Species.NULLSPECIES) {
-			jo.setCareful(true).generate(world, species, pos.up(), world.getBiome(pos), EnumFacing.NORTH, 8, SafeChunkBounds.ANY);
+			species.getJoCode(JoCode).setCareful(true).generate(world, species, rootPos, world.getBiome(rootPos), EnumFacing.NORTH, 8, SafeChunkBounds.ANY);
 		} else {
 			Logger.getLogger(ModConstants.MODID).log(Level.WARNING, "Tree: " + treeName + " not found.");
 		}
 	}
-
+	
 	private static void createStaff(World world, BlockPos pos, String treeName, String JoCode, String rgb, boolean readOnly) {
 		ItemStack stack = new ItemStack(com.ferreusveritas.dynamictrees.ModItems.treeStaff, 1, 0);
 		Species species = TreeRegistry.findSpeciesSloppy(treeName);
@@ -168,47 +164,47 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 	}
 	
 	private static String getSpecies(World world, BlockPos pos) {
-		IBlockState rootyState = world.getBlockState(pos.up());
-		ITreePart part = TreeHelper.getTreePart(rootyState);
-		if(part.isRootNode()) {
-			return TreeHelper.getExactSpecies(rootyState, world, pos.up()).toString();
+		Species species = TreeHelper.getExactSpecies(world.getBlockState(pos), world, pos);
+		if(species != Species.NULLSPECIES) {
+			return species.toString();
 		}
 		
 		return "";
 	}
-
+	
 	private static void plantTree(World world, BlockPos pos, String treeName) {
 		Species species = TreeRegistry.findSpeciesSloppy(treeName);
-		species.plantSapling(world, pos.up(2));
+		species.plantSapling(world, pos);
 	}
-
-	private static void growPulse(World world, BlockPos pos) {
-		ITreePart part = TreeHelper.getTreePart(world.getBlockState(pos.up()));
+	
+	private static void growPulse(World world, BlockPos rootPos) {
+		ITreePart part = TreeHelper.getTreePart(world.getBlockState(rootPos));
 		if(part.isRootNode()) {
-			TreeHelper.growPulse(world, pos.up());
+			TreeHelper.growPulse(world, rootPos);
 		}
 	}
 	
 	private static void killTree(World world, BlockPos pos) {
-		ITreePart part = TreeHelper.getTreePart(world.getBlockState(pos.up()));
-		if(part.isRootNode()) {
-			((BlockRooty)part).destroyTree(world, pos.up());
+		BlockPos rootPos = TreeHelper.findRootNode(world.getBlockState(pos), world, pos);
+		if(rootPos != BlockPos.ORIGIN) {
+			TreeHelper.getRooty(world.getBlockState(rootPos)).destroyTree(world, rootPos);
 		}
 	}
-
+	
 	private static int getSoilLife(World world, BlockPos pos) {
-		IBlockState rootyState = world.getBlockState(pos.up());
-		BlockRooty rooty = TreeHelper.getRooty(rootyState);
-		if(rooty != null) {
-			return rooty.getSoilLife(rootyState, world, pos.up());
+		BlockPos rootPos = TreeHelper.findRootNode(world.getBlockState(pos), world, pos);
+		if(rootPos != BlockPos.ORIGIN) {
+			IBlockState state = world.getBlockState(rootPos);
+			return TreeHelper.getRooty(state).getSoilLife(state, world, rootPos);
 		}
 		return 0;
 	}
-
+	
 	private static void setSoilLife(World world, BlockPos pos, int life) {
-		ITreePart part = TreeHelper.getTreePart(world.getBlockState(pos.up()));
-		if(part.isRootNode()) {
-			((BlockRooty)part).setSoilLife(world, pos.up(), life);
+		BlockPos rootPos = TreeHelper.findRootNode(world.getBlockState(pos), world, pos);
+		if(rootPos != BlockPos.ORIGIN) {
+			IBlockState state = world.getBlockState(rootPos);
+			TreeHelper.getRooty(state).setSoilLife(world, rootPos, life);
 		}
 	}
 	
