@@ -35,7 +35,7 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 		growPulse("nnn", true, "x", "y", "z"),
 		getCode("nnn", false, "x", "y", "z"),
 		setCode("nnnss", true, "x", "y", "z", "treeName", "joCode"),
-		getTree("nnn", false, "x", "y", "z"),
+		getSpecies("nnn", false, "x", "y", "z"),
 		plantTree("nnns", true, "x", "y", "z", "treeName"),
 		killTree("nnn", true, "x", "y", "z"),
 		getSoilLife("nnn", false, "x", "y", "z"),
@@ -112,12 +112,10 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 				switch(method) {
 					case getCode:
 						return new Object[]{ getCode(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))) };
-					case getTree:
-						String treeName = new String(getSpecies(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))));
-						return new Object[]{treeName};
+					case getSpecies:
+						return new Object[]{ getSpecies(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))) };
 					case getSoilLife:
-						int soilLife = getSoilLife(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2)));
-						return new Object[]{soilLife};
+						return new Object[]{ getSoilLife(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))) };
 					case getSpeciesList:
 						ArrayList<String> species = new ArrayList<String>();
 						TreeRegistry.getSpeciesDirectory().forEach(r -> species.add(r.toString()));
