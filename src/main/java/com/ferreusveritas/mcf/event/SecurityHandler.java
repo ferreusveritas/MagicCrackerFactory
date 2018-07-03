@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.event;
 
+import com.ferreusveritas.dynamictrees.event.SeedVoluntaryDropEvent;
 import com.ferreusveritas.dynamictrees.event.SeedVoluntaryPlantEvent;
 import com.ferreusveritas.mcf.util.ZoneManager;
 
@@ -72,6 +73,13 @@ public class SecurityHandler {
 	@SubscribeEvent
 	public static void SeedVoluntaryPlantEvent(SeedVoluntaryPlantEvent event) {
 		if(ZoneManager.getZoneManager(event.getEntityItem().world).testSeedsBounds(event.getPos())) {
+			event.setCanceled(true);
+		}
+	}
+	
+	@SubscribeEvent
+	public static void SeedVoluntaryDropEvent(SeedVoluntaryDropEvent event) {
+		if(ZoneManager.getZoneManager(event.getWorld()).testSeedsBounds(event.getRootPos())) {
 			event.setCanceled(true);
 		}
 	}
