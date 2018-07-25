@@ -19,6 +19,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.network.play.server.SPacketMaps;
@@ -270,12 +271,12 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 		IChunkProvider cp = world.getChunkProvider();
 		if(cp instanceof ChunkProviderServer) {
 			ChunkProviderServer cps = (ChunkProviderServer) cp;
-			cps.chunkGenerator.generateChunk(x, z);
-			Chunk chunk = world.getChunkFromChunkCoords(x, z);
+			Chunk chunk = cps.chunkGenerator.generateChunk(x, z);
             long encChunkPos = ChunkPos.asLong(x, z);
 			cps.id2ChunkMap.put(encChunkPos, chunk);
 	        chunk.onLoad();
 	        chunk.populate(cps, cps.chunkGenerator);
+	        chunk.markDirty();
 			SPacketChunkData packet = new SPacketChunkData(chunk, 0xFFFF);
 			for(EntityPlayer player : world.playerEntities) {
 				if(player instanceof EntityPlayerMP) {
