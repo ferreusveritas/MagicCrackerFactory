@@ -25,11 +25,14 @@ import net.minecraft.network.play.server.SPacketMaps;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.MapData;
 
 public class TileTerraformer extends TileEntity implements IPeripheral, ITickable  {
@@ -83,7 +86,8 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 		getBiomeName("n", false, "BiomeID"),
 		getYTop("nn", false, "xCoord", "zCoord"),
 		getYTopSolid("nn", false, "xCoord", "zCoord"),
-		getTemperature("nnn", false, "xCoord", "yCoord", "zCoord");
+		getTemperature("nnn", false, "xCoord", "yCoord", "zCoord"),
+		generateChunk("nn", true, "xChunk", "yChunk");
 		
 		final MethodDescriptor md;
 		private ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
@@ -106,6 +110,7 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 				for(CommandManager<ComputerMethod>.CachedCommand cmd:  commandManager.getCachedCommands()) {
 					switch(cmd.method) {
 					case setBiome: setBiome(cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i()); break;
+					case generateChunk: generateChunk(cmd.i(), cmd.i());
 					default: break;
 					}
 				}
@@ -260,7 +265,26 @@ public class TileTerraformer extends TileEntity implements IPeripheral, ITickabl
 			}
 		}
 	}
-
+	
+	private void generateChunk(int x, int z) {
+		IChunkProvider cp = world.getChunkProvider();
+		if(cp instanceof ChunkProviderServer) {
+			ChunkProviderServer cps = (ChunkProviderServer) cp;
+			cps.chunkGenerator.generateChunk(x, z);
+			Chunk chunk = world.getChunkFromChunkCoords(x, z);
+            long encChunkPos = ChunkPos.asLong(x, z);
+			cps.id2ChunkMap.put(encChunkPos, chunk);
+	        chunk.onLoad();
+	        chunk.populate(cps, cps.chunkGenerator);
+			SPacketChunkData packet = new SPacketChunkData(chunk, 0xFFFF);
+			for(EntityPlayer player : world.playerEntities) {
+				if(player instanceof EntityPlayerMP) {
+					((EntityPlayerMP)player).connection.sendPacket(packet);
+				}
+			}
+		}
+	}
+	
 	private class BiomeRequest {
 		public BlockPos startPos;
 		public BlockPos endPos;
