@@ -5,8 +5,6 @@ import com.ferreusveritas.dynamictrees.event.SeedVoluntaryPlantEvent;
 import com.ferreusveritas.mcf.util.ZoneManager;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
@@ -55,10 +53,8 @@ public class SecurityHandler {
 	
 	@SubscribeEvent
 	public static void onSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
-		if(isMobHostile(event.getEntityLiving())) {
-			if(ZoneManager.getZoneManager(event.getWorld()).testSpawnBounds(new BlockPos(event.getX(), event.getY(), event.getZ())) ) {
-				event.setResult(Result.DENY);
-			}
+		if(ZoneManager.getZoneManager(event.getWorld()).testSpawnBounds(new BlockPos(event.getX(), event.getY(), event.getZ()), event.getEntityLiving())) {
+			event.setResult(Result.DENY);
 		}
 	}
 	
@@ -82,10 +78,6 @@ public class SecurityHandler {
 		if(ZoneManager.getZoneManager(event.getWorld()).testSeedsBounds(event.getRootPos())) {
 			event.setCanceled(true);
 		}
-	}
-	
-	public static boolean isMobHostile(EntityLivingBase entity) {
-		return entity instanceof EntityMob || entity instanceof EntitySlime;
 	}
 	
 }

@@ -19,8 +19,10 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 	public enum ComputerMethod {
 		addCuboidBounds("ssnnnnnn", true, "type", "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ"),
 		addCylinderBounds("ssnnnnn", true, "type", "name", "posX", "posZ", "minY", "maxY", "radius"),
+		addAnyBounds("ss", true, "type", "name"),
 		remBounds("ss", true, "type", "name"),
 		listBounds("s", false, "type"),
+		addEntityFilter("ss", true, "type", "name", "entity"),
 		getBoundsData("ss", false, "type", "name"),
 		getPlayersInBounds("s", false, "name");
 		
@@ -41,8 +43,10 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 				for(CommandManager<ComputerMethod>.CachedCommand cmd: commandManager.getCachedCommands()) {
 					switch(cmd.method) {
 					case addCuboidBounds: ZoneManager.getZoneManager(world).addCuboidBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addCylinderBounds: ZoneManager.getZoneManager(world).addCylinderBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i()); break;
+					case addCylinderBounds: ZoneManager.getZoneManager(world).addCylinderBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addAnyBounds: ZoneManager.getZoneManager(world).addAnyBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
 					case remBounds: ZoneManager.getZoneManager(world).remBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
+					case addEntityFilter: ZoneManager.getZoneManager(world).addEntityFilter(world, EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s()); break;
 					default: break;
 					}
 				}
@@ -80,7 +84,7 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 			if(method.md.validateArguments(arguments)) {
 				switch(method) {
 					case listBounds: return ZoneManager.getZoneManager(world).listBounds( EnumBoundsType.getType((String) arguments[0]) );
-					case getBoundsData: return ZoneManager.getZoneManager(world).getBoundsData(EnumBoundsType.getType((String) arguments[0]), (String) arguments[1]);
+					case getBoundsData: return ZoneManager.getZoneManager(world).getBoundsDataLua(EnumBoundsType.getType((String) arguments[0]), (String) arguments[1]);
 					case getPlayersInBounds: return ZoneManager.getZoneManager(world).getPlayersInBounds(world, (String) arguments[0]);
 					default:
 						if(method.md.isCached()) {

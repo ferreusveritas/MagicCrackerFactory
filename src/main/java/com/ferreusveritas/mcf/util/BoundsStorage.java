@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.ferreusveritas.mcf.util.bounds.AnyBounds;
 import com.ferreusveritas.mcf.util.bounds.BaseBounds;
 import com.ferreusveritas.mcf.util.bounds.CuboidBounds;
 import com.ferreusveritas.mcf.util.bounds.CylinderBounds;
@@ -46,6 +47,7 @@ public class BoundsStorage {
 	static { //This gives us the ability to add new bound types in the future
 		boundsProviders.put("cuboid", n -> new CuboidBounds(n) );
 		boundsProviders.put("cylinder", n -> new CylinderBounds(n) );
+		boundsProviders.put("any", n -> new AnyBounds(n) );
 	}
 	
 	public static BaseBounds loadBounds(NBTTagCompound nbt) {
