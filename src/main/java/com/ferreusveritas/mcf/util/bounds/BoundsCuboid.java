@@ -1,6 +1,5 @@
 package com.ferreusveritas.mcf.util.bounds;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,18 +9,18 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
-public class CuboidBounds extends BaseBounds {
+public class BoundsCuboid extends BoundsBase {
 
 	private int minX, minY, minZ;
 	private int maxX, maxY, maxZ;
 		
-	public CuboidBounds(BlockPos pos) {
+	public BoundsCuboid(BlockPos pos) {
 		minX = maxX = pos.getX();
 		minY = maxY = pos.getY();
 		minZ = maxZ = pos.getZ();
 	}
 
-	public CuboidBounds(ChunkPos cPos) {
+	public BoundsCuboid(ChunkPos cPos) {
 		minX = cPos.getXStart();
 		minY = 0;
 		minZ = cPos.getZStart();
@@ -31,7 +30,7 @@ public class CuboidBounds extends BaseBounds {
 		maxZ = cPos.getZEnd();
 	}
 	
-	public CuboidBounds(CuboidBounds other) {
+	public BoundsCuboid(BoundsCuboid other) {
 		minX = other.minX;
 		minY = other.minY;
 		minZ = other.minZ;
@@ -40,12 +39,14 @@ public class CuboidBounds extends BaseBounds {
 		maxZ = other.maxZ;
 	}
 	
-	public CuboidBounds(List<BlockPos> blockPosList) {
+	public BoundsCuboid(List<BlockPos> blockPosList) {
 		this(blockPosList.get(0));
 		union(blockPosList);
 	}
 	
-	public CuboidBounds(NBTTagCompound nbt) {
+	public BoundsCuboid(NBTTagCompound nbt) {
+		super(nbt);
+		
 		int[] bounds = nbt.getIntArray("bounds");
 		if(bounds.length == 6) {
 			minX = bounds[0];
@@ -57,7 +58,7 @@ public class CuboidBounds extends BaseBounds {
 		}
 	}
 	
-	public CuboidBounds union(BlockPos pos) {
+	public BoundsCuboid union(BlockPos pos) {
 		
 		if(pos.getX() < minX) {
 			minX = pos.getX();
@@ -86,7 +87,7 @@ public class CuboidBounds extends BaseBounds {
 		return this;
 	}
 	
-	public CuboidBounds union(List<BlockPos> blockPosList) {
+	public BoundsCuboid union(List<BlockPos> blockPosList) {
 		blockPosList.forEach(b -> union(b));
 		return this;
 	}
@@ -109,7 +110,7 @@ public class CuboidBounds extends BaseBounds {
 		return new BlockPos(maxX, maxY, maxZ);
 	}
 
-	public CuboidBounds shrink(EnumFacing dir, int amount) {
+	public BoundsCuboid shrink(EnumFacing dir, int amount) {
 		switch(dir) {
 			case DOWN: minY += amount; break;
 			case UP: maxY -= amount; break;
@@ -121,7 +122,7 @@ public class CuboidBounds extends BaseBounds {
 		return this;
 	}
 	
-	public CuboidBounds move(int x, int y, int z) {
+	public BoundsCuboid move(int x, int y, int z) {
 		minX += x;
 		minY += y;
 		minZ += z;
@@ -131,7 +132,7 @@ public class CuboidBounds extends BaseBounds {
 		return this;
 	}
 	
-	public CuboidBounds expand(int amount) {
+	public BoundsCuboid expand(int amount) {
 		minX -= amount;
 		minY -= amount;
 		minZ -= amount;
@@ -141,7 +142,7 @@ public class CuboidBounds extends BaseBounds {
 		return this;
 	}
 	
-	public CuboidBounds shrink(int amount) {
+	public BoundsCuboid shrink(int amount) {
 		return expand(-amount);
 	}
 	
@@ -179,8 +180,8 @@ public class CuboidBounds extends BaseBounds {
 	}
 	
 	@Override
-	public Object[] toLuaObject() {
-		Map<String, Object> contents = new HashMap<>();
+	public Map<String, Object> collectLuaData() {
+		Map<String, Object> contents = super.collectLuaData();
 		contents.put("type", getBoundType());
 		contents.put("minX", minX);
 		contents.put("minY", minY);
@@ -188,7 +189,7 @@ public class CuboidBounds extends BaseBounds {
 		contents.put("maxX", maxX);
 		contents.put("maxY", maxY);
 		contents.put("maxZ", maxZ);
-		return new Object[] { contents }; 
+		return contents; 
 	}
 	
 	@Override
@@ -211,7 +212,7 @@ public class CuboidBounds extends BaseBounds {
 			return false;
 		}
 		
-		CuboidBounds obb = (CuboidBounds) obj;
+		BoundsCuboid obb = (BoundsCuboid) obj;
 		
 		return minX == obb.minX && maxX == obb.maxX && minZ == obb.minZ && maxZ == obb.maxZ && minY == obb.minY && maxY == obb.maxY; 
 	}

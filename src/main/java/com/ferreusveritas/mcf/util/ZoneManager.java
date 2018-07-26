@@ -6,28 +6,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ferreusveritas.mcf.util.BoundsStorage.EnumBoundsType;
-import com.ferreusveritas.mcf.util.bounds.AnyBounds;
-import com.ferreusveritas.mcf.util.bounds.BaseBounds;
-import com.ferreusveritas.mcf.util.bounds.CuboidBounds;
-import com.ferreusveritas.mcf.util.bounds.CylinderBounds;
-import com.ferreusveritas.mcf.util.bounds.FilterBounds;
+import com.ferreusveritas.mcf.util.bounds.BoundsAny;
+import com.ferreusveritas.mcf.util.bounds.BoundsBase;
+import com.ferreusveritas.mcf.util.bounds.BoundsCuboid;
+import com.ferreusveritas.mcf.util.bounds.BoundsCylinder;
+import com.ferreusveritas.mcf.util.bounds.BoundsStorage;
+import com.ferreusveritas.mcf.util.bounds.BoundsStorage.EnumBoundsType;
+import com.ferreusveritas.mcf.util.filters.IEntityFilter;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 public class ZoneManager extends WorldSavedData {
+	//I would just use an array for this but Mojang allows for negative dimension numbers so I don't know where I'd start.
 	public static HashMap<Integer, ZoneManager> zoneManagers = new HashMap<>();
 	
 	final static String key = "SecurityZones";
@@ -75,30 +72,43 @@ public class ZoneManager extends WorldSavedData {
 	
 	//Additions
 	
-	public void addBounds(EnumBoundsType type, String name, BaseBounds bb) {
+	public void addBounds(EnumBoundsType type, String name, BoundsBase bb) {
 		getBoundsStorage().getByType(type).put(name, bb);
+		addDefaultFilters(type, bb);
 		markDirty();
 	}
 	
+	public void addDefaultFilters(EnumBoundsType type, BoundsBase bb) {
+		IEntityFilter defaultFilter = type.getDefaultEntityFilter();
+		if(defaultFilter != null) {
+			bb.getFilterSet().setFilter("default", defaultFilter);
+		}
+	}
+	
 	public void addCuboidBounds(EnumBoundsType type, String name, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-		addBounds(type, name, new CuboidBounds(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))));
+		addBounds(type, name, new BoundsCuboid(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))));
 	}
 	
 	public void addCylinderBounds(EnumBoundsType type, String name, int posX, int posZ, int minY, int maxY, int radius) {
-		addBounds(type, name, new CylinderBounds(new BlockPos(posX, minY, posZ), maxY - minY, radius));
+		addBounds(type, name, new BoundsCylinder(new BlockPos(posX, minY, posZ), maxY - minY, radius));
 	}
 	
 	public void addAnyBounds(EnumBoundsType type, String name) {
-		addBounds(type, name, new AnyBounds());
+		addBounds(type, name, new BoundsAny());
 	}
 	
-	public void addEntityFilter(World world, EnumBoundsType type, String name, String entity) {
-		EntityEntry ee = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entity));
-		BaseBounds origBounds = getBounds(type, name);
-		if(origBounds instanceof FilterBounds) {
-			origBounds = ((FilterBounds) origBounds).baseBounds;
+	public void addEntityFilter(EnumBoundsType type, String name, String filterName, String filterType, String filterData) {
+		BoundsBase bb = getBounds(type, name);
+		if(bb != null) {
+			bb.getFilterSet().setFilter(filterName, filterType, filterData);
 		}
-		addBounds(type, name, new FilterBounds(origBounds, ee));//Wrap the bounds object in a filter
+	}
+	
+	public void remEntityFilter(EnumBoundsType type, String name, String filterName) {
+		BoundsBase bb = getBounds(type, name);
+		if(bb != null) {
+			bb.getFilterSet().remFilter(filterName);
+		}
 	}
 	
 	//Removals
@@ -113,7 +123,7 @@ public class ZoneManager extends WorldSavedData {
 	}
 	
 	public Object[] getBoundsDataLua(EnumBoundsType type, String name) {
-		BaseBounds bound = getBounds(type, name);
+		BoundsBase bound = getBounds(type, name);
 		if(bound != null) {
 			return bound.toLuaObject();
 		}
@@ -121,59 +131,51 @@ public class ZoneManager extends WorldSavedData {
 		return new Object[0];
 	}
 	
-	public BaseBounds getBounds(EnumBoundsType type, String name) {
+	public BoundsBase getBounds(EnumBoundsType type, String name) {
 		return getBoundsStorage().getByType(type).get(name);
 	}
 	
 	//Tests and Filters
 	
 	public boolean testBreakBounds(EntityPlayer player, BlockPos pos) {
-		return player != null && !player.isCreative() && boundsTest(pos, getBoundsStorage().breakBounds);
+		return player != null && !player.isCreative() && testBounds(pos, getBoundsStorage().breakBounds);
 	}
 	
 	public boolean testPlaceBounds(EntityPlayer player, BlockPos pos) {
-		return player != null && !player.isCreative() && boundsTest(pos, getBoundsStorage().placeBounds);
+		return player != null && !player.isCreative() && testBounds(pos, getBoundsStorage().placeBounds);
 	}
 	
-	public boolean testBlastStart(BlockPos pos) {
-		return boundsTest(pos, getBoundsStorage().blastBounds);
+	public boolean testBlastStart(BlockPos pos, EntityLivingBase entity) {
+		return testBoundsAndEntity(pos, getBoundsStorage().blastBounds, entity);
 	}
 	
-	public void filterBlastDetonate(List<BlockPos> blocks) {
-		getBoundsStorage().blastBounds.values().forEach(bb -> blocks.removeIf(p -> bb.inBounds(p)));
+	public void filterBlastDetonate(List<BlockPos> blocks, EntityLivingBase entity) {
+		getBoundsStorage().blastBounds.values().forEach(bb -> blocks.removeIf(p -> bb.inBounds(p) && bb.getFilterSet().isEntityDenied(entity)));
 	}
 	
 	public boolean testSpawnBounds(BlockPos pos, EntityLivingBase entity) {
-		return getBoundsStorage().spawnBounds.values().parallelStream().filter(bb -> bb.inBounds(pos)).anyMatch(bb -> testSpawnBounds(bb, entity));
+		return testBoundsAndEntity(pos, getBoundsStorage().spawnBounds, entity);
 	}
 	
-	public boolean testSpawnBounds(BaseBounds bounds, EntityLivingBase entity) {
-		if(bounds instanceof FilterBounds) {
-			return ((FilterBounds) bounds).isEntityDenied(entity);
-		} else {
-			return isMobHostile(entity);
-		}
-	}
-	
-	public static boolean isMobHostile(EntityLivingBase entity) {
-		return entity instanceof EntityMob || entity instanceof EntitySlime;
-	}
-	
-	public boolean testEnderBounds(BlockPos pos) {
-		return boundsTest(pos, getBoundsStorage().enderBounds);
+	public boolean testEnderBounds(BlockPos pos, EntityLivingBase living) {
+		return testBoundsAndEntity(pos, getBoundsStorage().enderBounds, living);
 	}
 	
 	public boolean testSeedsBounds(BlockPos pos) {
-		return boundsTest(pos, getBoundsStorage().seedsBounds);
+		return testBounds(pos, getBoundsStorage().seedsBounds);
 	}
 	
-	public boolean boundsTest(BlockPos pos, Map<String, BaseBounds> bounds) {
+	public boolean testBounds(BlockPos pos, Map<String, BoundsBase> bounds) {
 		return bounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
+	}
+	
+	public boolean testBoundsAndEntity(BlockPos pos, Map<String, BoundsBase> bounds, EntityLivingBase entity) {
+		return bounds.values().parallelStream().filter(bb -> bb.inBounds(pos)).anyMatch(bb -> bb.getFilterSet().isEntityDenied(entity));
 	}
 	
 	public Object[] getPlayersInBounds(World world, String boundName) {
 		
-		BaseBounds bb = getBoundsStorage().identBounds.get(boundName);
+		BoundsBase bb = getBoundsStorage().identBounds.get(boundName);
 		
 		AxisAlignedBB aabb = bb.getAABB();
 		List<EntityPlayer> players = aabb != null ? world.getEntitiesWithinAABB(EntityPlayer.class, aabb) : world.playerEntities;

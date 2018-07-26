@@ -1,10 +1,10 @@
 package com.ferreusveritas.mcf.tileentity;
 
 import com.ferreusveritas.mcf.blocks.BlockPeripheral;
-import com.ferreusveritas.mcf.util.BoundsStorage.EnumBoundsType;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
 import com.ferreusveritas.mcf.util.ZoneManager;
+import com.ferreusveritas.mcf.util.bounds.BoundsStorage.EnumBoundsType;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -22,7 +22,8 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 		addAnyBounds("ss", true, "type", "name"),
 		remBounds("ss", true, "type", "name"),
 		listBounds("s", false, "type"),
-		addEntityFilter("ss", true, "type", "name", "entity"),
+		addEntityFilter("sssss", true, "type", "name", "filtername", "filtertype", "filterdata"),
+		remEntityFilter("sss", true, "type", "name", "filtername"),
 		getBoundsData("ss", false, "type", "name"),
 		getPlayersInBounds("s", false, "name");
 		
@@ -46,7 +47,8 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 					case addCylinderBounds: ZoneManager.getZoneManager(world).addCylinderBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
 					case addAnyBounds: ZoneManager.getZoneManager(world).addAnyBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
 					case remBounds: ZoneManager.getZoneManager(world).remBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
-					case addEntityFilter: ZoneManager.getZoneManager(world).addEntityFilter(world, EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s()); break;
+					case addEntityFilter: ZoneManager.getZoneManager(world).addEntityFilter(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s(), cmd.s(), cmd.s()); break;
+					case remEntityFilter: ZoneManager.getZoneManager(world).remEntityFilter(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s()); break;
 					default: break;
 					}
 				}
