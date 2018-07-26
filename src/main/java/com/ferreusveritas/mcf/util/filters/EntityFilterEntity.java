@@ -1,6 +1,7 @@
 package com.ferreusveritas.mcf.util.filters;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -18,7 +19,8 @@ public class EntityFilterEntity implements IEntityFilter {
 	
 	public EntityFilterEntity(String entityLocation) {
 		entry = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entityLocation));
-		if(entry != null && entry.getClass().isInstance(EntityLivingBase.class)) {
+		
+		if(entry != null && EntityLivingBase.class.isAssignableFrom(entry.getEntityClass()) ) {
 			entityClass = (Class<? extends EntityLivingBase>) entry.getEntityClass();
 			data = entityLocation;
 		} else {
