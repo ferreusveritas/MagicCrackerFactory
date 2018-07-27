@@ -185,8 +185,20 @@ public class ZoneManager extends WorldSavedData {
 			if(bb.inBounds(p.getPosition())) {
 				Map<String, Object> singlePlayerData = new HashMap<>();
 				singlePlayerData.put("name", p.getName());
-				singlePlayerData.put("pos", new Object[] { p.posX, p.posY, p.posZ } );
-				singlePlayerData.put("blockpos", new Object[] { p.getPosition().getX(), p.getPosition().getY(), p.getPosition().getZ() } );
+
+				Map<String, Double> posMap = new HashMap<>();
+				posMap.put("x", p.posX);
+				posMap.put("y", p.posY);
+				posMap.put("z", p.posZ);
+				singlePlayerData.put("pos", posMap);
+
+				Map<String, Integer> blockPosMap = new HashMap<>();
+				BlockPos blockpos = p.getPosition();
+				blockPosMap.put("x", blockpos.getX());
+				blockPosMap.put("y", blockpos.getY());
+				blockPosMap.put("z", blockpos.getZ());
+				singlePlayerData.put("blockpos", blockPosMap);
+
 				allPlayerData.add(singlePlayerData);
 			}
 		}
