@@ -57,6 +57,7 @@ public class ZoneManager extends WorldSavedData {
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+		//System.out.println("Writing Tag for bounds");
 		nbt.setTag("zones", boundsStorage.toNBTTagCompound());
 		return nbt;
 	}
@@ -73,6 +74,7 @@ public class ZoneManager extends WorldSavedData {
 	//Additions
 	
 	public void addBounds(EnumBoundsType type, String name, BoundsBase bb) {
+		//System.out.println("Bounds Added: " + type + ", " + name + ", " + bb);
 		getBoundsStorage().getByType(type).put(name, bb);
 		addDefaultFilters(type, bb);
 		markDirty();
@@ -98,22 +100,27 @@ public class ZoneManager extends WorldSavedData {
 	}
 	
 	public void addEntityFilter(EnumBoundsType type, String name, String filterName, String filterType, String filterData) {
+		//System.out.println("Entity Filter Added: " + type + ", " + name + ", " + filterName + ", " +  filterType + ", " + filterData);
 		BoundsBase bb = getBounds(type, name);
 		if(bb != null) {
 			bb.getFilterSet().setFilter(filterName, filterType, filterData);
 		}
+		markDirty();
 	}
 	
 	public void remEntityFilter(EnumBoundsType type, String name, String filterName) {
+		//System.out.println("Entity Filter Removed: " + type + ", " + name + ", " + filterName);
 		BoundsBase bb = getBounds(type, name);
 		if(bb != null) {
 			bb.getFilterSet().remFilter(filterName);
 		}
+		markDirty();
 	}
 	
 	//Removals
 	
 	public void remBounds(EnumBoundsType type, String name) {
+		//System.out.println("Bounds Removed: " + type + ", " + name);
 		getBoundsStorage().getByType(type).remove(name);
 		markDirty();
 	}
