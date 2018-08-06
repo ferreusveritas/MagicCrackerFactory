@@ -24,22 +24,10 @@ import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 
 public class ZoneManager extends WorldSavedData {
-	//I would just use an array for this but Mojang allows for negative dimension numbers so I don't know where I'd start.
-	public static HashMap<Integer, ZoneManager> zoneManagers = new HashMap<>();
 	
 	final static String key = "SecurityZones";
 	
-	public static ZoneManager getZoneManager(World world) {
-		return zoneManagers.computeIfAbsent( world.provider.getDimension(), key -> forWorld(world));
-	}
-	
-	protected BoundsStorage boundsStorage = new BoundsStorage(new NBTTagCompound());
-	
-	public ZoneManager(String name) {
-		super(name);
-	}
-	
-	public static ZoneManager forWorld(World world) {
+	public static ZoneManager get(World world) {
 		MapStorage storage = world.getPerWorldStorage();
 		ZoneManager result = (ZoneManager)storage.getOrLoadData(ZoneManager.class, key);
 		if (result == null) {
@@ -50,6 +38,12 @@ public class ZoneManager extends WorldSavedData {
 		return result;
 	}
 	
+	protected BoundsStorage boundsStorage = new BoundsStorage(new NBTTagCompound());
+	
+	public ZoneManager(String name) {
+		super(name);
+	}
+	
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
 		boundsStorage = new BoundsStorage(nbt.getCompoundTag("zones"));
@@ -57,7 +51,6 @@ public class ZoneManager extends WorldSavedData {
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		//System.out.println("Writing Tag for bounds");
 		nbt.setTag("zones", boundsStorage.toNBTTagCompound());
 		return nbt;
 	}

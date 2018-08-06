@@ -10,7 +10,6 @@ import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -19,22 +18,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class SecurityHandler {
 	
 	@SubscribeEvent
-	public static void onWorldLoad(WorldEvent.Load event) {
-		if(!event.getWorld().isRemote) {
-			ZoneManager.forWorld(event.getWorld());
-		}
-	}
-	
-	@SubscribeEvent
 	public static void onBreakEvent(BlockEvent.BreakEvent event) {
-		if( ZoneManager.getZoneManager(event.getWorld()).testBreakBounds(event.getPlayer(), event.getPos()) ) {
+		if( ZoneManager.get(event.getWorld()).testBreakBounds(event.getPlayer(), event.getPos()) ) {
 			event.setCanceled(true);
 		}
 	}
 	
 	@SubscribeEvent
 	public static void onPlaceEvent(BlockEvent.PlaceEvent event) {
-		if( ZoneManager.getZoneManager(event.getWorld()).testPlaceBounds(event.getPlayer(), event.getPos()) ) {
+		if( ZoneManager.get(event.getWorld()).testPlaceBounds(event.getPlayer(), event.getPos()) ) {
 			event.setCanceled(true);
 		}
 	}
@@ -42,7 +34,7 @@ public class SecurityHandler {
 	@SubscribeEvent
 	public static void onExplosionEvent(ExplosionEvent.Start event) {
 		EntityLivingBase living = event.getExplosion().getExplosivePlacedBy();
-		if(ZoneManager.getZoneManager(event.getWorld()).testBlastStart(new BlockPos(event.getExplosion().getPosition()), living) ) {
+		if(ZoneManager.get(event.getWorld()).testBlastStart(new BlockPos(event.getExplosion().getPosition()), living) ) {
 			event.setCanceled(true);
 		}
 	}
@@ -50,12 +42,12 @@ public class SecurityHandler {
 	@SubscribeEvent
 	public static void onExplosionEvent(ExplosionEvent.Detonate event) {
 		EntityLivingBase living = event.getExplosion().getExplosivePlacedBy();
-		ZoneManager.getZoneManager(event.getWorld()).filterBlastDetonate(event.getAffectedBlocks(), living);
+		ZoneManager.get(event.getWorld()).filterBlastDetonate(event.getAffectedBlocks(), living);
 	}
 	
 	@SubscribeEvent
 	public static void onSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
-		if(ZoneManager.getZoneManager(event.getWorld()).testSpawnBounds(new BlockPos(event.getX(), event.getY(), event.getZ()), event.getEntityLiving())) {
+		if(ZoneManager.get(event.getWorld()).testSpawnBounds(new BlockPos(event.getX(), event.getY(), event.getZ()), event.getEntityLiving())) {
 			event.setResult(Result.DENY);
 		}
 	}
@@ -63,21 +55,21 @@ public class SecurityHandler {
 	@SubscribeEvent
 	public static void onEnderTeleportEvent(EnderTeleportEvent event) {
 		EntityLivingBase living = event.getEntityLiving();
-		if(ZoneManager.getZoneManager(living.world).testEnderBounds(new BlockPos(event.getTargetX(), event.getTargetY(), event.getTargetZ()), living)) {
+		if(ZoneManager.get(living.world).testEnderBounds(new BlockPos(event.getTargetX(), event.getTargetY(), event.getTargetZ()), living)) {
 			event.setCanceled(true);
 		}
 	}
 	
 	@SubscribeEvent
 	public static void SeedVoluntaryPlantEvent(SeedVoluntaryPlantEvent event) {
-		if(ZoneManager.getZoneManager(event.getEntityItem().world).testSeedsBounds(event.getPos())) {
+		if(ZoneManager.get(event.getEntityItem().world).testSeedsBounds(event.getPos())) {
 			event.setCanceled(true);
 		}
 	}
 	
 	@SubscribeEvent
 	public static void SeedVoluntaryDropEvent(SeedVoluntaryDropEvent event) {
-		if(ZoneManager.getZoneManager(event.getWorld()).testSeedsBounds(event.getRootPos())) {
+		if(ZoneManager.get(event.getWorld()).testSeedsBounds(event.getRootPos())) {
 			event.setCanceled(true);
 		}
 	}

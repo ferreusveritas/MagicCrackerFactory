@@ -43,12 +43,12 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 			if(cartographer != null) {
 				for(CommandManager<ComputerMethod>.CachedCommand cmd: commandManager.getCachedCommands()) {
 					switch(cmd.method) {
-					case addCuboidBounds: ZoneManager.getZoneManager(world).addCuboidBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addCylinderBounds: ZoneManager.getZoneManager(world).addCylinderBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addAnyBounds: ZoneManager.getZoneManager(world).addAnyBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
-					case remBounds: ZoneManager.getZoneManager(world).remBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
-					case addEntityFilter: ZoneManager.getZoneManager(world).addEntityFilter(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s(), cmd.s(), cmd.s()); break;
-					case remEntityFilter: ZoneManager.getZoneManager(world).remEntityFilter(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s()); break;
+					case addCuboidBounds: ZoneManager.get(world).addCuboidBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addCylinderBounds: ZoneManager.get(world).addCylinderBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
+					case addAnyBounds: ZoneManager.get(world).addAnyBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
+					case remBounds: ZoneManager.get(world).remBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
+					case addEntityFilter: ZoneManager.get(world).addEntityFilter(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s(), cmd.s(), cmd.s()); break;
+					case remEntityFilter: ZoneManager.get(world).remEntityFilter(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s()); break;
 					default: break;
 					}
 				}
@@ -85,9 +85,9 @@ public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
 			
 			if(method.md.validateArguments(arguments)) {
 				switch(method) {
-					case listBounds: return ZoneManager.getZoneManager(world).listBounds( EnumBoundsType.getType((String) arguments[0]) );
-					case getBoundsData: return ZoneManager.getZoneManager(world).getBoundsDataLua(EnumBoundsType.getType((String) arguments[0]), (String) arguments[1]);
-					case getPlayersInBounds: return ZoneManager.getZoneManager(world).getPlayersInBounds(world, (String) arguments[0]);
+					case listBounds: return ZoneManager.get(world).listBounds( EnumBoundsType.getType((String) arguments[0]) );
+					case getBoundsData: return ZoneManager.get(world).getBoundsDataLua(EnumBoundsType.getType((String) arguments[0]), (String) arguments[1]);
+					case getPlayersInBounds: return ZoneManager.get(world).getPlayersInBounds(world, (String) arguments[0]);
 					default:
 						if(method.md.isCached()) {
 							synchronized(commandManager) {
