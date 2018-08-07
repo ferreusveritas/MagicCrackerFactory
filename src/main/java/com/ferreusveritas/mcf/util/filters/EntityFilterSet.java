@@ -52,7 +52,7 @@ public class EntityFilterSet {
 		if(nbt.hasKey("filters")) {
 			NBTTagCompound list = (NBTTagCompound) nbt.getTag("filters");
 			for(String name : list.getKeySet()) {
-				NBTBase nbtFilter = nbt.getTag(name);
+				NBTBase nbtFilter = list.getTag(name);
 				if(nbtFilter instanceof NBTTagCompound) {
 					String type = ((NBTTagCompound) nbtFilter).getString("type");
 					String data = ((NBTTagCompound) nbtFilter).getString("data");
