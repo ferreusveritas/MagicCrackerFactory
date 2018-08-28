@@ -24,4 +24,15 @@ public class Util {
 		return null;
 	}
 	
+	public static void setRestrictedObject(Class clazz, Object from, Object value, String ... objNames) {
+		for(String objName: objNames) {
+			try {
+				Field field = clazz.getDeclaredField(objName);
+				field.setAccessible(true);
+				field.set(from, value);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) { }
+		}
+		
+	}
+	
 }
