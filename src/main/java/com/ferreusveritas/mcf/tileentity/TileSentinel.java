@@ -1,109 +1,117 @@
 package com.ferreusveritas.mcf.tileentity;
 
-import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 import com.ferreusveritas.mcf.util.ZoneManager;
 import com.ferreusveritas.mcf.util.bounds.BoundsStorage.EnumBoundsType;
 
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
-import net.minecraft.world.World;
-
-public class TileSentinel extends TileEntity implements IPeripheral, ITickable {
+public class TileSentinel extends MCFPeripheral {
 	
+	public TileSentinel() {
+		super("sentinel");
+	}
+
 	public enum ComputerMethod {
-		addCuboidBounds("ssnnnnnn", true, "type", "name", "minX", "minY", "minZ", "maxX", "maxY", "maxZ"),
-		addCylinderBounds("ssnnnnn", true, "type", "name", "posX", "posZ", "minY", "maxY", "radius"),
-		addAnyBounds("ss", true, "type", "name"),
-		remBounds("ss", true, "type", "name"),
-		listBounds("s", false, "type"),
-		addEntityFilter("sssss", true, "type", "name", "filtername", "filtertype", "filterdata"),
-		remEntityFilter("sss", true, "type", "name", "filtername"),
-		getBoundsData("ss", false, "type", "name"),
-		getPlayersInBounds("s", false, "name");
+		addCuboidBounds("ssnnnnnn", "type, name, minX, minY, minZ, maxX, maxY, maxZ",
+				(world, peri, args) -> {
+					EnumBoundsType type = EnumBoundsType.getType(getStr(args, 0));
+					String name = getStr(args, 1);
+					int x1 = getInt(args, 2);
+					int y1 = getInt(args, 3);
+					int z1 = getInt(args, 4);
+					int x2 = getInt(args, 5);
+					int y2 = getInt(args, 6);
+					int z2 = getInt(args, 7);
+					ZoneManager.get(world).addCuboidBounds(type, name, x1, y1, z1, x2, y2, z2);
+					return new Object[0];
+				}),
+		
+		addCylinderBounds("ssnnnnn", "type, name, posX, posZ, minY, maxY, radius",
+				(world, peri, args) -> {
+					EnumBoundsType type = EnumBoundsType.getType(getStr(args, 0));
+					String name = getStr(args, 1);
+					int x = getInt(args, 2);
+					int z = getInt(args, 3);
+					int y1 = getInt(args, 4);
+					int y2 = getInt(args, 5);
+					int radius = getInt(args, 6);
+					ZoneManager.get(world).addCylinderBounds(type, name, x, z, y1, y2, radius);
+					return new Object[0];					
+				}),
+		
+		addAnyBounds("ss", "type, name",
+				(world, peri, args) -> {
+					EnumBoundsType type = EnumBoundsType.getType(getStr(args, 0));
+					String name = getStr(args, 1);
+					ZoneManager.get(world).addAnyBounds(type, name);
+					return new Object[0];
+				}),
+		
+		remBounds("ss", "type, name",
+				(world, peri, args) -> {
+					EnumBoundsType type = EnumBoundsType.getType(getStr(args, 0));
+					String name = getStr(args, 1);
+					ZoneManager.get(world).remBounds(type, name);
+					return new Object[0];
+				}),
+		
+		listBounds("s", "type",
+				(world, peri, args) -> {
+					return ZoneManager.get(world).listBounds( EnumBoundsType.getType(getStr(args, 0)) );
+				}),
+		
+		addEntityFilter("sssss", "type, name, filtername, filtertype, filterdata",
+				(world, peri, args) -> {
+					EnumBoundsType type = EnumBoundsType.getType(getStr(args, 0));
+					String name = getStr(args, 1);
+					String filterName = getStr(args, 2);
+					String filterType = getStr(args, 3);
+					String filterData = getStr(args, 4);
+					ZoneManager.get(world).addEntityFilter(type, name, filterName, filterType, filterData);
+					return new Object[0];
+				}),
+		
+		remEntityFilter("sss", "type, name, filtername",
+				(world, peri, args) -> {
+					EnumBoundsType type = EnumBoundsType.getType(getStr(args, 0));
+					String name = getStr(args, 1);
+					String filterName = getStr(args, 2);
+					ZoneManager.get(world).remEntityFilter(type, name, filterName);
+					return new Object[0];
+				}),
+		
+		getBoundsData("ss", "type, name",
+				(world, peri, args) -> {
+					return ZoneManager.get(world).getBoundsDataLua(EnumBoundsType.getType(getStr(args, 0)), getStr(args, 1));
+				}),
+		
+		getPlayersInBounds("s", "name",
+				(world, peri, args) -> {
+					return ZoneManager.get(world).getPlayersInBounds(world, getStr(args, 0));
+				});
 		
 		final MethodDescriptor md;
-		ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
+		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(argTypes, args, process); }
+		
+		public static TileSentinel getTool(MCFPeripheral peripheral) {
+			return (TileSentinel) peripheral;
+		}
+		
+		public static String getStr(Object[] args, int arg) {
+			return (String) args[arg];
+		}
+		
+		public static int getInt(Object[] args, int arg) {
+			return ((Double)args[arg]).intValue();
+		}
 	}
 	
 	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
 	
 	@Override
-	public void update() {
-		
-		BlockPeripheral cartographer = (BlockPeripheral)getBlockType();
-		
-		//Run commands that are cached that shouldn't be in the lua thread
-		synchronized(commandManager) {
-			if(cartographer != null) {
-				for(CommandManager<ComputerMethod>.CachedCommand cmd: commandManager.getCachedCommands()) {
-					switch(cmd.method) {
-					case addCuboidBounds: ZoneManager.get(world).addCuboidBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addCylinderBounds: ZoneManager.get(world).addCylinderBounds(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.i(), cmd.i(), cmd.i(), cmd.i(), cmd.i() ); break;
-					case addAnyBounds: ZoneManager.get(world).addAnyBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
-					case remBounds: ZoneManager.get(world).remBounds(EnumBoundsType.getType(cmd.s()), cmd.s() ); break;
-					case addEntityFilter: ZoneManager.get(world).addEntityFilter(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s(), cmd.s(), cmd.s()); break;
-					case remEntityFilter: ZoneManager.get(world).remEntityFilter(EnumBoundsType.getType(cmd.s()), cmd.s(), cmd.s()); break;
-					default: break;
-					}
-				}
-				commandManager.clear();
-			}
-		}
-		
-	}
-	
-	@Override
-	public String getType() {
-		return "sentinel";
-	}
-	
-	@Override
-	public String[] getMethodNames() {
-		return commandManager.getMethodNames();
-	}
-	
-	/**
-	* I hear ya Dan!  Make the function threadsafe by caching the commmands to run in the main world server thread and not the lua thread.
-	*/
-	@Override
-	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int methodNum, Object[] arguments) throws LuaException {
-		if(methodNum < 0 || methodNum >= commandManager.getNumMethods()) {
-			throw new IllegalArgumentException("Invalid method number");
-		}
-		
-		BlockPeripheral cartographer = (BlockPeripheral)getBlockType();
-		World world = getWorld();
-		
-		if(!world.isRemote && cartographer != null) {
-			ComputerMethod method = ComputerMethod.values()[methodNum];
-			
-			if(method.md.validateArguments(arguments)) {
-				switch(method) {
-					case listBounds: return ZoneManager.get(world).listBounds( EnumBoundsType.getType((String) arguments[0]) );
-					case getBoundsData: return ZoneManager.get(world).getBoundsDataLua(EnumBoundsType.getType((String) arguments[0]), (String) arguments[1]);
-					case getPlayersInBounds: return ZoneManager.get(world).getPlayersInBounds(world, (String) arguments[0]);
-					default:
-						if(method.md.isCached()) {
-							synchronized(commandManager) {
-								commandManager.cacheCommand(methodNum, arguments);
-							}
-						}
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public boolean equals(IPeripheral other) {
-		return this == other;
+	public CommandManager getCommandManager() {
+		return commandManager;
 	}
 	
 }

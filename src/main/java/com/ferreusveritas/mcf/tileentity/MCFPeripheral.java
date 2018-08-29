@@ -1,6 +1,6 @@
 package com.ferreusveritas.mcf.tileentity;
 
-import com.ferreusveritas.mcf.util.AdvancedCommandManager;
+import com.ferreusveritas.mcf.util.CommandManager;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -17,7 +17,7 @@ public abstract class MCFPeripheral extends TileEntity implements IPeripheral, I
 		this.typeName = typeName;
 	}
 	
-	public abstract AdvancedCommandManager getCommandManager();
+	public abstract CommandManager getCommandManager();
 	
 	@Override
 	public void update() {

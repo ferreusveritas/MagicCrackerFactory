@@ -11,126 +11,107 @@ import com.ferreusveritas.dynamictrees.trees.Species;
 import com.ferreusveritas.dynamictrees.util.SafeChunkBounds;
 import com.ferreusveritas.dynamictrees.worldgen.JoCode;
 import com.ferreusveritas.mcf.ModConstants;
-import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.util.CommandManager;
-import com.ferreusveritas.mcf.util.CommandManager.CachedCommand;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable {
+public class TileDendrocoil extends MCFPeripheral {
 	
+	public TileDendrocoil() {
+		super("dendrocoil");
+	}
+
 	public enum ComputerMethod {
-		growPulse("nnn", true, "x", "y", "z"),
-		getCode("nnn", false, "x", "y", "z"),
-		setCode("nnnss", true, "x", "y", "z", "treeName", "joCode"),
-		getSpecies("nnn", false, "x", "y", "z"),
-		plantTree("nnns", true, "x", "y", "z", "treeName"),
-		killTree("nnn", true, "x", "y", "z"),
-		getSoilLife("nnn", false, "x", "y", "z"),
-		setSoilLife("nnnn", true, "x", "y", "z", "life"),
-		getSpeciesList("", false),
-		createStaff("sssb", true, "treeName", "joCode", "rgbColor", "readOnly");
+		growPulse("nnn", "x, y, z",
+				(world, peri, args) -> {
+					growPulse(world, getPos(args, 0));
+					return new Object[0];
+				}),
+		
+		getCode("nnn", "x, y, z",
+				(world, peri, args) -> {
+					return new Object[]{ getCode(world, getPos(args, 0)) };
+				}),
+		
+		setCode("nnnss", "x, y, z, treeName, joCode",
+				(world, peri, args) -> {
+					setCode(world, getPos(args, 0), getStr(args, 3), getStr(args, 4));
+					return new Object[0];
+				}),
+		
+		getSpecies("nnn", "x, y, z",
+				(world, peri, args) -> {
+					return new Object[]{ getSpecies(world, getPos(args, 0)) };
+				}),
+		
+		plantTree("nnns", "x, y, z, treeName",
+				(world, peri, args) -> {
+					plantTree(world, getPos(args, 0), getStr(args, 3));
+					return new Object[0];
+				}),
+		
+		killTree("nnn", "x, y, z",
+				(world, peri, args) -> {
+					killTree(world, getPos(args, 0));
+					return new Object[0];
+				}),
+		
+		getSoilLife("nnn", "x, y, z",
+				(world, peri, args) -> {
+					return new Object[]{ getSoilLife(world, getPos(args, 0)) };
+				}),
+		
+		setSoilLife("nnnn", "x, y, z, life",
+				(world, peri, args) -> {
+					setSoilLife(world, getPos(args, 0), getInt(args, 3));
+					return new Object[0];
+				}),
+		
+		getSpeciesList("", "",
+				(world, peri, args) -> {
+					ArrayList<String> species = new ArrayList<String>();
+					TreeRegistry.getSpeciesDirectory().forEach(r -> species.add(r.toString()));
+					return species.toArray();
+				}),
+		
+		createStaff("sssb", "x, y, z, treeName, joCode, rgbColor, readOnly",
+				(world, peri, args) -> {
+					createStaff(world, getPos(args, 0), getStr(args, 3), getStr(args, 4), getStr(args, 5), ((Boolean)args[6]).booleanValue() );
+					return new Object[0];
+				});
 		
 		final MethodDescriptor md;
-		private ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
-	}
+		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(argTypes, args, process); }
+		
+		public static TileSentinel getTool(MCFPeripheral peripheral) {
+			return (TileSentinel) peripheral;
+		}
+		
+		public static String getStr(Object[] args, int arg) {
+			return (String) args[arg];
+		}
+		
+		public static int getInt(Object[] args, int arg) {
+			return ((Double)args[arg]).intValue();
+		}
+		
+		public static BlockPos getPos(Object[] args, int arg) {
+			return new BlockPos(getInt(args, arg), getInt(args, arg + 1), getInt(args, arg + 2));
+		}
+	}	
 	
 	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
 	
 	@Override
-	public void update() {
-		
-		BlockPeripheral dendroCoil = (BlockPeripheral)getBlockType();
-		World world = getWorld();
-		
-		//Run commands that are cached that shouldn't be in the lua thread
-		synchronized(commandManager) {
-			if(dendroCoil != null) {
-				for(CommandManager<ComputerMethod>.CachedCommand cmd:  commandManager.getCachedCommands()) {
-					switch(cmd.method) {
-						case growPulse: growPulse(world, getCmdPos(cmd)); break;
-						case killTree: killTree(world, getCmdPos(cmd)); break;
-						case plantTree: plantTree(world, getCmdPos(cmd), cmd.s()); break;
-						case setCode: setCode(world, getCmdPos(cmd), cmd.s(), cmd.s()); break;
-						case setSoilLife: setSoilLife(world, getCmdPos(cmd), cmd.i()); break;
-						case createStaff: createStaff(world, getPos(), cmd.s(), cmd.s(), cmd.s(), cmd.b()); break;
-						default: break;
-					}
-				}
-				commandManager.clear();
-			}
-		}
-		
-	}
-	
-	public BlockPos getCmdPos(CachedCommand cmd) {
-		return new BlockPos(cmd.i(), cmd.i(), cmd.i());
-	}
-	
-	@Override
-	public String getType() {
-		return "dendrocoil";
-	}
-	
-	@Override
-	public String[] getMethodNames() {
-		return commandManager.getMethodNames();
-	}
-	
-	private int getInt(Object[] arguments, int arg) {
-		return ((Double)arguments[arg]).intValue();
-	}
-	
-	/**
-	* I hear ya Dan!  Make the function threadsafe by caching the commmands to run in the main world server thread and not the lua thread.
-	*/
-	@Override
-	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int methodNum, Object[] arguments) throws LuaException {
-		if(methodNum < 0 || methodNum >= commandManager.getNumMethods()) {
-			throw new IllegalArgumentException("Invalid method number");
-		}
-		
-		BlockPeripheral dendroCoil = (BlockPeripheral)getBlockType();
-		World world = getWorld();
-		
-		if(!world.isRemote && dendroCoil != null) {
-			ComputerMethod method = ComputerMethod.values()[methodNum];
-			
-			if(method.md.validateArguments(arguments)) {
-				switch(method) {
-					case getCode:
-						return new Object[]{ getCode(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))) };
-					case getSpecies:
-						return new Object[]{ getSpecies(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))) };
-					case getSoilLife:
-						return new Object[]{ getSoilLife(world, new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2))) };
-					case getSpeciesList:
-						ArrayList<String> species = new ArrayList<String>();
-						TreeRegistry.getSpeciesDirectory().forEach(r -> species.add(r.toString()));
-						return species.toArray();
-					default:
-						if(method.md.isCached()) {
-							synchronized (commandManager) {
-								commandManager.cacheCommand(methodNum, arguments);
-							}
-						}
-				}
-			}
-		}
-		
-		return null;
+	public CommandManager getCommandManager() {
+		return commandManager;
 	}
 	
 	private static String getCode(World world, BlockPos pos) {
@@ -204,11 +185,6 @@ public class TileDendrocoil extends TileEntity implements IPeripheral, ITickable
 			IBlockState state = world.getBlockState(rootPos);
 			TreeHelper.getRooty(state).setSoilLife(world, rootPos, life);
 		}
-	}
-	
-	@Override
-	public boolean equals(IPeripheral other) {
-		return this == other;
 	}
 	
 }

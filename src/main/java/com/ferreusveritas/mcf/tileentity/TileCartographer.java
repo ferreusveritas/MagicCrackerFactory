@@ -1,26 +1,128 @@
 package com.ferreusveritas.mcf.tileentity;
 
-import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketMaps;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 
-public class TileCartographer extends TileEntity implements IPeripheral, ITickable  {
+public class TileCartographer extends MCFPeripheral  {
+	
+	public TileCartographer() {
+		super("cartographer");
+	}
+
+	public enum ComputerMethod {
+		setMapNum("n", "mapNum",
+			(world, peri, args) -> {
+				getTool(peri).setCurrMapData(getInt(args, 0));
+				return new Object[0];
+			}),
+		
+		getMapNum("n", "mapNum",
+			(world, peri, args) -> {
+				return new Object[] { getTool(peri).getMapNum() };
+			}),
+		
+		setMapPixel("nnn", "x, z, colorIndex",
+			(world, peri, args) -> {
+				getTool(peri).setMapPixel(getInt(args, 0), getInt(args, 1), getInt(args, 2));
+				return new Object[0];
+			}),
+		
+		getMapPixel("nn", "x, z",
+			(world, peri, args) -> {
+				return new Object[] { getTool(peri).getMapPixel(getInt(args, 0), getInt(args, 1)) };
+			}),
+		
+		setMapCenter("nn", "x, z",
+			(world, peri, args) -> {
+				getTool(peri).getCurrMapData().xCenter = getInt(args, 0);
+				getTool(peri).getCurrMapData().zCenter = getInt(args, 1);
+				return new Object[0];
+			}),
+		
+		getMapCenter("", "",
+			(world, peri, args) -> {
+				return new Object[] { getTool(peri).getCurrMapData().xCenter, getTool(peri).getCurrMapData().zCenter };
+			}),
+		
+		setMapScale("n", "scale",
+			(world, peri, args) -> {
+				getTool(peri).getCurrMapData().scale = (byte) MathHelper.clamp(getInt(args, 0), 0, 4);
+				return new Object[0];
+			}),
+		
+		getMapScale("", "",
+			(world, peri, args) -> {
+				return new Object[] { getTool(peri).getCurrMapData().scale };
+			}),
+		
+		setMapDimension("n", "dimension",
+			(world, peri, args) -> {
+				getTool(peri).getCurrMapData().dimension = getInt(args, 0);
+				return new Object[0];
+			}),
+		
+		getMapDimension("", "",
+			(world, peri, args) -> {
+				return new Object[] { getTool(peri).getCurrMapData().dimension };
+			}),
+		
+		updateMap("", "",
+			(world, peri, args) -> {
+				getTool(peri).updateMap();
+				return new Object[0];
+			}),
+		
+		getBlockMapColor("nnn", "xCoord, yCoord, zCoord",
+			(world, peri, args) -> {
+				BlockPos pos = new BlockPos(getInt(args, 0), getInt(args, 1), getInt(args, 2));
+				return new Object[] { world.getBlockState(pos).getMapColor(world, pos).colorIndex };
+			}),
+		
+		getRGBfromMapColor("n", "index",
+			(world, peri, args) -> {
+				int arg = getInt(args, 0);
+				int color = arg >> 2;
+				int index = arg & 3;
+					
+				if(color >= 0 && color < 64) {
+					MapColor mapColor = MapColor.COLORS[color];
+					if(mapColor != null) {
+						int rgbInt = mapColor.getMapColor(index);
+						return new Object[] { (rgbInt >> 16) & 0xFF, (rgbInt >> 8) & 0xFF, rgbInt & 0xFF };
+					}
+				}
+				return new Object[] { 0, 0, 0 }; 
+			});
+		
+		
+		final MethodDescriptor md;
+		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(argTypes, args, process); }
+		
+		public static TileCartographer getTool(MCFPeripheral peripheral) {
+			return (TileCartographer) peripheral;
+		}
+		
+		public static int getInt(Object[] args, int arg) {
+			return ((Double)args[arg]).intValue();
+		}
+	}
+	
+	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
+	
+	@Override
+	public CommandManager getCommandManager() {
+		return commandManager;
+	}
 	
 	int mapNum = 0;
 	MapData currMapData;
@@ -29,6 +131,10 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 		this.mapNum = mapNum;
 		this.currMapData = (MapData) world.loadData(MapData.class, "map_" + mapNum);
 		return this.currMapData;
+	}
+	
+	public int getMapNum() {
+		return mapNum;
 	}
 	
 	public MapData getCurrMapData() {
@@ -62,129 +168,6 @@ public class TileCartographer extends TileEntity implements IPeripheral, ITickab
 				((EntityPlayerMP)player).connection.sendPacket(packet);
 			}
 		}
-	}
-	
-	public enum ComputerMethod {
-		setMapNum("n", true, "mapNum"),
-		getMapNum("n", true, "mapNum"),
-		setMapPixel("nnn", true, "x", "z", "colorIndex"),
-		getMapPixel("nn", false, "x", "z"),
-		setMapCenter("nn", true, "x", "z"),
-		getMapCenter("", false),
-		setMapScale("n", true, "scale"),
-		getMapScale("", false),
-		setMapDimension("n", true, "dimension"),
-		getMapDimension("", false),
-		updateMap("", true),
-		getBlockMapColor("nnn", false, "xCoord", "yCoord", "zCoord"),
-		getRGBfromMapColor("n", false, "index");
-		
-		final MethodDescriptor md;
-		private ComputerMethod(String argTypes, boolean cached, String ... args) { md = new MethodDescriptor(argTypes, cached, args); }
-	}
-	
-	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
-	
-	@Override
-	public void update() {
-		
-		BlockPeripheral cartographer = (BlockPeripheral)getBlockType();
-		
-		//Run commands that are cached that shouldn't be in the lua thread
-		synchronized(commandManager) {
-			if(cartographer != null) {
-				for(CommandManager<ComputerMethod>.CachedCommand cmd:  commandManager.getCachedCommands()) {
-					switch(cmd.method) {
-					case setMapNum: setCurrMapData(cmd.i()); break;
-					case setMapPixel: setMapPixel(cmd.i(), cmd.i(), cmd.i()); break;
-					case setMapCenter: getCurrMapData().xCenter = cmd.i(); getCurrMapData().zCenter = cmd.i(); break;
-					case setMapScale: getCurrMapData().scale = (byte) MathHelper.clamp(cmd.i(), 0, 4); break;
-					case setMapDimension: getCurrMapData().dimension = cmd.i(); break;
-					case updateMap: updateMap(); break;
-					default: break;
-					}
-				}
-				commandManager.clear();
-			}
-		}
-		
-	}
-	
-	@Override
-	public String getType() {
-		return "cartographer";
-	}
-	
-	@Override
-	public String[] getMethodNames() {
-		return commandManager.getMethodNames();
-	}
-	
-	private int getInt(Object[] arguments, int arg) {
-		return ((Double)arguments[arg]).intValue();
-	}
-	
-	/**
-	* I hear ya Dan!  Make the function threadsafe by caching the commmands to run in the main world server thread and not the lua thread.
-	*/
-	@Override
-	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int methodNum, Object[] arguments) throws LuaException {
-		if(methodNum < 0 || methodNum >= commandManager.getNumMethods()) {
-			throw new IllegalArgumentException("Invalid method number");
-		}
-		
-		BlockPeripheral cartographer = (BlockPeripheral)getBlockType();
-		World world = getWorld();
-		
-		if(!world.isRemote && cartographer != null) {
-			ComputerMethod method = ComputerMethod.values()[methodNum];
-			
-			if(method.md.validateArguments(arguments)) {
-				switch(method) {
-					case getMapNum:
-						return new Object[] { mapNum };
-					case getMapPixel:
-						return new Object[] { getMapPixel(getInt(arguments, 0), getInt(arguments, 1)) };
-					case getMapCenter:
-						return new Object[] { getCurrMapData().xCenter, getCurrMapData().zCenter };
-					case getMapScale:
-						return new Object[] { getCurrMapData().scale };
-					case getMapDimension:
-						return new Object[] { getCurrMapData().dimension };
-					case getBlockMapColor:{
-						BlockPos pos = new BlockPos(getInt(arguments, 0), getInt(arguments, 1), getInt(arguments, 2));
-						return new Object[] { world.getBlockState(pos).getMapColor(world, pos).colorIndex };
-						}
-					case getRGBfromMapColor:{
-						int arg = getInt(arguments, 0);
-						int color = arg >> 2;
-						int index = arg & 3;
-							
-						if(color >= 0 && color < 64) {
-							MapColor mapColor = MapColor.COLORS[color];
-							if(mapColor != null) {
-								int rgbInt = mapColor.getMapColor(index);
-								return new Object[] { (rgbInt >> 16) & 0xFF, (rgbInt >> 8) & 0xFF, rgbInt & 0xFF };
-							}
-						}
-						return new Object[] { 0, 0, 0 }; 
-					}
-					default:
-						if(method.md.isCached()) {
-							synchronized (commandManager) {
-								commandManager.cacheCommand(methodNum, arguments);
-							}
-						}
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public boolean equals(IPeripheral other) {
-		return this == other;
 	}
 	
 }

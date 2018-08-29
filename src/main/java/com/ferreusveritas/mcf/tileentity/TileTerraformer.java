@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import com.ferreusveritas.mcf.util.AdvancedCommandManager;
-import com.ferreusveritas.mcf.util.AdvancedMethodDescriptor;
-import com.ferreusveritas.mcf.util.AdvancedMethodDescriptor.SyncProcess;
+import com.ferreusveritas.mcf.util.CommandManager;
+import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 import com.ferreusveritas.mcf.util.Util;
 
 import net.minecraft.block.material.Material;
@@ -16,7 +16,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.SPacketChunkData;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -168,6 +167,10 @@ public class TileTerraformer extends MCFPeripheral  {
 						for(int x = xPosStart; x <= xPosEnd; x += step) {
 							MutableBlockPos top = new MutableBlockPos(x, 0, z);
 							Chunk chunk = world.getChunkFromBlockCoords(top);
+							if(!chunk.isLoaded()) {
+								return new Object[] { -1 }; 
+							}
+							
 							top.setY(chunk.getTopFilledSegment() + 16);
 							
 							while (top.getY() > 0) {
@@ -223,7 +226,7 @@ public class TileTerraformer extends MCFPeripheral  {
 						if(!chunk.isLoaded()) {
 							return new Object[] { -1 }; 
 						}
-
+						
 						top.setY(chunk.getTopFilledSegment() + 16);
 						
 						while (top.getY() > 0) {
@@ -272,18 +275,18 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[0];
 			});
 		
-		public final AdvancedMethodDescriptor md;
-		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new AdvancedMethodDescriptor(argTypes, args, process); }
+		public final MethodDescriptor md;
+		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(argTypes, args, process); }
 		
 		public static int getInt(Object[] args, int arg) {
 			return ((Double)args[arg]).intValue();
 		}
 	}
 	
-	static AdvancedCommandManager<ComputerMethod> commandManager = new AdvancedCommandManager<>(ComputerMethod.class);
+	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
 	
 	@Override
-	public AdvancedCommandManager getCommandManager() {
+	public CommandManager getCommandManager() {
 		return commandManager;
 	}
 	
