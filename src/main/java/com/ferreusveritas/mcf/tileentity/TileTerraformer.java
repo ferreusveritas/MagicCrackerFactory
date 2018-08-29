@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
 import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 import com.ferreusveritas.mcf.util.Util;
 
@@ -31,7 +32,7 @@ public class TileTerraformer extends MCFPeripheral  {
 		super("terraformer");
 	}
 	
-	public enum ComputerMethod {
+	public enum ComputerMethod implements MethodDescriptorProvider {
 		getBiome("nn", "xCoord, zCoord", 
 			(world, peri, args) -> {
 				int x = args.i();
@@ -280,6 +281,11 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		public static int getInt(Object[] args, int arg) {
 			return ((Double)args[arg]).intValue();
+		}
+
+		@Override
+		public MethodDescriptor getMethodDescriptor() {
+			return md;
 		}
 	}
 	

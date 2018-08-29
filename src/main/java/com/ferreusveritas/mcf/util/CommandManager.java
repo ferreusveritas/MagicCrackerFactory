@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ferreusveritas.mcf.tileentity.MCFPeripheral;
-import com.ferreusveritas.mcf.tileentity.TileTerraformer.ComputerMethod;
+import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
 import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 
 import dan200.computercraft.api.lua.ILuaContext;
@@ -16,13 +16,16 @@ public class CommandManager<E extends Enum<E>> {
 
 	private final int numMethods;
 	private final String[] methodNames;
+	private final MethodDescriptor[] methodDesc;
 	
 	public CommandManager(Class<E> e) {
 		numMethods = e.getEnumConstants().length;
 		methodNames = new String[numMethods];
+		methodDesc = new MethodDescriptor[numMethods];
 		
 		for(E method : e.getEnumConstants()) { 
 			methodNames[method.ordinal()] = method.toString();
+			methodDesc[method.ordinal()] = ((MethodDescriptorProvider)method).getMethodDescriptor();
 		}
 	}
 	
@@ -75,9 +78,9 @@ public class CommandManager<E extends Enum<E>> {
 					throw new IllegalArgumentException("Invalid method number");
 				}
 				
-				ComputerMethod method = ComputerMethod.values()[methodNum];
-				if(method.md.validateArguments(arguments)) {
-					return serverProcess(method.md.getProcess(), arguments);
+				MethodDescriptor md = methodDesc[methodNum];
+				if(md.validateArguments(arguments)) {
+					return serverProcess(md.getProcess(), arguments);
 				}
 			}
 		}

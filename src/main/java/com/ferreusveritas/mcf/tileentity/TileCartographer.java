@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
 import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 
 import net.minecraft.block.material.MapColor;
@@ -22,8 +23,8 @@ public class TileCartographer extends MCFPeripheral  {
 	public TileCartographer() {
 		super("cartographer");
 	}
-
-	public enum ComputerMethod {
+	
+	public enum ComputerMethod implements MethodDescriptorProvider {
 		getMapNum("n", "mapNum", (world, peri, args) -> obj(getTool(peri).getMapNum()) ),
 		setMapNum("n", "mapNum", (world, peri, args) -> obj(getTool(peri).setMapNum(args.i())) ),
 		getMapPixel("nn", "x, z", (world, peri, args) -> obj(getTool(peri).getMapPixel(args.i(0), args.i(1))) ),
@@ -34,7 +35,7 @@ public class TileCartographer extends MCFPeripheral  {
 		setMapScale("n", "scale", (world, peri, args) -> obj(getTool(peri).getCurrMapData().scale = (byte) MathHelper.clamp(args.i(), 0, 4)) ),
 		getMapDimension("", "",	(world, peri, args) -> obj(getTool(peri).getCurrMapData().dimension) ),
 		setMapDimension("n", "dimension", (world, peri, args) -> obj(getTool(peri).getCurrMapData().dimension = args.i()) ),
-		copyMapData("nn", "mapA, mapB", (world, peri, args) -> obj(getTool(peri).copyMapData(args.i(0), args.i(1))) ),
+		copyMapData("nn", "mapA, mapB", (world, peri, args) -> { System.out.println("test1"); return obj(getTool(peri).copyMapData(args.i(0), args.i(1))); } ),
 		swapMapData("nn", "mapA, mapB", (world, peri, args) -> obj(getTool(peri).swapMapData(args.i(0), args.i(1))) ),
 		updateMap("", "", (world, peri, args) -> obj(getTool(peri).updateMap()) ),
 		getBlockMapColor("nnn", "xCoord, yCoord, zCoord", (world, peri, args) -> obj(getTool(peri).getBlockMapColor(args.p())) ),
@@ -45,6 +46,11 @@ public class TileCartographer extends MCFPeripheral  {
 		
 		public static TileCartographer getTool(MCFPeripheral peripheral) {
 			return (TileCartographer) peripheral;
+		}
+
+		@Override
+		public MethodDescriptor getMethodDescriptor() {
+			return md;
 		}
 		
 	}
@@ -139,7 +145,9 @@ public class TileCartographer extends MCFPeripheral  {
 
 	
 	public int swapMapData(int mapNumA, int mapNumB) {
-
+		
+		System.out.println("Test");
+		
 		MapData mapDataA = (MapData) world.loadData(MapData.class, "map_" + mapNumA);
 		MapData mapDataB = (MapData) world.loadData(MapData.class, "map_" + mapNumB);
 		

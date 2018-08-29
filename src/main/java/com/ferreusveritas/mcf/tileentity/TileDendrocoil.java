@@ -13,6 +13,7 @@ import com.ferreusveritas.dynamictrees.worldgen.JoCode;
 import com.ferreusveritas.mcf.ModConstants;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
 import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 
 import net.minecraft.block.state.IBlockState;
@@ -28,7 +29,7 @@ public class TileDendrocoil extends MCFPeripheral {
 		super("dendrocoil");
 	}
 	
-	public enum ComputerMethod {
+	public enum ComputerMethod implements MethodDescriptorProvider {
 		growPulse("nnn", "x, y, z", (world, peri, args) -> obj(growPulse(world, args.p())) ),
 		getCode("nnn", "x, y, z", (world, peri, args) -> obj(getCode(world, args.p())) ),
 		setCode("nnnss", "x, y, z, treeName, joCode", (world, peri, args) -> obj(setCode(world, args.p(0), args.s(3), args.s(4))) ),
@@ -45,6 +46,11 @@ public class TileDendrocoil extends MCFPeripheral {
 		
 		public static TileSentinel getTool(MCFPeripheral peripheral) {
 			return (TileSentinel) peripheral;
+		}
+
+		@Override
+		public MethodDescriptor getMethodDescriptor() {
+			return md;
 		}
 		
 	}	

@@ -2,6 +2,7 @@ package com.ferreusveritas.mcf.tileentity;
 
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
+import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
 import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 import com.ferreusveritas.mcf.util.ZoneManager;
 import com.ferreusveritas.mcf.util.bounds.BoundsStorage.EnumBoundsType;
@@ -12,7 +13,7 @@ public class TileSentinel extends MCFPeripheral {
 		super("sentinel");
 	}
 
-	public enum ComputerMethod {
+	public enum ComputerMethod implements MethodDescriptorProvider {
 		addCuboidBounds("ssnnnnnn", "type, name, minX, minY, minZ, maxX, maxY, maxZ",
 				(world, peri, args) -> {
 					EnumBoundsType type = EnumBoundsType.getType(args.s());
@@ -90,6 +91,11 @@ public class TileSentinel extends MCFPeripheral {
 		
 		public static TileSentinel getTool(MCFPeripheral peripheral) {
 			return (TileSentinel) peripheral;
+		}
+
+		@Override
+		public MethodDescriptor getMethodDescriptor() {
+			return md;
 		}
 		
 	}

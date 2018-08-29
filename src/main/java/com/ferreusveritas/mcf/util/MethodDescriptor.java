@@ -8,6 +8,10 @@ import net.minecraft.world.World;
 
 public class MethodDescriptor {
 	
+	public interface MethodDescriptorProvider {
+		MethodDescriptor getMethodDescriptor();
+	}
+	
 	public interface SyncProcess {
 		Object[] apply(World world, MCFPeripheral peripheral, Arguments args);
 	}
