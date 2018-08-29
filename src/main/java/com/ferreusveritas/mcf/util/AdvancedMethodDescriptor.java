@@ -1,38 +1,28 @@
 package com.ferreusveritas.mcf.util;
 
-import java.util.function.BiFunction;
-
 import com.ferreusveritas.mcf.tileentity.CCDataType;
+import com.ferreusveritas.mcf.tileentity.MCFPeripheral;
 
 import dan200.computercraft.api.lua.LuaException;
 import net.minecraft.world.World;
 
-public class MethodDescriptor {
+public class AdvancedMethodDescriptor {
+	
+	public interface SyncProcess {
+		Object[] apply(World world, MCFPeripheral peripheral, Object[] args);
+	}
 	
 	private final String argTypes;
 	private final String args[];
-	private final boolean cached;
-	private final BiFunction<World, Object[], Object[]> process;
+	private final SyncProcess process;
 
-	public MethodDescriptor(String argTypes, boolean cached, String ... args) {
-		this.argTypes = argTypes;
-		this.args = args;
-		this.cached = cached;
-		this.process = null;
-	}
-
-	public MethodDescriptor(String argTypes, String args, BiFunction<World, Object[], Object[]> process) {
+	public AdvancedMethodDescriptor(String argTypes, String args, SyncProcess process) {
 		this.argTypes = argTypes;
 		this.args = args.split("[0-9a-zA-Z]+(,[0-9a-zA-Z]+)*");
-		this.cached = true;
 		this.process = process;
 	}
 
-	public boolean isCached() {
-		return cached;
-	}
-
-	public BiFunction<World, Object[], Object[]> getProcess() {
+	public SyncProcess getProcess() {
 		return process;
 	}
 	
