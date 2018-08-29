@@ -20,54 +20,19 @@ public class TileCartographer extends MCFPeripheral  {
 	}
 
 	public enum ComputerMethod {
-		setMapNum("n", "mapNum",
-			(world, peri, args) -> {
-				getTool(peri).setCurrMapData(getInt(args, 0));
-				return new Object[0];
-			}),
-		
-		getMapNum("n", "mapNum", (world, peri, args) -> new Object[] { getTool(peri).getMapNum() } ),
-
-		getMapPixel("nn", "x, z", (world, peri, args) -> new Object[] { getTool(peri).getMapPixel(getInt(args, 0), getInt(args, 1)) }),
-		
-		setMapPixel("nnn", "x, z, colorIndex", (world, peri, args) -> new Object[] { getTool(peri).setMapPixel(getInt(args, 0), getInt(args, 1), getInt(args, 2)) } ),
-		
-		setMapCenter("nn", "x, z", (world, peri, args) -> new Object[] { getTool(peri).setMapCenter(getInt(args, 0), getInt(args, 1)) } ),
-		
-		getMapCenter("", "", (world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().xCenter, getTool(peri).getCurrMapData().zCenter }	),
-		
-		setMapScale("n", "scale", (world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().scale = (byte) MathHelper.clamp(getInt(args, 0), 0, 4) } ),
-		
-		getMapScale("", "", (world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().scale } ),
-		
-		setMapDimension("n", "dimension", (world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().dimension = getInt(args, 0) } ),
-		
-		getMapDimension("", "",	(world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().dimension } ),
-		
-		updateMap("", "", (world, peri, args) -> new Object[] { getTool(peri).updateMap() }),
-		
-		getBlockMapColor("nnn", "xCoord, yCoord, zCoord",
-			(world, peri, args) -> {
-				BlockPos pos = new BlockPos(getInt(args, 0), getInt(args, 1), getInt(args, 2));
-				return new Object[] { world.getBlockState(pos).getMapColor(world, pos).colorIndex };
-			}),
-		
-		getRGBfromMapColor("n", "index",
-			(world, peri, args) -> {
-				int arg = getInt(args, 0);
-				int color = arg >> 2;
-				int index = arg & 3;
-					
-				if(color >= 0 && color < 64) {
-					MapColor mapColor = MapColor.COLORS[color];
-					if(mapColor != null) {
-						int rgbInt = mapColor.getMapColor(index);
-						return new Object[] { (rgbInt >> 16) & 0xFF, (rgbInt >> 8) & 0xFF, rgbInt & 0xFF };
-					}
-				}
-				return new Object[] { 0, 0, 0 }; 
-			});
-		
+		getMapNum("n", "mapNum", (world, peri, args) -> obj(getTool(peri).getMapNum()) ),
+		setMapNum("n", "mapNum", (world, peri, args) -> obj(getTool(peri).setMapNum(args.i())) ),
+		getMapPixel("nn", "x, z", (world, peri, args) -> obj(getTool(peri).getMapPixel(args.i(0), args.i(1))) ),
+		setMapPixel("nnn", "x, z, colorIndex", (world, peri, args) -> obj(getTool(peri).setMapPixel(args.i(0), args.i(1), args.i(2))) ),
+		getMapCenter("", "", (world, peri, args) -> obj(getTool(peri).getCurrMapData().xCenter, getTool(peri).getCurrMapData().zCenter ) ),
+		setMapCenter("nn", "x, z", (world, peri, args) -> obj(getTool(peri).setMapCenter(args.i(0), args.i(1))) ),
+		getMapScale("", "", (world, peri, args) -> obj(getTool(peri).getCurrMapData().scale) ),
+		setMapScale("n", "scale", (world, peri, args) -> obj(getTool(peri).getCurrMapData().scale = (byte) MathHelper.clamp(args.i(), 0, 4)) ),
+		getMapDimension("", "",	(world, peri, args) -> obj(getTool(peri).getCurrMapData().dimension) ),
+		setMapDimension("n", "dimension", (world, peri, args) -> obj(getTool(peri).getCurrMapData().dimension = args.i()) ),
+		updateMap("", "", (world, peri, args) -> obj(getTool(peri).updateMap()) ),
+		getBlockMapColor("nnn", "xCoord, yCoord, zCoord", (world, peri, args) -> obj(getTool(peri).getBlockMapColor(args.p())) ),
+		getRGBfromMapColor("n", "index", (world, peri, args) -> getRGBfromMapColor(args.i()) );
 		
 		final MethodDescriptor md;
 		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(argTypes, args, process); }
@@ -76,9 +41,6 @@ public class TileCartographer extends MCFPeripheral  {
 			return (TileCartographer) peripheral;
 		}
 		
-		public static int getInt(Object[] args, int arg) {
-			return ((Double)args[arg]).intValue();
-		}
 	}
 	
 	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
@@ -91,6 +53,10 @@ public class TileCartographer extends MCFPeripheral  {
 	int mapNum = 0;
 	MapData currMapData;
 	
+	public MapData getCurrMapData() {
+		return currMapData != null ? currMapData : setCurrMapData(0);
+	}
+	
 	public MapData setCurrMapData(int mapNum) {
 		this.mapNum = mapNum;
 		this.currMapData = (MapData) world.loadData(MapData.class, "map_" + mapNum);
@@ -101,12 +67,9 @@ public class TileCartographer extends MCFPeripheral  {
 		return mapNum;
 	}
 	
-	public MapData getCurrMapData() {
-		return currMapData != null ? currMapData : setCurrMapData(0);
-	}
-	
-	public void setMapPixel(int x, int z, int color52, int index4) {
-		setMapPixel(x, z, color52 * 4 | index4);
+	public int setMapNum(int mapNum) {
+		setCurrMapData(mapNum);
+		return this.mapNum;
 	}
 	
 	public int getMapPixel(int x, int z) {
@@ -120,8 +83,11 @@ public class TileCartographer extends MCFPeripheral  {
 		if(x >= 0 && x < 128 && z >= 0 && z < 128) {
 			getCurrMapData().colors[x + z * 128] = (byte) (colorFull >= 0 && colorFull <= (51 * 4) ? colorFull : 0);
 		}
-		
-		return 0;
+		return mapNum;
+	}
+
+	public void setMapPixel(int x, int z, int color52, int index4) {
+		setMapPixel(x, z, color52 * 4 | index4);
 	}
 	
 	public int setMapCenter(int x, int z) {
@@ -142,6 +108,25 @@ public class TileCartographer extends MCFPeripheral  {
 		}
 		
 		return mapNum;
+	}
+	
+	public int getBlockMapColor(BlockPos pos) {
+		return world.getBlockState(pos).getMapColor(world, pos).colorIndex;
+	}
+	
+	public static Object[] getRGBfromMapColor(int i) {
+		int arg = i;
+		int color = arg >> 2;
+		int index = arg & 3;
+					
+		if(color >= 0 && color < 64) {
+			MapColor mapColor = MapColor.COLORS[color];
+			if(mapColor != null) {
+				int rgbInt = mapColor.getMapColor(index);
+				return obj((rgbInt >> 16) & 0xFF, (rgbInt >> 8) & 0xFF, rgbInt & 0xFF);
+			}
+		}
+		return obj(0, 0, 0); 
 	}
 	
 }

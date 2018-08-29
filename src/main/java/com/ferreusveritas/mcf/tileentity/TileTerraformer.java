@@ -34,8 +34,8 @@ public class TileTerraformer extends MCFPeripheral  {
 	public enum ComputerMethod {
 		getBiome("nn", "xCoord, zCoord", 
 			(world, peri, args) -> {
-				int x = getInt(args, 0);
-				int z = getInt(args, 1);
+				int x = args.i();
+				int z = args.i();
 				Biome biome = world.getBiome(new BlockPos(x, 0, z));
 				String biomeName = biome != null ? getBiomeName(biome) : null;
 				int biomeId =  biome != null ? Biome.getIdForBiome(biome) : 0;
@@ -44,11 +44,11 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		setBiome("nnnnn", "xStart, zStart, xStop, zStop, biomeId",
 			(world, peri, args) -> {
-				int xStart = getInt(args, 0);
-				int zStart = getInt(args, 1);
-				int xStop = getInt(args, 2);
-				int zStop = getInt(args, 3);
-				int biomeId = getInt(args, 4);
+				int xStart = args.i();
+				int zStart = args.i();
+				int xStop = args.i();
+				int zStop = args.i();
+				int biomeId = args.i();
 				
 				if(Biome.REGISTRY.getObjectById(biomeId) != null) { //Verify the biomeId is tied to a valid Biome
 					
@@ -102,11 +102,11 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		getBiomeArray("nnnnn", "xStart, zStart, xEnd, yEnd, step", 
 			(world, peri, args) -> {
-				int xPosStart = getInt(args, 0);
-				int zPosStart = getInt(args, 1);
-				int xPosEnd = 	getInt(args, 2);
-				int zPosEnd = 	getInt(args, 3);
-				int step = 		getInt(args, 4);
+				int xPosStart = args.i();
+				int zPosStart = args.i();
+				int xPosEnd = 	args.i();
+				int zPosEnd = 	args.i();
+				int step = 		args.i();
 				step = MathHelper.clamp(step, 1, step);
 				
 				ArrayList<Biome> biomes = new ArrayList<Biome>();
@@ -131,13 +131,13 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		getBiomeName("n", "biomeID", 
 			(world, peri, args) -> {
-				Biome biome = Biome.getBiomeForId(getInt(args, 0));
+				Biome biome = Biome.getBiomeForId(args.i());
 				return new Object[] { biome == null ? null : getBiomeName(biome) };
 			}),
 		
 		getYTop("nn", "xCoord, zCoord", 
 			(world, peri, args) -> {
-				MutableBlockPos top = new MutableBlockPos(getInt(args, 0), 0, getInt(args, 1));
+				MutableBlockPos top = new MutableBlockPos(args.i(0), 0, args.i(1));
 				Chunk chunk = world.getChunkFromBlockCoords(top);
 				top.setY(chunk.getTopFilledSegment() + 16);
 				
@@ -154,11 +154,11 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		getYTopArray("nnnnn", "xStart, zStart, xEnd, yEnd, step", 
 				(world, peri, args) -> {
-					int xPosStart = getInt(args, 0);
-					int zPosStart = getInt(args, 1);
-					int xPosEnd = 	getInt(args, 2);
-					int zPosEnd = 	getInt(args, 3);
-					int step = 		getInt(args, 4);
+					int xPosStart = args.i();
+					int zPosStart = args.i();
+					int xPosEnd = 	args.i();
+					int zPosEnd = 	args.i();
+					int step = 		args.i();
 					
 					Map<Integer, Integer> heights = new HashMap<>();
 					
@@ -190,8 +190,8 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		getYTopSolid("nn", "xCoord, zCoord", 
 			(world, peri, args) -> {
-				int x = getInt(args, 0);
-				int z = getInt(args, 1);
+				int x = args.i();
+				int z = args.i();
 				
 				MutableBlockPos top = new MutableBlockPos(x, 0, z);
 				Chunk chunk = world.getChunkFromBlockCoords(top);
@@ -210,11 +210,11 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		getYTopSolidArray("nnnnn", "xStart, zStart, xEnd, yEnd, step", 
 			(world, peri, args) -> {
-				int xPosStart = getInt(args, 0);
-				int zPosStart = getInt(args, 1);
-				int xPosEnd = 	getInt(args, 2);
-				int zPosEnd = 	getInt(args, 3);
-				int step = 		getInt(args, 4);
+				int xPosStart = args.i();
+				int zPosStart = args.i();
+				int xPosEnd = 	args.i();
+				int zPosEnd = 	args.i();
+				int step = 		args.i();
 				
 				Map<Integer, Integer> heights = new HashMap<>();
 				
@@ -246,14 +246,14 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		getTemperature("nnn", "xCoord, yCoord, zCoord",
 			(world, peri, args) -> {
-				BlockPos pos = new BlockPos(getInt(args, 0), getInt(args, 1), getInt(args, 2));
+				BlockPos pos = args.p();
 				return new Object[] { world.getBiome(pos).getTemperature(pos) };
 			}),
 		
 		generateChunk("nn", "xChunk, yChunk", 
 			(world, peri, args) -> {
-				int x = getInt(args, 0);
-				int z = getInt(args, 1);
+				int x = args.i();
+				int z = args.i();
 					
 				IChunkProvider cp = world.getChunkProvider();
 				if(cp instanceof ChunkProviderServer) {

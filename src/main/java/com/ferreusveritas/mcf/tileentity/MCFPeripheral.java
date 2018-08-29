@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.tileentity;
 
+import com.ferreusveritas.mcf.util.Arguments;
 import com.ferreusveritas.mcf.util.CommandManager;
 
 import dan200.computercraft.api.lua.ILuaContext;
@@ -18,6 +19,10 @@ public abstract class MCFPeripheral extends TileEntity implements IPeripheral, I
 	}
 	
 	public abstract CommandManager getCommandManager();
+
+	protected static Object[] obj(Object ... args) {
+		return args;
+	}
 	
 	@Override
 	public void update() {
@@ -36,7 +41,7 @@ public abstract class MCFPeripheral extends TileEntity implements IPeripheral, I
 
 	@Override
 	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int methodNum, Object[] arguments) throws LuaException {
-		return getCommandManager().callMethod(getWorld(), this, computer, context, methodNum, arguments);
+		return getCommandManager().callMethod(getWorld(), this, computer, context, methodNum, new Arguments(arguments));
 	}
 	
 	@Override

@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 public class MethodDescriptor {
 	
 	public interface SyncProcess {
-		Object[] apply(World world, MCFPeripheral peripheral, Object[] args);
+		Object[] apply(World world, MCFPeripheral peripheral, Arguments args);
 	}
 	
 	private final String argTypes;
@@ -26,10 +26,10 @@ public class MethodDescriptor {
 		return process;
 	}
 	
-	public boolean isValidArguments(Object[] arguments) {
-		if(arguments.length >= argTypes.length()) {
+	public boolean isValidArguments(Arguments arguments) {
+		if(arguments.getNumArgs() >= argTypes.length()) {
 			for (int i = 0; i < argTypes.length(); i++){
-				if(!CCDataType.byIdent(argTypes.charAt(i)).isInstance(arguments[i])) {
+				if(!CCDataType.byIdent(argTypes.charAt(i)).isInstance(arguments.o(i))) {
 					return false;
 				}
 			}
@@ -38,7 +38,7 @@ public class MethodDescriptor {
 		return false;
 	}
 
-	public boolean validateArguments(Object[] arguments) throws LuaException {
+	public boolean validateArguments(Arguments arguments) throws LuaException {
 		if(isValidArguments(arguments)) {
 			return true;
 		}

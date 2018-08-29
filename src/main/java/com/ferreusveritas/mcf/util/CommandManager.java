@@ -37,10 +37,10 @@ public class CommandManager<E extends Enum<E>> {
 	private class SyncCommand {
 		private boolean fulfilled;
 		private Object[] result;
-		private Object[] args;
+		private Arguments args;
 		private final SyncProcess processor;
 		
-		public SyncCommand(SyncProcess processor, Object[] args) {
+		public SyncCommand(SyncProcess processor, Arguments args) {
 			this.processor = processor;
 			this.args = args;
 		}
@@ -67,7 +67,7 @@ public class CommandManager<E extends Enum<E>> {
 	/**
 	* I hear ya Dan!  Make the function threadsafe by caching the commmands to run in the main world server thread and not the lua thread.
 	*/
-	public Object[] callMethod(World world, MCFPeripheral peripheral, IComputerAccess computer, ILuaContext context, int methodNum, Object[] arguments) throws LuaException {
+	public Object[] callMethod(World world, MCFPeripheral peripheral, IComputerAccess computer, ILuaContext context, int methodNum, Arguments arguments) throws LuaException {
 		
 		if(!world.isRemote) {
 			if(peripheral.getBlockType() != null) {
@@ -87,7 +87,7 @@ public class CommandManager<E extends Enum<E>> {
 	
 	private List<SyncCommand> syncRequests = new ArrayList<>();
 	
-	public Object[] serverProcess(SyncProcess process, Object[] args) {
+	public Object[] serverProcess(SyncProcess process, Arguments args) {
 		SyncCommand syncReq = new SyncCommand(process, args);
 		synchronized (syncRequests) {
 			syncRequests.add(syncReq);
