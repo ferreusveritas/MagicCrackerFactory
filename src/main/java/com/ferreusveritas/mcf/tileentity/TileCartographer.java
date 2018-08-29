@@ -26,61 +26,25 @@ public class TileCartographer extends MCFPeripheral  {
 				return new Object[0];
 			}),
 		
-		getMapNum("n", "mapNum",
-			(world, peri, args) -> {
-				return new Object[] { getTool(peri).getMapNum() };
-			}),
+		getMapNum("n", "mapNum", (world, peri, args) -> new Object[] { getTool(peri).getMapNum() } ),
+
+		getMapPixel("nn", "x, z", (world, peri, args) -> new Object[] { getTool(peri).getMapPixel(getInt(args, 0), getInt(args, 1)) }),
 		
-		setMapPixel("nnn", "x, z, colorIndex",
-			(world, peri, args) -> {
-				getTool(peri).setMapPixel(getInt(args, 0), getInt(args, 1), getInt(args, 2));
-				return new Object[0];
-			}),
+		setMapPixel("nnn", "x, z, colorIndex", (world, peri, args) -> new Object[] { getTool(peri).setMapPixel(getInt(args, 0), getInt(args, 1), getInt(args, 2)) } ),
 		
-		getMapPixel("nn", "x, z",
-			(world, peri, args) -> {
-				return new Object[] { getTool(peri).getMapPixel(getInt(args, 0), getInt(args, 1)) };
-			}),
+		setMapCenter("nn", "x, z", (world, peri, args) -> new Object[] { getTool(peri).setMapCenter(getInt(args, 0), getInt(args, 1)) } ),
 		
-		setMapCenter("nn", "x, z",
-			(world, peri, args) -> {
-				getTool(peri).getCurrMapData().xCenter = getInt(args, 0);
-				getTool(peri).getCurrMapData().zCenter = getInt(args, 1);
-				return new Object[0];
-			}),
+		getMapCenter("", "", (world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().xCenter, getTool(peri).getCurrMapData().zCenter }	),
 		
-		getMapCenter("", "",
-			(world, peri, args) -> {
-				return new Object[] { getTool(peri).getCurrMapData().xCenter, getTool(peri).getCurrMapData().zCenter };
-			}),
+		setMapScale("n", "scale", (world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().scale = (byte) MathHelper.clamp(getInt(args, 0), 0, 4) } ),
 		
-		setMapScale("n", "scale",
-			(world, peri, args) -> {
-				getTool(peri).getCurrMapData().scale = (byte) MathHelper.clamp(getInt(args, 0), 0, 4);
-				return new Object[0];
-			}),
+		getMapScale("", "", (world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().scale } ),
 		
-		getMapScale("", "",
-			(world, peri, args) -> {
-				return new Object[] { getTool(peri).getCurrMapData().scale };
-			}),
+		setMapDimension("n", "dimension", (world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().dimension = getInt(args, 0) } ),
 		
-		setMapDimension("n", "dimension",
-			(world, peri, args) -> {
-				getTool(peri).getCurrMapData().dimension = getInt(args, 0);
-				return new Object[0];
-			}),
+		getMapDimension("", "",	(world, peri, args) -> new Object[] { getTool(peri).getCurrMapData().dimension } ),
 		
-		getMapDimension("", "",
-			(world, peri, args) -> {
-				return new Object[] { getTool(peri).getCurrMapData().dimension };
-			}),
-		
-		updateMap("", "",
-			(world, peri, args) -> {
-				getTool(peri).updateMap();
-				return new Object[0];
-			}),
+		updateMap("", "", (world, peri, args) -> new Object[] { getTool(peri).updateMap() }),
 		
 		getBlockMapColor("nnn", "xCoord, yCoord, zCoord",
 			(world, peri, args) -> {
@@ -152,13 +116,21 @@ public class TileCartographer extends MCFPeripheral  {
 		return 0;
 	}
 	
-	public void setMapPixel(int x, int z, int colorFull) {
+	public int setMapPixel(int x, int z, int colorFull) {
 		if(x >= 0 && x < 128 && z >= 0 && z < 128) {
 			getCurrMapData().colors[x + z * 128] = (byte) (colorFull >= 0 && colorFull <= (51 * 4) ? colorFull : 0);
 		}
+		
+		return 0;
 	}
 	
-	public void updateMap() {
+	public int setMapCenter(int x, int z) {
+		getCurrMapData().xCenter = x;
+		getCurrMapData().zCenter = z;
+		return mapNum;
+	}
+	
+	public int updateMap() {
 		MapData mapData = getCurrMapData();
 		mapData.markDirty();//Mark as dirty so the changes save to disk
 		Packet<?> packet = new SPacketMaps(mapNum, mapData.scale, mapData.trackingPosition, mapData.mapDecorations.values(), mapData.colors, 0, 0, 128, 128);
@@ -168,6 +140,8 @@ public class TileCartographer extends MCFPeripheral  {
 				((EntityPlayerMP)player).connection.sendPacket(packet);
 			}
 		}
+		
+		return mapNum;
 	}
 	
 }
