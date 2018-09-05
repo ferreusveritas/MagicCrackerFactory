@@ -129,7 +129,7 @@ public class TileDendrocoil extends MCFPeripheral {
 			IBlockState state = world.getBlockState(rootPos);
 			return TreeHelper.getRooty(state).getSoilLife(state, world, rootPos);
 		}
-		return 0;
+		return -1;
 	}
 	
 	private static int setSoilLife(World world, BlockPos pos, int life) {
