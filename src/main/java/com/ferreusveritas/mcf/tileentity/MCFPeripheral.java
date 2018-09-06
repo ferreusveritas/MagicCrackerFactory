@@ -26,7 +26,9 @@ public abstract class MCFPeripheral extends TileEntity implements IPeripheral, I
 	
 	@Override
 	public void update() {
-		getCommandManager().runServerProcesses(getWorld(), this);
+		if(!getWorld().isRemote) {
+			getCommandManager().runServerProcesses(getWorld(), this);
+		}
 	}
 	
 	@Override
