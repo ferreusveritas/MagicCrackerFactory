@@ -32,7 +32,7 @@ public class TileDendrocoil extends MCFPeripheral {
 	public enum ComputerMethod implements MethodDescriptorProvider {
 		growPulse("nnn", "x, y, z", (world, peri, args) -> obj(growPulse(world, args.p())) ),
 		getCode("nnn", "x, y, z", (world, peri, args) -> obj(getCode(world, args.p())) ),
-		setCode("nnnss", "x, y, z, treeName, joCode", (world, peri, args) -> obj(setCode(world, args.p(0), args.s(3), args.s(4))) ),
+		setCode("nnnss", "x, y, z, treeName, joCode, turns", (world, peri, args) -> obj(setCode(world, args.p(0), args.s(3), args.s(4), args.i(5))) ),
 		getSpecies("nnn", "x, y, z", (world, peri, args) -> obj(getSpecies(world, args.p())) ),
 		plantTree("nnns", "x, y, z, treeName", (world, peri, args) -> obj(plantTree(world, args.p(0), args.s(3))) ),
 		killTree("nnn", "x, y, z", (world, peri, args) -> obj(killTree(world, args.p())) ),
@@ -70,10 +70,10 @@ public class TileDendrocoil extends MCFPeripheral {
 		return "";
 	}
 	
-	private static int setCode(World world, BlockPos rootPos, String treeName, String JoCode) {
+	private static int setCode(World world, BlockPos rootPos, String treeName, String JoCode, int turns) {
 		Species species = TreeRegistry.findSpeciesSloppy(treeName);
 		if(species != Species.NULLSPECIES) {
-			species.getJoCode(JoCode).setCareful(true).generate(world, species, rootPos, world.getBiome(rootPos), EnumFacing.NORTH, 8, SafeChunkBounds.ANY);
+			species.getJoCode(JoCode).setCareful(true).generate(world, species, rootPos, world.getBiome(rootPos), EnumFacing.fromAngle(turns * 90.0d), 8, SafeChunkBounds.ANY);
 		} else {
 			Logger.getLogger(ModConstants.MODID).log(Level.WARNING, "Tree: " + treeName + " not found.");
 		}
