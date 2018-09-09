@@ -14,7 +14,7 @@ public class TileSentinel extends MCFPeripheral {
 	}
 
 	public enum ComputerMethod implements MethodDescriptorProvider {
-		addCuboidBounds("ssnnnnnn", "type, name, minX, minY, minZ, maxX, maxY, maxZ",
+		addCuboidBounds("ssnnnnnn", "type,name,minX,minY,minZ,maxX,maxY,maxZ",
 				(world, peri, args) -> {
 					EnumBoundsType type = EnumBoundsType.getType(args.s());
 					String name = args.s();
@@ -28,7 +28,7 @@ public class TileSentinel extends MCFPeripheral {
 					return new Object[0];
 				}),
 		
-		addCylinderBounds("ssnnnnn", "type, name, posX, posZ, minY, maxY, radius",
+		addCylinderBounds("ssnnnnn", "type,name,posX,posZ,minY,maxY,radius",
 				(world, peri, args) -> {
 					EnumBoundsType type = EnumBoundsType.getType(args.s());
 					String name = args.s();
@@ -41,7 +41,7 @@ public class TileSentinel extends MCFPeripheral {
 					return new Object[0];					
 				}),
 		
-		addAnyBounds("ss", "type, name",
+		addAnyBounds("ss", "type,name",
 				(world, peri, args) -> {
 					EnumBoundsType type = EnumBoundsType.getType(args.s());
 					String name = args.s();
@@ -49,7 +49,7 @@ public class TileSentinel extends MCFPeripheral {
 					return new Object[0];
 				}),
 		
-		remBounds("ss", "type, name",
+		remBounds("ss", "type,name",
 				(world, peri, args) -> {
 					EnumBoundsType type = EnumBoundsType.getType(args.s());
 					String name = args.s();
@@ -62,7 +62,7 @@ public class TileSentinel extends MCFPeripheral {
 					return ZoneManager.get(world).listBounds( EnumBoundsType.getType(args.s()));
 				}),
 		
-		addEntityFilter("sssss", "type, name, filtername, filtertype, filterdata",
+		addEntityFilter("sssss", "type,name,filtername,filtertype,filterdata",
 				(world, peri, args) -> {
 					EnumBoundsType type = EnumBoundsType.getType(args.s());
 					String name = args.s();
@@ -73,7 +73,7 @@ public class TileSentinel extends MCFPeripheral {
 					return new Object[0];
 				}),
 		
-		remEntityFilter("sss", "type, name, filtername",
+		remEntityFilter("sss", "type,name,filtername",
 				(world, peri, args) -> {
 					EnumBoundsType type = EnumBoundsType.getType(args.s());
 					String name = args.s();
@@ -82,12 +82,12 @@ public class TileSentinel extends MCFPeripheral {
 					return new Object[0];
 				}),
 		
-		getBoundsData("ss", "type, name", (world, peri, args) -> ZoneManager.get(world).getBoundsDataLua(EnumBoundsType.getType(args.s(0)), args.s(1)) ),
+		getBoundsData("ss", "type,name", (world, peri, args) -> ZoneManager.get(world).getBoundsDataLua(EnumBoundsType.getType(args.s(0)), args.s(1)) ),
 		
 		getPlayersInBounds("s", "name", (world, peri, args) -> ZoneManager.get(world).getPlayersInBounds(world, args.s()) );
 		
 		final MethodDescriptor md;
-		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(argTypes, args, process); }
+		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(toString(), argTypes, args, process); }
 		
 		public static TileSentinel getTool(MCFPeripheral peripheral) {
 			return (TileSentinel) peripheral;

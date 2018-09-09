@@ -27,22 +27,22 @@ public class TileCartographer extends MCFPeripheral  {
 	public enum ComputerMethod implements MethodDescriptorProvider {
 		getMapNum("n", "mapNum", (world, peri, args) -> obj(getTool(peri).getMapNum()) ),
 		setMapNum("n", "mapNum", (world, peri, args) -> obj(getTool(peri).setMapNum(args.i())) ),
-		getMapPixel("nn", "x, z", (world, peri, args) -> obj(getTool(peri).getMapPixel(args.i(0), args.i(1))) ),
-		setMapPixel("nnn", "x, z, colorIndex", (world, peri, args) -> obj(getTool(peri).setMapPixel(args.i(0), args.i(1), args.i(2))) ),
+		getMapPixel("nn", "x,z", (world, peri, args) -> obj(getTool(peri).getMapPixel(args.i(0), args.i(1))) ),
+		setMapPixel("nnn", "x,z,colorIndex", (world, peri, args) -> obj(getTool(peri).setMapPixel(args.i(0), args.i(1), args.i(2))) ),
 		getMapCenter("", "", (world, peri, args) -> obj(getTool(peri).getCurrMapData().xCenter, getTool(peri).getCurrMapData().zCenter ) ),
-		setMapCenter("nn", "x, z", (world, peri, args) -> obj(getTool(peri).setMapCenter(args.i(0), args.i(1))) ),
+		setMapCenter("nn", "x,z", (world, peri, args) -> obj(getTool(peri).setMapCenter(args.i(0), args.i(1))) ),
 		getMapScale("", "", (world, peri, args) -> obj(getTool(peri).getCurrMapData().scale) ),
 		setMapScale("n", "scale", (world, peri, args) -> obj(getTool(peri).getCurrMapData().scale = (byte) MathHelper.clamp(args.i(), 0, 4)) ),
 		getMapDimension("", "",	(world, peri, args) -> obj(getTool(peri).getCurrMapData().dimension) ),
 		setMapDimension("n", "dimension", (world, peri, args) -> obj(getTool(peri).getCurrMapData().dimension = args.i()) ),
-		copyMapData("nn", "mapA, mapB", (world, peri, args) -> { System.out.println("test1"); return obj(getTool(peri).copyMapData(args.i(0), args.i(1))); } ),
-		swapMapData("nn", "mapA, mapB", (world, peri, args) -> obj(getTool(peri).swapMapData(args.i(0), args.i(1))) ),
+		copyMapData("nn", "mapA,mapB", (world, peri, args) -> { System.out.println("test1"); return obj(getTool(peri).copyMapData(args.i(0), args.i(1))); } ),
+		swapMapData("nn", "mapA,mapB", (world, peri, args) -> obj(getTool(peri).swapMapData(args.i(0), args.i(1))) ),
 		updateMap("", "", (world, peri, args) -> obj(getTool(peri).updateMap()) ),
-		getBlockMapColor("nnn", "xCoord, yCoord, zCoord", (world, peri, args) -> obj(getTool(peri).getBlockMapColor(args.p())) ),
+		getBlockMapColor("nnn", "x,y,z", (world, peri, args) -> obj(getTool(peri).getBlockMapColor(args.p())) ),
 		getRGBfromMapColor("n", "index", (world, peri, args) -> getRGBfromMapColor(args.i()) );
 		
 		final MethodDescriptor md;
-		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(argTypes, args, process); }
+		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(toString(), argTypes, args, process); }
 		
 		public static TileCartographer getTool(MCFPeripheral peripheral) {
 			return (TileCartographer) peripheral;

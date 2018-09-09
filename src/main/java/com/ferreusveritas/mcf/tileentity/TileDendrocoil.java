@@ -30,19 +30,19 @@ public class TileDendrocoil extends MCFPeripheral {
 	}
 	
 	public enum ComputerMethod implements MethodDescriptorProvider {
-		growPulse("nnn", "x, y, z", (world, peri, args) -> obj(growPulse(world, args.p())) ),
-		getCode("nnn", "x, y, z", (world, peri, args) -> obj(getCode(world, args.p())) ),
-		setCode("nnnss", "x, y, z, treeName, joCode, turns", (world, peri, args) -> obj(setCode(world, args.p(0), args.s(3), args.s(4), args.i(5))) ),
-		getSpecies("nnn", "x, y, z", (world, peri, args) -> obj(getSpecies(world, args.p())) ),
-		plantTree("nnns", "x, y, z, treeName", (world, peri, args) -> obj(plantTree(world, args.p(0), args.s(3))) ),
-		killTree("nnn", "x, y, z", (world, peri, args) -> obj(killTree(world, args.p())) ),
-		getSoilLife("nnn", "x, y, z", (world, peri, args) -> obj(getSoilLife(world, args.p())) ),
-		setSoilLife("nnnn", "x, y, z, life", (world, peri, args) -> obj(setSoilLife(world, args.p(), args.i(3))) ),
+		growPulse("nnn", "x,y,z", (world, peri, args) -> obj(growPulse(world, args.p())) ),
+		getCode("nnn", "x,y,z", (world, peri, args) -> obj(getCode(world, args.p())) ),
+		setCode("nnnssn", "x,y,z,treeName,joCode,turns", (world, peri, args) -> obj(setCode(world, args.p(0), args.s(3), args.s(4), args.i(5))) ),
+		getSpecies("nnn", "x,y,z", (world, peri, args) -> obj(getSpecies(world, args.p())) ),
+		plantTree("nnns", "x,y,z,treeName", (world, peri, args) -> obj(plantTree(world, args.p(0), args.s(3))) ),
+		killTree("nnn", "x,y,z", (world, peri, args) -> obj(killTree(world, args.p())) ),
+		getSoilLife("nnn", "x,y,z", (world, peri, args) -> obj(getSoilLife(world, args.p())) ),
+		setSoilLife("nnnn", "x,y,z,life", (world, peri, args) -> obj(setSoilLife(world, args.p(), args.i(3))) ),
 		getSpeciesList("", "", (world, peri, args) -> getSpeciesList() ), 
-		createStaff("sssb", "x, y, z, treeName, joCode, rgbColor, readOnly", (world, peri, args) -> obj(createStaff(world, args.p(0), args.s(3), args.s(4), args.s(5), args.b(6))) );
+		createStaff("sssb", "x,y,z,treeName,joCode,rgbColor,readOnly", (world, peri, args) -> obj(createStaff(world, args.p(0), args.s(3), args.s(4), args.s(5), args.b(6))) );
 		
 		final MethodDescriptor md;
-		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(argTypes, args, process); }
+		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(toString(), argTypes, args, process); }
 		
 		public static TileSentinel getTool(MCFPeripheral peripheral) {
 			return (TileSentinel) peripheral;

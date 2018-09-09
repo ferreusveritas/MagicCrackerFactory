@@ -16,13 +16,15 @@ public class MethodDescriptor {
 		Object[] apply(World world, MCFPeripheral peripheral, Arguments args);
 	}
 	
+	private final String name;
 	private final String argTypes;
 	private final String args[];
 	private final SyncProcess process;
 	
-	public MethodDescriptor(String argTypes, String args, SyncProcess process) {
+	public MethodDescriptor(String name, String argTypes, String args, SyncProcess process) {
+		this.name = name;
 		this.argTypes = argTypes;
-		this.args = args.split("[0-9a-zA-Z]+(,[0-9a-zA-Z]+)*");
+		this.args = args.split(",");
 		this.process = process;
 	}
 	
@@ -50,7 +52,7 @@ public class MethodDescriptor {
 	}
 	
 	public String invalidArgumentsError() {
-		String error = "Expected: " + this.toString();
+		String error = "Expected: " + name;
 		for (int i = 0; i < argTypes.length(); i++){
 			error += " " + args[i] + "<" + CCDataType.byIdent(argTypes.charAt(i)).name + ">";
 		}
