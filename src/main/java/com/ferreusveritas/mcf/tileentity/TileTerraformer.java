@@ -10,7 +10,6 @@ import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
 import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
 import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
-import com.ferreusveritas.mcf.util.Util;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -38,7 +37,7 @@ public class TileTerraformer extends MCFPeripheral  {
 				int x = args.i();
 				int z = args.i();
 				Biome biome = world.getBiome(new BlockPos(x, 0, z));
-				String biomeName = biome != null ? getBiomeName(biome) : null;
+				String biomeName = biome != null ? biome.getRegistryName().toString() : null;
 				int biomeId =  biome != null ? Biome.getIdForBiome(biome) : 0;
 				return new Object[] { biomeName, biomeId };
 			}),
@@ -133,7 +132,7 @@ public class TileTerraformer extends MCFPeripheral  {
 		getBiomeName("n", "biomeID", 
 			(world, peri, args) -> {
 				Biome biome = Biome.getBiomeForId(args.i());
-				return new Object[] { biome == null ? null : getBiomeName(biome) };
+				return new Object[] { biome == null ? null : biome.getRegistryName().toString() };
 			}),
 		
 		getYTop("nn", "xCoord,zCoord", 
@@ -294,11 +293,6 @@ public class TileTerraformer extends MCFPeripheral  {
 	@Override
 	public CommandManager getCommandManager() {
 		return commandManager;
-	}
-	
-	//Biome#getBiomeName is sodding client side only.
-	public static String getBiomeName(Biome biome) {
-		return (String) Util.getRestrictedObject(Biome.class, biome, "field_76791_y", "biomeName");
 	}
 	
 }
