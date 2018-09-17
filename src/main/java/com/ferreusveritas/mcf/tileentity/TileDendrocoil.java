@@ -65,7 +65,7 @@ public class TileDendrocoil extends MCFPeripheral {
 	private static String getCode(World world, BlockPos pos) {
 		BlockPos rootPos = TreeHelper.findRootNode(world.getBlockState(pos), world, pos);
 		if(rootPos != BlockPos.ORIGIN) {
-			return new JoCode().buildFromTree(world, rootPos).toString();
+			return new JoCode(world, rootPos).toString();
 		}
 		return "";
 	}
