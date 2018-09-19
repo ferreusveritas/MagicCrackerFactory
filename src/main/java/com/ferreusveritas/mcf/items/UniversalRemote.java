@@ -9,8 +9,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -31,9 +34,12 @@ public class UniversalRemote extends Item {
 			double range = getRange(remoteStack);
 			
 			RayTraceResult rtr = player.rayTrace(range, 0);
-			if(rtr != null) {
-				Vec3d pos = rtr.hitVec;
-				sendPacketToServer(world, player, pos);
+			if(rtr != null && rtr.typeOfHit == Type.BLOCK) { 
+				
+				Vec3d hitPos = rtr.hitVec;
+				BlockPos blockPos = rtr.getBlockPos();
+				EnumFacing sideHit = rtr.sideHit;
+				sendPacketToServer(hitPos, blockPos, sideHit);
 			}
 		}
 		
@@ -44,8 +50,8 @@ public class UniversalRemote extends Item {
 		return 32;
 	}
 	
-	private void sendPacketToServer(World world, EntityPlayer player, Vec3d pos) {
-		PacketRemoteClick remoteClickPacket = new PacketRemoteClick(pos);
+	private void sendPacketToServer(Vec3d hitPos, BlockPos blockPos, EnumFacing sideHit) {
+		PacketRemoteClick remoteClickPacket = new PacketRemoteClick(hitPos, blockPos, sideHit);
 		MCF.network.sendToServer(remoteClickPacket);
 	}
 	

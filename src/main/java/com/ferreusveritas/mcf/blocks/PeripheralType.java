@@ -2,6 +2,7 @@ package com.ferreusveritas.mcf.blocks;
 
 import com.ferreusveritas.mcf.tileentity.TileCartographer;
 import com.ferreusveritas.mcf.tileentity.TileDendrocoil;
+import com.ferreusveritas.mcf.tileentity.TileRemoteReceiver;
 import com.ferreusveritas.mcf.tileentity.TileSentinel;
 import com.ferreusveritas.mcf.tileentity.TileTerraformer;
 
@@ -12,7 +13,8 @@ public enum PeripheralType {
 	CARTOGRAPHER(TileCartographer.class),
 	SENTINEL(TileSentinel.class),
 	TERRAFORMER(TileTerraformer.class),
-	DENDROCOIL(TileDendrocoil.class);
+	DENDROCOIL(TileDendrocoil.class),
+	REMOTERECEIVER(TileRemoteReceiver.class);
 	
 	private Class tileEntityClass;
 	
