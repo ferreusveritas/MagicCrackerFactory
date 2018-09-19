@@ -31,6 +31,8 @@ public class PacketRemoteClick implements IMessage, IMessageHandler<PacketRemote
 		RemoteClickEvent removeClickEvent = new RemoteClickEvent(player, remoteItem, clickPos);
 		MinecraftForge.EVENT_BUS.post(removeClickEvent);
 		
+		System.out.println("Remote Message Received: " + player + " " + clickPos);
+		
 		return null;
 	}
 	

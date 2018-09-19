@@ -1,6 +1,8 @@
 package com.ferreusveritas.mcf.items;
 
+import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
+import com.ferreusveritas.mcf.util.Util;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -13,6 +15,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class UniversalRemote extends Item {
+	
+	public UniversalRemote() {
+		setRegistryName("remote");
+		setUnlocalizedName(getRegistryName().toString());
+		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
+	}
 	
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand handIn) {
@@ -38,7 +46,7 @@ public class UniversalRemote extends Item {
 	
 	private void sendPacketToServer(World world, EntityPlayer player, Vec3d pos) {
 		PacketRemoteClick remoteClickPacket = new PacketRemoteClick(pos);
-		//TODO: Send a packet to the server
+		MCF.network.sendToServer(remoteClickPacket);
 	}
 	
 }

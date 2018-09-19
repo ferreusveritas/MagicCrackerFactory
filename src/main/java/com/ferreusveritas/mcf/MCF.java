@@ -3,9 +3,11 @@ package com.ferreusveritas.mcf;
 
 import com.ferreusveritas.mcf.features.Cartographer;
 import com.ferreusveritas.mcf.features.Dendrocoil;
+import com.ferreusveritas.mcf.features.Remote;
 import com.ferreusveritas.mcf.features.Security;
 import com.ferreusveritas.mcf.features.Sentinel;
 import com.ferreusveritas.mcf.features.Terraformer;
+import com.ferreusveritas.mcf.network.PacketRemoteClick;
 import com.ferreusveritas.mcf.proxy.CommonProxy;
 
 import net.minecraftforge.fml.common.Mod;
@@ -14,6 +16,9 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
 * <p><pre><tt><b>
@@ -42,6 +47,8 @@ public class MCF extends FeatureableMod {
 	@Mod.Instance(ModConstants.MODID)
 	public static MCF instance;
 	
+	public static final SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(ModConstants.MODID);
+	
 	@SidedProxy(clientSide = "com.ferreusveritas.mcf.proxy.ClientProxy", serverSide = "com.ferreusveritas.mcf.proxy.CommonProxy")
 	public static CommonProxy proxy;
 	
@@ -51,7 +58,8 @@ public class MCF extends FeatureableMod {
 			new Cartographer(),
 			new Terraformer(),
 			new Sentinel(),
-			new Dendrocoil()
+			new Dendrocoil(),
+			new Remote()
 		);
 	};
 	
@@ -68,6 +76,9 @@ public class MCF extends FeatureableMod {
 
 	@Mod.EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
+		int disc = 0;
+		network.registerMessage(PacketRemoteClick.class, PacketRemoteClick.class, disc++, Side.SERVER);
+		
 		super.postInit(event);
 	}
 
