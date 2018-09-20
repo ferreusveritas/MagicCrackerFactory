@@ -5,3 +5,5 @@ tile.terraformer.name=Terraformer
 tile.sentinel.name=Sentinel
 tile.dendrocoil.name=Dendrocoil
 tile.remotereceiver.name=Remote Receiver
+
+item.mcf:remote.name=Universal Remote
