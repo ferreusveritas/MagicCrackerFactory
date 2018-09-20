@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.features;
 
+import com.ferreusveritas.mcf.blocks.BlockMapGuard;
 import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.blocks.PeripheralType;
 import com.ferreusveritas.mcf.items.UniversalRemote;
@@ -17,6 +18,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 public class Remote implements IFeature {
 	
 	public static Block blockRemoteReceiver;
+	public static Block blockMapGuard;
 	public static Item universalRemote;
 	
 	@Override
@@ -25,6 +27,7 @@ public class Remote implements IFeature {
 	@Override
 	public void createBlocks() {
 		blockRemoteReceiver = new BlockPeripheral(PeripheralType.REMOTERECEIVER);
+		blockMapGuard = new BlockMapGuard();
 	}
 
 	@Override
@@ -53,6 +56,7 @@ public class Remote implements IFeature {
 	public void registerItems(IForgeRegistry<Item> registry) {
 		registry.register(universalRemote);
 		registry.register( new ItemBlock(blockRemoteReceiver).setRegistryName(blockRemoteReceiver.getRegistryName()) );
+		registry.register( new ItemBlock(blockMapGuard).setRegistryName(blockMapGuard.getRegistryName()) );
 	}
 	
 	@Override
@@ -63,6 +67,7 @@ public class Remote implements IFeature {
 	public void registerModels() {
 		ModelLoader.setCustomModelResourceLocation(universalRemote, 0, new ModelResourceLocation(universalRemote.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteReceiver), 0, new ModelResourceLocation(blockRemoteReceiver.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockMapGuard), 0, new ModelResourceLocation(blockMapGuard.getRegistryName(), "inventory"));
 	}
 	
 }
