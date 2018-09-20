@@ -53,7 +53,7 @@ public class UniversalRemote extends Item {
 	public String getRemoteId(ItemStack remoteStack) {
 		if(remoteStack.hasTagCompound()) {
 			NBTTagCompound tag = remoteStack.getTagCompound();
-			return tag.getString("remoteId");
+			return tag.getString("id");
 		} else {
 			return "";
 		}
