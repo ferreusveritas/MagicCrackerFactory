@@ -33,13 +33,13 @@ public class PacketRemoteClick implements IMessage, IMessageHandler<PacketRemote
 	@Override
 	public IMessage onMessage(PacketRemoteClick message, MessageContext ctx) {
 		EntityPlayer player = ctx.side == Side.SERVER ? ctx.getServerHandler().player : Minecraft.getMinecraft().player;
-		ItemStack remoteItem = player.getHeldItemMainhand();
-		if(remoteItem.getItem() instanceof UniversalRemote) {
-			RemoteClickEvent removeClickEvent = new RemoteClickEvent(player, remoteItem, hitPos, blockPos, sideHit);
+		ItemStack heldItem = player.getHeldItemMainhand();
+		if(heldItem.getItem() instanceof UniversalRemote) {
+			UniversalRemote remoteItem = (UniversalRemote) heldItem.getItem();
+			String remoteId = remoteItem.getRemoteId(heldItem);
+			RemoteClickEvent removeClickEvent = new RemoteClickEvent(player, remoteId, message.hitPos, message.blockPos, message.sideHit);
 			MinecraftForge.EVENT_BUS.post(removeClickEvent);
 		}
-		
-		System.out.println("Remote Message Received: " + player + " " + hitPos);
 		
 		return null;
 	}

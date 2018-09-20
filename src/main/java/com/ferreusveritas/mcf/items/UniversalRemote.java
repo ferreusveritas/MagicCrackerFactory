@@ -7,6 +7,7 @@ import com.ferreusveritas.mcf.util.Util;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -34,8 +35,7 @@ public class UniversalRemote extends Item {
 			double range = getRange(remoteStack);
 			
 			RayTraceResult rtr = player.rayTrace(range, 0);
-			if(rtr != null && rtr.typeOfHit == Type.BLOCK) { 
-				
+			if(rtr != null && rtr.typeOfHit == Type.BLOCK) {
 				Vec3d hitPos = rtr.hitVec;
 				BlockPos blockPos = rtr.getBlockPos();
 				EnumFacing sideHit = rtr.sideHit;
@@ -48,6 +48,15 @@ public class UniversalRemote extends Item {
 	
 	private double getRange(ItemStack remoteStack) {
 		return 32;
+	}
+	
+	public String getRemoteId(ItemStack remoteStack) {
+		if(remoteStack.hasTagCompound()) {
+			NBTTagCompound tag = remoteStack.getTagCompound();
+			return tag.getString("remoteId");
+		} else {
+			return "";
+		}
 	}
 	
 	private void sendPacketToServer(Vec3d hitPos, BlockPos blockPos, EnumFacing sideHit) {
