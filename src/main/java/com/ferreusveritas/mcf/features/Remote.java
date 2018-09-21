@@ -2,6 +2,7 @@ package com.ferreusveritas.mcf.features;
 
 import com.ferreusveritas.mcf.blocks.BlockMapGuard;
 import com.ferreusveritas.mcf.blocks.BlockPeripheral;
+import com.ferreusveritas.mcf.blocks.BlockRemoteButton;
 import com.ferreusveritas.mcf.blocks.PeripheralType;
 import com.ferreusveritas.mcf.items.UniversalRemote;
 
@@ -18,6 +19,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 public class Remote implements IFeature {
 	
 	public static Block blockRemoteReceiver;
+	public static Block blockRemoteButton;
 	public static Block blockMapGuard;
 	public static UniversalRemote universalRemote;
 	
@@ -27,6 +29,7 @@ public class Remote implements IFeature {
 	@Override
 	public void createBlocks() {
 		blockRemoteReceiver = new BlockPeripheral(PeripheralType.REMOTERECEIVER);
+		blockRemoteButton = new BlockRemoteButton();
 		blockMapGuard = new BlockMapGuard();
 	}
 	
@@ -50,6 +53,7 @@ public class Remote implements IFeature {
 	@Override
 	public void registerBlocks(IForgeRegistry<Block> registry) {
 		registry.register(blockRemoteReceiver);
+		registry.register(blockRemoteButton);
 		registry.register(blockMapGuard);
 	}
 	
@@ -57,6 +61,7 @@ public class Remote implements IFeature {
 	public void registerItems(IForgeRegistry<Item> registry) {
 		registry.register(universalRemote);
 		registry.register( new ItemBlock(blockRemoteReceiver).setRegistryName(blockRemoteReceiver.getRegistryName()) );
+		registry.register( new ItemBlock(blockRemoteButton).setRegistryName(blockRemoteButton.getRegistryName()) );
 		registry.register( new ItemBlock(blockMapGuard).setRegistryName(blockMapGuard.getRegistryName()) );
 	}
 	
@@ -68,6 +73,7 @@ public class Remote implements IFeature {
 	public void registerModels() {
 		ModelLoader.setCustomModelResourceLocation(universalRemote, 0, new ModelResourceLocation(universalRemote.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteReceiver), 0, new ModelResourceLocation(blockRemoteReceiver.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteButton), 0, new ModelResourceLocation(blockRemoteButton.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockMapGuard), 0, new ModelResourceLocation(blockMapGuard.getRegistryName(), "inventory"));
 	}
 	
