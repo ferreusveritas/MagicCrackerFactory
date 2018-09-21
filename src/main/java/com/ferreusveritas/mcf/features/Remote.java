@@ -19,7 +19,7 @@ public class Remote implements IFeature {
 	
 	public static Block blockRemoteReceiver;
 	public static Block blockMapGuard;
-	public static Item universalRemote;
+	public static UniversalRemote universalRemote;
 	
 	@Override
 	public void preInit() { }
@@ -29,12 +29,12 @@ public class Remote implements IFeature {
 		blockRemoteReceiver = new BlockPeripheral(PeripheralType.REMOTERECEIVER);
 		blockMapGuard = new BlockMapGuard();
 	}
-
+	
 	@Override
 	public void createItems() {
 		universalRemote = new UniversalRemote();
 	}
-
+	
 	@Override
 	public void registerEvents() { }
 	
@@ -50,6 +50,7 @@ public class Remote implements IFeature {
 	@Override
 	public void registerBlocks(IForgeRegistry<Block> registry) {
 		registry.register(blockRemoteReceiver);
+		registry.register(blockMapGuard);
 	}
 	
 	@Override

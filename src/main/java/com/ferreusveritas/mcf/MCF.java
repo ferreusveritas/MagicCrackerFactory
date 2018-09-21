@@ -71,6 +71,7 @@ public class MCF extends FeatureableMod {
 
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
+		proxy.init();
 		super.init(event);
 	}
 

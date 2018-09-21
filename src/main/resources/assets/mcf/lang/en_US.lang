@@ -6,4 +6,7 @@ tile.sentinel.name=Sentinel
 tile.dendrocoil.name=Dendrocoil
 tile.remotereceiver.name=Remote Receiver
 
+tile.mcf:mapguard.name=Map Guard
+
 item.mcf:remote.name=Universal Remote
+

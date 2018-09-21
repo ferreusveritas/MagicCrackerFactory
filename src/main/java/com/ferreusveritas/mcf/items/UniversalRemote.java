@@ -1,9 +1,13 @@
 package com.ferreusveritas.mcf.items;
 
+import java.awt.Color;
+import java.util.List;
+
 import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
 import com.ferreusveritas.mcf.util.Util;
 
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -46,22 +50,56 @@ public class UniversalRemote extends Item {
 		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(handIn));
 	}
 	
+	public NBTTagCompound getNBT(ItemStack itemStack) {
+		return itemStack.hasTagCompound() ? itemStack.getTagCompound() : new NBTTagCompound();
+	}
+	
 	private double getRange(ItemStack remoteStack) {
-		return 32;
+		NBTTagCompound nbt = getNBT(remoteStack);
+		if(nbt.hasKey("range")) {
+			return nbt.getDouble("range");
+		}
+		
+		return 16;
+	}
+	
+	public int getColor(ItemStack itemStack) {
+		NBTTagCompound nbt = getNBT(itemStack);
+		
+		int color = 0x0000FFFF;
+		
+		if(nbt.hasKey("color")) {
+			try {
+				color = Color.decode(nbt.getString("color")).getRGB();
+			} catch (NumberFormatException e) {
+				nbt.removeTag("color");
+			}
+		}
+		
+		return color;
+	}
+	
+	public UniversalRemote setColor(ItemStack itemStack, String colStr) {
+		NBTTagCompound nbt = getNBT(itemStack);
+		nbt.setString("color", colStr);
+		itemStack.setTagCompound(nbt);
+		return this;
 	}
 	
 	public String getRemoteId(ItemStack remoteStack) {
-		if(remoteStack.hasTagCompound()) {
-			NBTTagCompound tag = remoteStack.getTagCompound();
-			return tag.getString("id");
-		} else {
-			return "";
-		}
+		NBTTagCompound nbt = getNBT(remoteStack);
+		return nbt.getString("id");
 	}
 	
 	private void sendPacketToServer(Vec3d hitPos, BlockPos blockPos, EnumFacing sideHit) {
 		PacketRemoteClick remoteClickPacket = new PacketRemoteClick(hitPos, blockPos, sideHit);
 		MCF.network.sendToServer(remoteClickPacket);
+	}
+	
+	@Override
+	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flagIn) {
+		String id = getRemoteId(stack);
+		tooltip.add("Id: §6" + ( id.isEmpty() ? "<none>" : id));
 	}
 	
 }
