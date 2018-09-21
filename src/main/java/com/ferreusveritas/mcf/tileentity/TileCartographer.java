@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.tileentity;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -29,13 +30,15 @@ public class TileCartographer extends MCFPeripheral  {
 		setMapNum("n", "mapNum", (world, peri, args) -> obj(getTool(peri).setMapNum(args.i())) ),
 		getMapPixel("nn", "x,z", (world, peri, args) -> obj(getTool(peri).getMapPixel(args.i(0), args.i(1))) ),
 		setMapPixel("nnn", "x,z,colorIndex", (world, peri, args) -> obj(getTool(peri).setMapPixel(args.i(0), args.i(1), args.i(2))) ),
+		getMapPixels("", "", (world, peri, args) -> getTool(peri).getMapPixels() ),
+		setMapPixels("s", "array", (world, peri, args) -> obj(getTool(peri).setMapPixels(args.s(0))) ),
 		getMapCenter("", "", (world, peri, args) -> obj(getTool(peri).getCurrMapData().xCenter, getTool(peri).getCurrMapData().zCenter ) ),
 		setMapCenter("nn", "x,z", (world, peri, args) -> obj(getTool(peri).setMapCenter(args.i(0), args.i(1))) ),
 		getMapScale("", "", (world, peri, args) -> obj(getTool(peri).getCurrMapData().scale) ),
 		setMapScale("n", "scale", (world, peri, args) -> obj(getTool(peri).getCurrMapData().scale = (byte) MathHelper.clamp(args.i(), 0, 4)) ),
 		getMapDimension("", "",	(world, peri, args) -> obj(getTool(peri).getCurrMapData().dimension) ),
 		setMapDimension("n", "dimension", (world, peri, args) -> obj(getTool(peri).getCurrMapData().dimension = args.i()) ),
-		copyMapData("nn", "mapA,mapB", (world, peri, args) -> { System.out.println("test1"); return obj(getTool(peri).copyMapData(args.i(0), args.i(1))); } ),
+		copyMapData("nn", "mapA,mapB", (world, peri, args) -> obj(getTool(peri).copyMapData(args.i(0), args.i(1))) ),
 		swapMapData("nn", "mapA,mapB", (world, peri, args) -> obj(getTool(peri).swapMapData(args.i(0), args.i(1))) ),
 		updateMap("", "", (world, peri, args) -> obj(getTool(peri).updateMap()) ),
 		getBlockMapColor("nnn", "x,y,z", (world, peri, args) -> obj(getTool(peri).getBlockMapColor(args.p())) ),
@@ -47,7 +50,7 @@ public class TileCartographer extends MCFPeripheral  {
 		public static TileCartographer getTool(MCFPeripheral peripheral) {
 			return (TileCartographer) peripheral;
 		}
-
+		
 		@Override
 		public MethodDescriptor getMethodDescriptor() {
 			return md;
@@ -91,15 +94,64 @@ public class TileCartographer extends MCFPeripheral  {
 		return 0;
 	}
 	
+	public Object[] getMapPixels() {
+		byte colors[] = getCurrMapData().colors;
+		byte[] pixels = Arrays.copyOf( colors, colors.length );
+		return new Object[] { pixels };
+	}
+	
 	public int setMapPixel(int x, int z, int colorFull) {
 		if(x >= 0 && x < 128 && z >= 0 && z < 128) {
 			getCurrMapData().colors[x + z * 128] = (byte) (colorFull >= 0 && colorFull <= (51 * 4) ? colorFull : 0);
 		}
 		return mapNum;
 	}
-
+	
 	public void setMapPixel(int x, int z, int color52, int index4) {
 		setMapPixel(x, z, color52 * 4 | index4);
+	}
+
+	public int setMapPixels(String data) {
+		byte[] byteArray = utf8enc(data);
+		
+		if(byteArray.length == 128 * 128) {
+			getCurrMapData().colors = byteArray;
+		}
+		
+		return mapNum;
+	}
+
+	//All lua strings(byte arrays) get converted from utf8 to java strings.
+	//Unfortunately computercraft doesn't have a means of getting raw byte arrays
+	private static byte[] utf8enc(String data) {
+		
+		char[] charArray = data.toCharArray();
+		
+		int byteLen = charArray.length;
+		char c;
+		for (int i = 0; i < charArray.length; i++) {
+			if ( (c=charArray[i]) >=0x80 ) {
+				byteLen += (c>=0x800)? 2: 1;
+			}
+		}
+		
+		byte[] byteArray = new byte[byteLen];
+		
+		int bytePos = 0;
+		for ( int i = 0; i < charArray.length; i++ ) {
+			if ( (c = charArray[i]) < 0x80 ) {
+				byteArray[bytePos++] = (byte) c;
+			} else if ( c < 0x800 ) {
+				byteArray[bytePos++] = (byte) (0xC0 | ((c>>6)  & 0x1f));
+				byteArray[bytePos++] = (byte) (0x80 | ( c      & 0x3f));				
+			} else {
+				byteArray[bytePos++] = (byte) (0xE0 | ((c>>12) & 0x0f));
+				byteArray[bytePos++] = (byte) (0x80 | ((c>>6)  & 0x3f));
+				byteArray[bytePos++] = (byte) (0x80 | ( c      & 0x3f));				
+			}
+		}
+		
+		return byteArray;
 	}
 	
 	public int setMapCenter(int x, int z) {
@@ -107,9 +159,9 @@ public class TileCartographer extends MCFPeripheral  {
 		getCurrMapData().zCenter = z;
 		return mapNum;
 	}
-
+	
 	public int copyMapData(int mapSrc, int mapDst) {
-
+		
 		MapData mapDataSrc = (MapData) world.loadData(MapData.class, "map_" + mapSrc);
 		MapData mapDataDst = (MapData) world.loadData(MapData.class, "map_" + mapDst);
 		
@@ -125,12 +177,12 @@ public class TileCartographer extends MCFPeripheral  {
 		mapDataDst.unlimitedTracking = mapDataSrc.unlimitedTracking;
 		mapDataDst.scale = mapDataSrc.scale;
 		mapDataDst.colors = mapDataSrc.colors.clone();
-
+		
 		mapDataDst.mapDecorations.clear();
 		for(Entry<String, MapDecoration> entry : mapDataSrc.mapDecorations.entrySet()) {
 			mapDataDst.mapDecorations.put(entry.getKey(), entry.getValue());	
 		}
-
+		
 		mapDataDst.markDirty();
 		Packet<?> packetDst = new SPacketMaps(mapDst, mapDataDst.scale, mapDataDst.trackingPosition, mapDataDst.mapDecorations.values(), mapDataDst.colors, 0, 0, 128, 128);
 		
@@ -142,7 +194,6 @@ public class TileCartographer extends MCFPeripheral  {
 		
 		return 0;
 	}
-
 	
 	public int swapMapData(int mapNumA, int mapNumB) {
 		
@@ -185,7 +236,7 @@ public class TileCartographer extends MCFPeripheral  {
 		MapData mapData = getCurrMapData();
 		mapData.markDirty();//Mark as dirty so the changes save to disk
 		Packet<?> packet = new SPacketMaps(mapNum, mapData.scale, mapData.trackingPosition, mapData.mapDecorations.values(), mapData.colors, 0, 0, 128, 128);
-
+		
 		for(EntityPlayer player : world.playerEntities) {
 			if(player instanceof EntityPlayerMP) {
 				((EntityPlayerMP)player).connection.sendPacket(packet);

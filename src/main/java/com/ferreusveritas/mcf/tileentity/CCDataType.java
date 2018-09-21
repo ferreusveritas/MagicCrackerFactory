@@ -3,7 +3,8 @@ package com.ferreusveritas.mcf.tileentity;
 public enum CCDataType {
 	NUMBER(Number.class),
 	STRING(String.class),
-	BOOLEAN(Boolean.class);
+	BOOLEAN(Boolean.class),
+	OBJECT(Object.class);
 	
 	public final Class clazz;
 	public final char identChar;

@@ -30,11 +30,12 @@ public class RemoteClickHandler {
 			IBlockState state = world.getBlockState(blockPos);
 			Block block = state.getBlock();
 			if(block instanceof IRemoteActivatable) {
-				((IRemoteActivatable) block).onRemoteActivated(world, blockPos, state, player, side, 
+				((IRemoteActivatable) block).onRemoteActivated(
+						world, blockPos, state, player, side, 
 						(float)(hitPos.x - blockPos.getX()), 
 						(float)(hitPos.y - blockPos.getY()),
 						(float)(hitPos.z - blockPos.getZ())
-						);
+					);
 			}
 		
 		}

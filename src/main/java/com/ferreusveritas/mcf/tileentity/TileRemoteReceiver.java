@@ -22,6 +22,8 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 	private static Set<TileRemoteReceiver> connections = new HashSet<>();
 	private Set<IComputerAccess> computers = new HashSet<>();
 	
+	private boolean isInterdimensional = false;
+	
 	public TileRemoteReceiver() {
 		super("remotereceiver");
 	}
@@ -32,10 +34,12 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 		
 		while(i.hasNext()) {
 			TileRemoteReceiver receiver = i.next();
-			if(receiver.world.isBlockLoaded(receiver.getPos())) {
-				receiver.createRemoteEvent(player, remoteId, hitPos, blockPos, face);
-			} else {
-				i.remove();
+			if(receiver.isInterdimensional || player.world.provider.getDimension() == receiver.world.provider.getDimension()) { //Make sure player is in the same world as the receiver
+				if(receiver.world.isBlockLoaded(receiver.getPos())) {
+					receiver.createRemoteEvent(player, remoteId, hitPos, blockPos, face);
+				} else {
+					i.remove();
+				}
 			}
 		}
 	}
@@ -61,7 +65,8 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 	
 	public enum ComputerMethod implements MethodDescriptorProvider {
 		connect("", "", (world, peri, args) -> obj(getTool(peri).connect())),
-		disconnect("", "", (world, peri, args) -> obj(getTool(peri).disconnect()));
+		disconnect("", "", (world, peri, args) -> obj(getTool(peri).disconnect())),
+		setInterdimensional("", "", (world, peri, args) -> obj(getTool(peri).setInterdimensional(args.b())));
 		
 		final MethodDescriptor md;
 		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(toString(), argTypes, args, process); }
@@ -87,13 +92,17 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 		return 0;
 	}
 	
+	public int setInterdimensional(boolean isInterdimensional) {
+		this.isInterdimensional = isInterdimensional;
+		return 0;
+	}
+	
 	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
 	
 	@Override
 	public CommandManager getCommandManager() {
 		return commandManager;
 	}
-	
 	
 	@Override
 	public void attach(IComputerAccess computer) {
