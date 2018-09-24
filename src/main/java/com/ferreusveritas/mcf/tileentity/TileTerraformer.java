@@ -1,7 +1,6 @@
 package com.ferreusveritas.mcf.tileentity;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -100,34 +99,54 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[0];
 			}),
 		
-		getBiomeArray("nnnnn", "xStart,zStart,xEnd,yEnd,step", 
+		getBiomeArray("nnnnn", "xPos,zPos,xLen,zLen,scale", 
 			(world, peri, args) -> {
-				int xPosStart = args.i();
-				int zPosStart = args.i();
-				int xPosEnd = 	args.i();
-				int zPosEnd = 	args.i();
-				int step = 		args.i();
-				step = MathHelper.clamp(step, 1, step);
-				
-				ArrayList<Biome> biomes = new ArrayList<Biome>();
-				
-				for(int z = zPosStart; z <= zPosEnd; z += step) {
-					for(int x = xPosStart; x <= xPosEnd; x += step) {
-						Biome biome = world.getBiomeProvider().getBiome(new BlockPos(x, 0, z));
-						biomes.add(biome);
-					}
-				}
+				int xPos =  args.i();
+				int zPos =  args.i();
+				int xLen = 	args.i();
+				int zLen = 	args.i();
+				int scale = args.i();
+				scale = MathHelper.clamp(scale, 1, scale);
 				
 				Map<Integer, Integer> biomeIds = new HashMap<>();
 				
-				int i = 1;
-				for(Biome biome: biomes) {//This waits for the request to be fulfilled
-					biomeIds.put(i, Biome.getIdForBiome(biome));
-					i++;
+				MutableBlockPos blockPos = new MutableBlockPos();
+				int i = 1;//Lua arrays start with 1
+				for(int z = zPos; z < zPos + zLen; z++) {
+					for(int x = xPos; x < xPos + xLen; x++) {
+						blockPos.setPos(x * scale, 0, z * scale);
+						Biome biome = world.getBiomeProvider().getBiome(blockPos);
+						biomeIds.put(i++, Biome.getIdForBiome(biome));
+					}
 				}
-					
+				
 				return new Object[] { biomeIds };
 			}),
+		
+		getBiomeByteArray("nnnnn", "xPos,zPos,xLen,zLen,scale", 
+			(world, peri, args) -> {
+				int xPos =  args.i();
+				int zPos =  args.i();
+				int xLen = 	args.i();
+				int zLen = 	args.i();
+				int scale = args.i();
+				scale = MathHelper.clamp(scale, 1, scale);
+				
+				byte[] biomeIds = new byte[xLen * zLen];
+				
+				MutableBlockPos blockPos = new MutableBlockPos();
+				int i = 0;
+				for(int z = zPos; z < zPos + zLen; z++) {
+					for(int x = xPos; x < xPos + xLen; x++) {
+						blockPos.setPos(x * scale, 0, z * scale);
+						Biome biome = world.getBiomeProvider().getBiome(blockPos);
+						biomeIds[i++] = (byte) Biome.getIdForBiome(biome);
+					}
+				}
+				
+				return new Object[] { biomeIds };
+			}),
+		
 		
 		getBiomeName("n", "biomeID", 
 			(world, peri, args) -> {
@@ -135,16 +154,17 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[] { biome == null ? null : biome.getRegistryName().toString() };
 			}),
 		
-		getYTop("nn", "xCoord,zCoord", 
+		getYTop("nn", "xCoord,zCoord,solid", 
 			(world, peri, args) -> {
 				MutableBlockPos top = new MutableBlockPos(args.i(0), 0, args.i(1));
+				boolean solid = args.b(2);
 				Chunk chunk = world.getChunkFromBlockCoords(top);
 				top.setY(chunk.getTopFilledSegment() + 16);
 				
 				while (top.getY() > 0) {
 					IBlockState s = chunk.getBlockState(top);
-					if (s.getMaterial() != Material.AIR) {
-						return new Object[] { top.getY() };
+					if (solid ? s.getMaterial().blocksMovement() : (s.getMaterial() != Material.AIR)) {
+						break;
 					}
 					top.setY(top.getY() - 1);
 				}
@@ -152,76 +172,23 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[] { 0 };
 			}),
 		
-		getYTopArray("nnnnn", "xStart,zStart,xEnd,yEnd,step", 
-				(world, peri, args) -> {
-					int xPosStart = args.i();
-					int zPosStart = args.i();
-					int xPosEnd = 	args.i();
-					int zPosEnd = 	args.i();
-					int step = 		args.i();
-					
-					Map<Integer, Integer> heights = new HashMap<>();
-					
-					int i = 1;
-					for(int z = zPosStart; z <= zPosEnd; z += step) {
-						for(int x = xPosStart; x <= xPosEnd; x += step) {
-							MutableBlockPos top = new MutableBlockPos(x, 0, z);
-							Chunk chunk = world.getChunkFromBlockCoords(top);
-							if(!chunk.isLoaded()) {
-								return new Object[] { -1 }; 
-							}
-							
-							top.setY(chunk.getTopFilledSegment() + 16);
-							
-							while (top.getY() > 0) {
-								IBlockState s = chunk.getBlockState(top);
-								if (s.getMaterial() != Material.AIR) {
-									break;
-								}
-								top.setY(top.getY() - 1);
-							}
-							
-							heights.put(i++, top.getY());
-						}
-					}
-					
-					return new Object[] { heights };
-				}),
-		
-		getYTopSolid("nn", "xCoord,zCoord", 
+		getYTopArray("nnnnn", "xPos,zPos,xLen,zLen,scale,solid", 
 			(world, peri, args) -> {
-				int x = args.i();
-				int z = args.i();
-				
-				MutableBlockPos top = new MutableBlockPos(x, 0, z);
-				Chunk chunk = world.getChunkFromBlockCoords(top);
-				top.setY(chunk.getTopFilledSegment() + 16);
-				
-				while (top.getY() > 0) {
-					IBlockState s = chunk.getBlockState(top);
-					if (s.getMaterial().blocksMovement()) {
-						return new Object[] { top.getY() };
-					}
-					top.setY(top.getY() - 1);
-				}
-				
-				return new Object[] { 0 };
-			}),
-		
-		getYTopSolidArray("nnnnn", "xStart,zStart,xEnd,yEnd,step", 
-			(world, peri, args) -> {
-				int xPosStart = args.i();
-				int zPosStart = args.i();
-				int xPosEnd = 	args.i();
-				int zPosEnd = 	args.i();
-				int step = 		args.i();
+				int xPos =  args.i();
+				int zPos =  args.i();
+				int xLen = 	args.i();
+				int zLen = 	args.i();
+				int scale = args.i();
+				boolean solid = args.b();
+				scale = MathHelper.clamp(scale, 1, scale);
 				
 				Map<Integer, Integer> heights = new HashMap<>();
 				
+				MutableBlockPos top = new MutableBlockPos();
 				int i = 1;
-				for(int z = zPosStart; z <= zPosEnd; z += step) {
-					for(int x = xPosStart; x <= xPosEnd; x += step) {
-						MutableBlockPos top = new MutableBlockPos(x, 0, z);
+				for(int z = zPos; z < zPos + zLen; z++) {
+					for(int x = xPos; x < xPos + xLen; x++) {
+						top.setPos(x * scale, 0, z * scale);
 						Chunk chunk = world.getChunkFromBlockCoords(top);
 						if(!chunk.isLoaded()) {
 							return new Object[] { -1 }; 
@@ -231,7 +198,7 @@ public class TileTerraformer extends MCFPeripheral  {
 						
 						while (top.getY() > 0) {
 							IBlockState s = chunk.getBlockState(top);
-							if (s.getMaterial().blocksMovement()) {
+							if (solid ? s.getMaterial().blocksMovement() : (s.getMaterial() != Material.AIR)) {
 								break;
 							}
 							top.setY(top.getY() - 1);
