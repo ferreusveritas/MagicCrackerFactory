@@ -1,10 +1,10 @@
 package com.ferreusveritas.mcf.network;
 
+import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.event.RemoteClickEvent;
 import com.ferreusveritas.mcf.items.UniversalRemote;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -32,7 +32,7 @@ public class PacketRemoteClick implements IMessage, IMessageHandler<PacketRemote
 	
 	@Override
 	public IMessage onMessage(PacketRemoteClick message, MessageContext ctx) {
-		EntityPlayer player = ctx.side == Side.SERVER ? ctx.getServerHandler().player : Minecraft.getMinecraft().player;
+		EntityPlayer player = ctx.side == Side.SERVER ? ctx.getServerHandler().player : MCF.proxy.getPlayer();
 		ItemStack heldItem = player.getHeldItemMainhand();
 		if(heldItem.getItem() instanceof UniversalRemote) {
 			UniversalRemote remoteItem = (UniversalRemote) heldItem.getItem();

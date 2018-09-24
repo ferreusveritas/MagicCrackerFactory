@@ -3,8 +3,10 @@ package com.ferreusveritas.mcf.proxy;
 import com.ferreusveritas.dynamictrees.api.client.ModelHelper;
 import com.ferreusveritas.mcf.features.Remote;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 public class ClientProxy extends CommonProxy {
@@ -35,5 +37,9 @@ public class ClientProxy extends CommonProxy {
 		});
 		
 	}
-
+	
+	@Override
+	public EntityPlayer getPlayer() {
+		return Minecraft.getMinecraft().player;
+	}
 }
