@@ -112,46 +112,17 @@ public class TileCartographer extends MCFPeripheral  {
 	}
 
 	public int setMapPixels(String data) {
-		byte[] byteArray = utf8enc(data);
+		char[] charArray = data.toCharArray();
+		byte[] byteArray = getCurrMapData().colors;
 		
-		if(byteArray.length == 128 * 128) {
-			getCurrMapData().colors = byteArray;
+		if(charArray.length == 128 * 128) {
+			for(int i = 0; i < charArray.length; i++) {
+				char val = charArray[i];
+				byteArray[i] = val <= 207 ? (byte) val : 0;
+			}
 		}
 		
 		return mapNum;
-	}
-
-	//All lua strings(byte arrays) get converted from utf8 to java strings.
-	//Unfortunately computercraft doesn't have a means of getting raw byte arrays
-	private static byte[] utf8enc(String data) {
-		
-		char[] charArray = data.toCharArray();
-		
-		int byteLen = charArray.length;
-		char c;
-		for (int i = 0; i < charArray.length; i++) {
-			if ( (c=charArray[i]) >=0x80 ) {
-				byteLen += (c>=0x800)? 2: 1;
-			}
-		}
-		
-		byte[] byteArray = new byte[byteLen];
-		
-		int bytePos = 0;
-		for ( int i = 0; i < charArray.length; i++ ) {
-			if ( (c = charArray[i]) < 0x80 ) {
-				byteArray[bytePos++] = (byte) c;
-			} else if ( c < 0x800 ) {
-				byteArray[bytePos++] = (byte) (0xC0 | ((c>>6)  & 0x1f));
-				byteArray[bytePos++] = (byte) (0x80 | ( c      & 0x3f));				
-			} else {
-				byteArray[bytePos++] = (byte) (0xE0 | ((c>>12) & 0x0f));
-				byteArray[bytePos++] = (byte) (0x80 | ((c>>6)  & 0x3f));
-				byteArray[bytePos++] = (byte) (0x80 | ( c      & 0x3f));				
-			}
-		}
-		
-		return byteArray;
 	}
 	
 	public int setMapCenter(int x, int z) {

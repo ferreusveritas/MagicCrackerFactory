@@ -112,9 +112,9 @@ public class TileTerraformer extends MCFPeripheral  {
 				
 				MutableBlockPos blockPos = new MutableBlockPos();
 				int i = 1;//Lua arrays start with 1
-				for(int z = zPos; z < zPos + zLen; z++) {
-					for(int x = xPos; x < xPos + xLen; x++) {
-						blockPos.setPos(x * scale, 0, z * scale);
+				for(int z = 0; z < zLen; z++) {
+					for(int x = 0; x < xLen; x++) {
+						blockPos.setPos(xPos + (x * scale), 0, zPos + (z * scale));
 						Biome biome = world.getBiomeProvider().getBiome(blockPos);
 						biomeIds.put(i++, Biome.getIdForBiome(biome));
 					}
@@ -136,9 +136,9 @@ public class TileTerraformer extends MCFPeripheral  {
 				
 				MutableBlockPos blockPos = new MutableBlockPos();
 				int i = 0;
-				for(int z = zPos; z < zPos + zLen; z++) {
-					for(int x = xPos; x < xPos + xLen; x++) {
-						blockPos.setPos(x * scale, 0, z * scale);
+				for(int z = 0; z < zLen; z++) {
+					for(int x = 0; x < xLen; x++) {
+						blockPos.setPos(xPos + (x * scale), 0, zPos + (z * scale));
 						Biome biome = world.getBiomeProvider().getBiome(blockPos);
 						biomeIds[i++] = (byte) Biome.getIdForBiome(biome);
 					}
@@ -186,9 +186,9 @@ public class TileTerraformer extends MCFPeripheral  {
 				
 				MutableBlockPos top = new MutableBlockPos();
 				int i = 1;
-				for(int z = zPos; z < zPos + zLen; z++) {
-					for(int x = xPos; x < xPos + xLen; x++) {
-						top.setPos(x * scale, 0, z * scale);
+				for(int z = 0; z < zLen; z++) {
+					for(int x = 0; x < xLen; x++) {
+						top.setPos(xPos + (x * scale), 0, zPos + (z * scale));
 						Chunk chunk = world.getChunkFromBlockCoords(top);
 						if(!chunk.isLoaded()) {
 							return new Object[] { -1 }; 
