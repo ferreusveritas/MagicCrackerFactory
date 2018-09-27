@@ -21,14 +21,10 @@ public class EntityItemDisplay extends Entity {
 	
 	public EntityItemDisplay(World worldIn) {
 		super(worldIn);
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
-	protected void entityInit() {
-		// TODO Auto-generated method stub
-		
-	}
+	protected void entityInit() { }
 	
 	public void setItemStack(ItemStack stack) {
 		this.stack = stack;

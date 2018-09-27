@@ -20,16 +20,26 @@ public class MethodDescriptor {
 	private final String argTypes;
 	private final String args[];
 	private final SyncProcess process;
+	private final boolean synced;
 	
-	public MethodDescriptor(String name, String argTypes, String args, SyncProcess process) {
+	public MethodDescriptor(String name, String argTypes, String args, SyncProcess process, boolean synced) {
 		this.name = name;
 		this.argTypes = argTypes;
 		this.args = args.split(",");
 		this.process = process;
+		this.synced = synced;
+	}
+	
+	public MethodDescriptor(String name, String argTypes, String args, SyncProcess process) {
+		this(name, argTypes, args, process, true);
 	}
 	
 	public SyncProcess getProcess() {
 		return process;
+	}
+	
+	public boolean isSynced() {
+		return synced;
 	}
 	
 	public boolean isValidArguments(Arguments arguments) {

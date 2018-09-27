@@ -31,7 +31,7 @@ public class TileTerraformer extends MCFPeripheral  {
 	}
 	
 	public enum ComputerMethod implements MethodDescriptorProvider {
-		getBiome("nn", "xCoord, zCoord", 
+		getBiome("nn", "xCoord, zCoord", true, 
 			(world, peri, args) -> {
 				int x = args.i();
 				int z = args.i();
@@ -41,7 +41,7 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[] { biomeName, biomeId };
 			}),
 		
-		setBiome("nnnnn", "xStart,zStart,xStop,zStop,biomeId",
+		setBiome("nnnnn", "xStart,zStart,xStop,zStop,biomeId", false,
 			(world, peri, args) -> {
 				int xStart = args.i();
 				int zStart = args.i();
@@ -99,7 +99,7 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[0];
 			}),
 		
-		getBiomeArray("nnnnn", "xPos,zPos,xLen,zLen,scale", 
+		getBiomeArray("nnnnn", "xPos,zPos,xLen,zLen,scale", true,
 			(world, peri, args) -> {
 				int xPos =  args.i();
 				int zPos =  args.i();
@@ -123,7 +123,7 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[] { biomeIds };
 			}),
 		
-		getBiomeByteArray("nnnnn", "xPos,zPos,xLen,zLen,scale", 
+		getBiomeByteArray("nnnnn", "xPos,zPos,xLen,zLen,scale", true,
 			(world, peri, args) -> {
 				int xPos =  args.i();
 				int zPos =  args.i();
@@ -148,13 +148,13 @@ public class TileTerraformer extends MCFPeripheral  {
 			}),
 		
 		
-		getBiomeName("n", "biomeID", 
+		getBiomeName("n", "biomeID", true,
 			(world, peri, args) -> {
 				Biome biome = Biome.getBiomeForId(args.i());
 				return new Object[] { biome == null ? null : biome.getRegistryName().toString() };
 			}),
 		
-		getYTop("nn", "xCoord,zCoord,solid", 
+		getYTop("nn", "xCoord,zCoord,solid", true, 
 			(world, peri, args) -> {
 				MutableBlockPos top = new MutableBlockPos(args.i(0), 0, args.i(1));
 				boolean solid = args.b(2);
@@ -172,7 +172,7 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[] { 0 };
 			}),
 		
-		getYTopArray("nnnnn", "xPos,zPos,xLen,zLen,scale,solid", 
+		getYTopArray("nnnnn", "xPos,zPos,xLen,zLen,scale,solid", true, 
 			(world, peri, args) -> {
 				int xPos =  args.i();
 				int zPos =  args.i();
@@ -211,13 +211,13 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[] { heights };
 			}),
 		
-		getTemperature("nnn", "xCoord,yCoord,zCoord",
+		getTemperature("nnn", "xCoord,yCoord,zCoord", true,
 			(world, peri, args) -> {
 				BlockPos pos = args.p();
 				return new Object[] { world.getBiome(pos).getTemperature(pos) };
 			}),
 		
-		generateChunk("nn", "xChunk,yChunk", 
+		generateChunk("nn", "xChunk,yChunk", false,
 			(world, peri, args) -> {
 				int x = args.i();
 				int z = args.i();
@@ -243,7 +243,7 @@ public class TileTerraformer extends MCFPeripheral  {
 			});
 		
 		public final MethodDescriptor md;
-		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(toString(), argTypes, args, process); }
+		private ComputerMethod(String argTypes, String args, boolean synced, SyncProcess process) { md = new MethodDescriptor(toString(), argTypes, args, process, synced); }
 		
 		public static int getInt(Object[] args, int arg) {
 			return ((Double)args[arg]).intValue();

@@ -80,7 +80,7 @@ public class CommandManager<E extends Enum<E>> {
 				
 				MethodDescriptor md = methodDesc[methodNum];
 				if(md.validateArguments(arguments)) {
-					return serverProcess(md.getProcess(), arguments);
+					return serverProcess(md.getProcess(), arguments, md.isSynced());
 				}
 			}
 		}
@@ -90,12 +90,19 @@ public class CommandManager<E extends Enum<E>> {
 	
 	private List<SyncCommand> syncRequests = new ArrayList<>();
 	
-	public Object[] serverProcess(SyncProcess process, Arguments args) {
+	/**
+	 * 
+	 * @param process The process to run
+	 * @param args The argument data for the process
+	 * @param synced Determines weather or not we wait for the function to complete.
+	 * @return
+	 */
+	public Object[] serverProcess(SyncProcess process, Arguments args, boolean synced) {
 		SyncCommand syncReq = new SyncCommand(process, args);
 		synchronized (syncRequests) {
 			syncRequests.add(syncReq);
 		}
-		return syncReq.getResult();
+		return synced ? syncReq.getResult() : new Object[0];
 	}
 	
 	public void runServerProcesses(World world, MCFPeripheral peripheral) {
