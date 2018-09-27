@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderServer;
@@ -101,22 +102,28 @@ public class TileTerraformer extends MCFPeripheral  {
 		
 		getBiomeArray("nnnnn", "xPos,zPos,xLen,zLen,scale", true,
 			(world, peri, args) -> {
+
 				int xPos =  args.i();
 				int zPos =  args.i();
 				int xLen = 	args.i();
 				int zLen = 	args.i();
 				int scale = args.i();
 				scale = MathHelper.clamp(scale, 1, scale);
-				
+			
 				Map<Integer, Integer> biomeIds = new HashMap<>();
+				Biome[] singleBiome = new Biome[1];
+				BiomeProvider biomeProvider = world.getBiomeProvider();
 				
 				MutableBlockPos blockPos = new MutableBlockPos();
 				int i = 1;//Lua arrays start with 1
 				for(int z = 0; z < zLen; z++) {
 					for(int x = 0; x < xLen; x++) {
 						blockPos.setPos(xPos + (x * scale), 0, zPos + (z * scale));
-						Biome biome = world.getBiomeProvider().getBiome(blockPos);
-						biomeIds.put(i++, Biome.getIdForBiome(biome));
+						singleBiome = biomeProvider.getBiomes(singleBiome, xPos, zPos, 1, 1, false);
+						biomeIds.put(i++, Biome.getIdForBiome(singleBiome[0]));
+						
+						//Biome biome = world.getBiomeProvider().getBiome(blockPos);
+						//biomeIds.put(i++, Biome.getIdForBiome(biome));
 					}
 				}
 				
@@ -133,20 +140,24 @@ public class TileTerraformer extends MCFPeripheral  {
 				scale = MathHelper.clamp(scale, 1, scale);
 				
 				byte[] biomeIds = new byte[xLen * zLen];
+				Biome[] singleBiome = new Biome[1];
+				BiomeProvider biomeProvider = world.getBiomeProvider();
 				
 				MutableBlockPos blockPos = new MutableBlockPos();
 				int i = 0;
 				for(int z = 0; z < zLen; z++) {
 					for(int x = 0; x < xLen; x++) {
 						blockPos.setPos(xPos + (x * scale), 0, zPos + (z * scale));
-						Biome biome = world.getBiomeProvider().getBiome(blockPos);
-						biomeIds[i++] = (byte) Biome.getIdForBiome(biome);
+						singleBiome = biomeProvider.getBiomes(singleBiome, xPos, zPos, 1, 1, false);
+						biomeIds[i++] = (byte) Biome.getIdForBiome(singleBiome[0]);
+						
+						//Biome biome = world.getBiomeProvider().getBiome(blockPos);
+						//biomeIds[i++] = (byte) Biome.getIdForBiome(biome);
 					}
 				}
 				
 				return new Object[] { biomeIds };
 			}),
-		
 		
 		getBiomeName("n", "biomeID", true,
 			(world, peri, args) -> {
