@@ -100,36 +100,6 @@ public class TileTerraformer extends MCFPeripheral  {
 				return new Object[0];
 			}),
 		
-		getBiomeArray("nnnnn", "xPos,zPos,xLen,zLen,scale", true,
-			(world, peri, args) -> {
-
-				int xPos =  args.i();
-				int zPos =  args.i();
-				int xLen = 	args.i();
-				int zLen = 	args.i();
-				int scale = args.i();
-				scale = MathHelper.clamp(scale, 1, scale);
-			
-				Map<Integer, Integer> biomeIds = new HashMap<>();
-				Biome[] singleBiome = new Biome[1];
-				BiomeProvider biomeProvider = world.getBiomeProvider();
-				
-				MutableBlockPos blockPos = new MutableBlockPos();
-				int i = 1;//Lua arrays start with 1
-				for(int z = 0; z < zLen; z++) {
-					for(int x = 0; x < xLen; x++) {
-						blockPos.setPos(xPos + (x * scale), 0, zPos + (z * scale));
-						singleBiome = biomeProvider.getBiomes(singleBiome, xPos, zPos, 1, 1, false);
-						biomeIds.put(i++, Biome.getIdForBiome(singleBiome[0]));
-						
-						//Biome biome = world.getBiomeProvider().getBiome(blockPos);
-						//biomeIds.put(i++, Biome.getIdForBiome(biome));
-					}
-				}
-				
-				return new Object[] { biomeIds };
-			}),
-		
 		getBiomeByteArray("nnnnn", "xPos,zPos,xLen,zLen,scale", true,
 			(world, peri, args) -> {
 				int xPos =  args.i();
@@ -139,20 +109,43 @@ public class TileTerraformer extends MCFPeripheral  {
 				int scale = args.i();
 				scale = MathHelper.clamp(scale, 1, scale);
 				
-				byte[] biomeIds = new byte[xLen * zLen];
-				Biome[] singleBiome = new Biome[1];
 				BiomeProvider biomeProvider = world.getBiomeProvider();
+				byte[] biomeIds = new byte[xLen * zLen];
+				int i = 0;//Java arrays start with 0
 				
-				MutableBlockPos blockPos = new MutableBlockPos();
-				int i = 0;
-				for(int z = 0; z < zLen; z++) {
-					for(int x = 0; x < xLen; x++) {
-						blockPos.setPos(xPos + (x * scale), 0, zPos + (z * scale));
-						singleBiome = biomeProvider.getBiomes(singleBiome, xPos, zPos, 1, 1, false);
-						biomeIds[i++] = (byte) Biome.getIdForBiome(singleBiome[0]);
-						
-						//Biome biome = world.getBiomeProvider().getBiome(blockPos);
-						//biomeIds[i++] = (byte) Biome.getIdForBiome(biome);
+				if(scale == 1) { //Special efficiency case for scale 1
+					Biome[] biomeArray = biomeProvider.getBiomes(null, xPos, zPos, xLen, zLen, false);
+					for(Biome b : biomeArray) {
+						biomeIds[i++] = (byte) Biome.getIdForBiome(b);
+					}
+				} else if(scale == 2 || scale == 4 || scale == 8) { //Special efficiency case for scale 2, 4 and 8
+					//On 64 bit java this can temporarily eat some big memory since an object reference is 8 bytes..
+					Biome[] biomeArray = biomeProvider.getBiomes(null, xPos, zPos, xLen * scale, zLen * scale, false);
+					for(int z = 0; z < zLen * scale; z+=scale) {
+						for(int x = 0; x < xLen * scale; x+=scale) {
+							biomeIds[i++] = (byte) Biome.getIdForBiome(biomeArray[(z * xLen * scale) + x]);
+						}
+					}
+				} else if( (scale == 16 && (zLen % 4) == 0) || (scale == 32 && (zLen % 16) == 0) ) { //Special efficiency case for scale 16 and 32 to not gobble ram
+					int split = scale == 16 ? 4 : 16;
+					Biome[] biomeArray = new Biome[xLen * scale * zLen * scale / split];
+					for(int q = 0; q < split; q++) {
+						biomeArray = biomeProvider.getBiomes(biomeArray, xPos, zPos + (q * zLen * scale / split), xLen * scale, zLen * scale / split, false);
+						for(int z = 0; z < zLen * scale / split; z+=scale) {
+							for(int x = 0; x < xLen * scale; x+=scale) {
+								biomeIds[i++] = (byte) Biome.getIdForBiome(biomeArray[(z * xLen * scale) + x]);
+							}
+						}
+					}
+				} else { //Diminishing returns on the above strategy after this point.  Just sample each biome by individual block
+					MutableBlockPos blockPos = new MutableBlockPos();
+					Biome[] singleBiome = new Biome[1];
+					for(int z = 0; z < zLen; z++) {
+						for(int x = 0; x < xLen; x++) {
+							blockPos.setPos(xPos + (x * scale), 0, zPos + (z * scale));
+							singleBiome = biomeProvider.getBiomes(singleBiome, blockPos.getX(), blockPos.getZ(), 1, 1, false);
+							biomeIds[i++] = (byte) Biome.getIdForBiome(singleBiome[0]);
+						}
 					}
 				}
 				
