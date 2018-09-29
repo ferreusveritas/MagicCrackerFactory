@@ -146,13 +146,6 @@ public class TileCartographer extends MCFPeripheral  {
 		}
 		
 		mapDataDst.markDirty();
-		Packet<?> packetDst = new SPacketMaps(mapDst, mapDataDst.scale, mapDataDst.trackingPosition, mapDataDst.mapDecorations.values(), mapDataDst.colors, 0, 0, 128, 128);
-		
-		for(EntityPlayer player : world.playerEntities) {
-			if(player instanceof EntityPlayerMP) {
-				((EntityPlayerMP)player).connection.sendPacket(packetDst);
-			}
-		}
 		
 		return 0;
 	}
@@ -178,17 +171,7 @@ public class TileCartographer extends MCFPeripheral  {
 		
 		mapDataA.markDirty();
 		mapDataB.markDirty();
-		
-		Packet<?> packetA = new SPacketMaps(mapNumA, mapDataA.scale, mapDataA.trackingPosition, mapDataA.mapDecorations.values(), mapDataA.colors, 0, 0, 128, 128);
-		Packet<?> packetB = new SPacketMaps(mapNumB, mapDataB.scale, mapDataB.trackingPosition, mapDataB.mapDecorations.values(), mapDataB.colors, 0, 0, 128, 128);
-		
-		for(EntityPlayer player : world.playerEntities) {
-			if(player instanceof EntityPlayerMP) {
-				((EntityPlayerMP)player).connection.sendPacket(packetA);
-				((EntityPlayerMP)player).connection.sendPacket(packetB);
-			}
-		}
-		
+			
 		return 0;
 	}
 	
