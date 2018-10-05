@@ -16,6 +16,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketMaps;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 import net.minecraft.world.storage.MapDecoration;
 
@@ -72,9 +73,27 @@ public class TileCartographer extends MCFPeripheral  {
 			return lastMapData;
 		} else {
 			lastMapNum = mapNum;
-			lastMapData = (MapData) world.loadData(MapData.class, "map_" + mapNum);
+			String dataId = "map_" + mapNum;
+			lastMapData = (MapData) world.loadData(MapData.class, dataId);
+			
+			if(lastMapData == null) {
+				lastMapData = newMap(world, dataId);
+			}
+			
 			return lastMapData;	
 		}
+	}
+	
+	public MapData newMap(World world, String dataId) {
+        MapData mapdata = new MapData(dataId);
+        world.setData(dataId, mapdata);
+        mapdata.scale = (byte)0;
+        mapdata.calculateMapCenter(0, 0, mapdata.scale);
+        mapdata.dimension = world.provider.getDimension();
+        mapdata.trackingPosition = true;
+        mapdata.unlimitedTracking = false;
+        mapdata.markDirty();
+        return mapdata;
 	}
 	
 	public int getMapPixel(int mapNum, int x, int z) {
