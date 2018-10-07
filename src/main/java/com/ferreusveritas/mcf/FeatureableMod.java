@@ -77,6 +77,7 @@ public abstract class FeatureableMod {
 		public void registerModels(ModelRegistryEvent event) {
 			features.forEach(i -> i.registerModels());
 		}
+		
 	}
 	
 }

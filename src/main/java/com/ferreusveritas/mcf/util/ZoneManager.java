@@ -46,6 +46,7 @@ public class ZoneManager extends WorldSavedData {
 	
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
+		System.out.println("Info: Reading NBT data from disk for ZoneManager");
 		boundsStorage = new BoundsStorage(nbt.getCompoundTag("zones"));
 	}
 	

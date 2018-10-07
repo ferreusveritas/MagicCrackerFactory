@@ -1,6 +1,7 @@
 
 package com.ferreusveritas.mcf;
 
+import com.ferreusveritas.mcf.entities.EntityItemDisplay;
 import com.ferreusveritas.mcf.features.Cartographer;
 import com.ferreusveritas.mcf.features.Dendrocoil;
 import com.ferreusveritas.mcf.features.Remote;
@@ -10,14 +11,19 @@ import com.ferreusveritas.mcf.features.Terraformer;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
 import com.ferreusveritas.mcf.proxy.CommonProxy;
 
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
@@ -67,14 +73,15 @@ public class MCF extends FeatureableMod {
 	public void preInit(FMLPreInitializationEvent event) {
 		setupFeatures();
 		super.preInit(event);
+		proxy.preInit();
 	}
-
+	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
-		proxy.init();
 		super.init(event);
+		proxy.init();
 	}
-
+	
 	@Mod.EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		int disc = 0;
@@ -82,10 +89,19 @@ public class MCF extends FeatureableMod {
 		
 		super.postInit(event);
 	}
-
+	
 	@Mod.EventHandler
 	public void onLoadComplete(FMLLoadCompleteEvent event) {
 		super.onLoadComplete(event);
+	}
+	
+	@Mod.EventBusSubscriber
+	public static class RegistrationHandler {
+		@SubscribeEvent
+		public static void registerEntities(RegistryEvent.Register<EntityEntry> event) {
+			int id = 0;
+			EntityRegistry.registerModEntity(new ResourceLocation(ModConstants.MODID, "item_display"), EntityItemDisplay.class, "item_display", id++, ModConstants.MODID, 32, 1, true);
+		}
 	}
 	
 }

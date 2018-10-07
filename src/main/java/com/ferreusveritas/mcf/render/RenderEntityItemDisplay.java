@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Rotations;
+import net.minecraftforge.fml.client.registry.IRenderFactory;
 
 public class RenderEntityItemDisplay extends Render<EntityItemDisplay>{
 	
@@ -31,12 +33,42 @@ public class RenderEntityItemDisplay extends Render<EntityItemDisplay>{
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, z);
+		GlStateManager.translate(x, y + 0.5, z);
+		
+		Rotations rot = entity.getRotation();
+		
+		if (rot.getY() != 0.0F) {
+			GlStateManager.rotate(rot.getY(), 0.0F, 1.0F, 0.0F);
+		}
+		
+		if (rot.getX() != 0.0F) {
+			GlStateManager.rotate(rot.getX(), 1.0F, 0.0F, 0.0F);
+		}
+		
+		if (rot.getZ() != 0.0F) {
+			GlStateManager.rotate(rot.getZ(), 0.0F, 0.0F, 1.0F);
+		}
+		
+		float scale = entity.getScale();
+		
+		if (scale != 1.0F) {
+			GlStateManager.scale(scale, scale, scale);
+		}
 		
 		ItemStack stack = entity.getItemStack();
+		//stack = new ItemStack(Items.APPLE);
+		//System.out.println(stack);
 		itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.NONE);
 		
 		GlStateManager.popMatrix();
 	}
 	
+	public static class Factory implements IRenderFactory<EntityItemDisplay> {
+		
+		@Override
+		public Render<EntityItemDisplay> createRenderFor(RenderManager manager) {
+			return new RenderEntityItemDisplay(manager);
+		}
+		
+	}
 }

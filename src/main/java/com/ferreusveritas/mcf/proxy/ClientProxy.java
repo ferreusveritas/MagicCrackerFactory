@@ -1,13 +1,16 @@
 package com.ferreusveritas.mcf.proxy;
 
 import com.ferreusveritas.dynamictrees.api.client.ModelHelper;
+import com.ferreusveritas.mcf.entities.EntityItemDisplay;
 import com.ferreusveritas.mcf.features.Remote;
+import com.ferreusveritas.mcf.render.RenderEntityItemDisplay;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
 public class ClientProxy extends CommonProxy {
 	
@@ -18,6 +21,10 @@ public class ClientProxy extends CommonProxy {
 			}
 		}
 		return null;
+	}
+	
+	public void preInit() {
+		registerEntityRenderers();
 	}
 	
 	@Override
@@ -36,6 +43,10 @@ public class ClientProxy extends CommonProxy {
 			}
 		});
 		
+	}
+	
+	public void registerEntityRenderers() {
+		RenderingRegistry.registerEntityRenderingHandler(EntityItemDisplay.class, new RenderEntityItemDisplay.Factory());
 	}
 	
 	@Override

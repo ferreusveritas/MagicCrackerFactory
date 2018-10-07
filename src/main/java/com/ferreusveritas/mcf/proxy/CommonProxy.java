@@ -9,7 +9,9 @@ public class CommonProxy {
 		return null;
 	}
 	
-	public void init() {}
+	public void preInit() { }
+	
+	public void init() { }
 	
 	public EntityPlayer getPlayer() {
 		return null;
