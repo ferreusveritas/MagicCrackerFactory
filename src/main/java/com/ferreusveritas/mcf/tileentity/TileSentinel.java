@@ -9,8 +9,10 @@ import com.ferreusveritas.mcf.util.bounds.BoundsStorage.EnumBoundsType;
 
 public class TileSentinel extends MCFPeripheral {
 	
+	public static final String SENTINEL = "sentinel";
+
 	public TileSentinel() {
-		super("sentinel");
+		super(SENTINEL);
 	}
 
 	public enum ComputerMethod implements MethodDescriptorProvider {

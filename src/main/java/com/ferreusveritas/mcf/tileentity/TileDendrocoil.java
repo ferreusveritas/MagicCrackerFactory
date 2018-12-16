@@ -25,8 +25,10 @@ import net.minecraft.world.World;
 
 public class TileDendrocoil extends MCFPeripheral {
 	
+	public static final String DENDROCOIL = "dendrocoil";
+
 	public TileDendrocoil() {
-		super("dendrocoil");
+		super(DENDROCOIL);
 	}
 	
 	public enum ComputerMethod implements MethodDescriptorProvider {

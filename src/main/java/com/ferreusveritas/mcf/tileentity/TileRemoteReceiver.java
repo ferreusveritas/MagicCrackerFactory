@@ -19,13 +19,15 @@ import net.minecraft.util.math.Vec3d;
 
 public class TileRemoteReceiver extends MCFPeripheral  {
 	
+	public static final String REMOTERECEIVER = "remotereceiver";
+	
 	private static Set<TileRemoteReceiver> connections = new HashSet<>();
 	private Set<IComputerAccess> computers = new HashSet<>();
 	
 	private boolean isInterdimensional = false;
 	
 	public TileRemoteReceiver() {
-		super("remotereceiver");
+		super(REMOTERECEIVER);
 	}
 	
 	public static void broadcastRemoteEvents(EntityPlayer player, String remoteId, Vec3d hitPos, BlockPos blockPos, EnumFacing face) {

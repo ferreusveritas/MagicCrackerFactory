@@ -27,8 +27,10 @@ import net.minecraft.world.gen.ChunkProviderServer;
 
 public class TileTerraformer extends MCFPeripheral  {
 
+	public static final String TERRAFORMER = "terraformer";
+
 	public TileTerraformer() {
-		super("terraformer");
+		super(TERRAFORMER);
 	}
 	
 	public enum ComputerMethod implements MethodDescriptorProvider {

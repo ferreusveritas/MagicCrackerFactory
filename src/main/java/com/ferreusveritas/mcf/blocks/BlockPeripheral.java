@@ -2,6 +2,7 @@ package com.ferreusveritas.mcf.blocks;
 
 import java.util.List;
 
+import com.ferreusveritas.mcf.ModConstants;
 import com.ferreusveritas.mcf.util.Util;
 
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -14,6 +15,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -29,7 +31,7 @@ public class BlockPeripheral extends Block implements ITileEntityProvider, IPeri
 		setUnlocalizedName(type.getName());
 		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
 		ComputerCraftAPI.registerPeripheralProvider(this);
-		GameRegistry.registerTileEntity(type.getTileEntityClass(), type.getName());
+		GameRegistry.registerTileEntity(type.getTileEntityClass(), new ResourceLocation(ModConstants.MODID, type.getName()));
 	}
 	
 	@Override

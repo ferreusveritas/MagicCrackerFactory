@@ -22,8 +22,10 @@ import net.minecraft.world.storage.MapDecoration;
 
 public class TileCartographer extends MCFPeripheral  {
 	
+	public static final String CARTOGRAPHER = "cartographer";
+	
 	public TileCartographer() {
-		super("cartographer");
+		super(CARTOGRAPHER);
 	}
 	
 	public enum ComputerMethod implements MethodDescriptorProvider {
