@@ -1,6 +1,6 @@
 {
     "textures": {
-        "particle": "#texture",
+        "particle": "blocks/redstone_block",
         "texture": "blocks/redstone_block"
     },
     "elements": [

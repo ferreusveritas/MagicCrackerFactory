@@ -1,6 +1,6 @@
 {
     "textures": {
-        "particle": "#texture",
+        "particle": "blocks/lapis_block",
         "texture": "blocks/lapis_block"
     },
     "elements": [
