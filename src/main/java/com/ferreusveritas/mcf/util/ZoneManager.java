@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.ferreusveritas.mcf.util.bounds.BoundsAny;
 import com.ferreusveritas.mcf.util.bounds.BoundsBase;
@@ -12,7 +13,6 @@ import com.ferreusveritas.mcf.util.bounds.BoundsCuboid;
 import com.ferreusveritas.mcf.util.bounds.BoundsCylinder;
 import com.ferreusveritas.mcf.util.bounds.BoundsStorage;
 import com.ferreusveritas.mcf.util.bounds.BoundsStorage.EnumBoundsType;
-import com.ferreusveritas.mcf.util.filters.IEntityFilter;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,13 +29,11 @@ public class ZoneManager extends WorldSavedData {
 	
 	public static ZoneManager get(World world) {
 		MapStorage storage = world.getPerWorldStorage();
-		ZoneManager result = (ZoneManager)storage.getOrLoadData(ZoneManager.class, key);
-		if (result == null) {
-			result = new ZoneManager(key);
+		return Optional.ofNullable((ZoneManager)storage.getOrLoadData(ZoneManager.class, key)).orElseGet( () -> { 
+			ZoneManager result = new ZoneManager(key);
 			storage.setData(key, result);
-		}
-		
-		return result;
+			return result;
+		});
 	}
 	
 	protected BoundsStorage boundsStorage = new BoundsStorage(new NBTTagCompound());
@@ -75,10 +73,7 @@ public class ZoneManager extends WorldSavedData {
 	}
 	
 	public void addDefaultFilters(EnumBoundsType type, BoundsBase bb) {
-		IEntityFilter defaultFilter = type.getDefaultEntityFilter();
-		if(defaultFilter != null) {
-			bb.getFilterSet().setFilter("default", defaultFilter);
-		}
+		Optional.ofNullable(type.getDefaultEntityFilter()).ifPresent(filter -> bb.getFilterSet().setFilter("default", filter));
 	}
 	
 	public void addCuboidBounds(EnumBoundsType type, String name, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
@@ -95,19 +90,13 @@ public class ZoneManager extends WorldSavedData {
 	
 	public void addEntityFilter(EnumBoundsType type, String name, String filterName, String filterType, String filterData) {
 		//System.out.println("Entity Filter Added: " + type + ", " + name + ", " + filterName + ", " +  filterType + ", " + filterData);
-		BoundsBase bb = getBounds(type, name);
-		if(bb != null) {
-			bb.getFilterSet().setFilter(filterName, filterType, filterData);
-		}
+		Optional.ofNullable(getBounds(type, name)).ifPresent(bb -> bb.getFilterSet().setFilter(filterName, filterType, filterData));
 		markDirty();
 	}
 	
 	public void remEntityFilter(EnumBoundsType type, String name, String filterName) {
 		//System.out.println("Entity Filter Removed: " + type + ", " + name + ", " + filterName);
-		BoundsBase bb = getBounds(type, name);
-		if(bb != null) {
-			bb.getFilterSet().remFilter(filterName);
-		}
+		Optional.ofNullable(getBounds(type, name)).ifPresent(bb -> bb.getFilterSet().remFilter(filterName));
 		markDirty();
 	}
 	
@@ -124,12 +113,7 @@ public class ZoneManager extends WorldSavedData {
 	}
 	
 	public Object[] getBoundsDataLua(EnumBoundsType type, String name) {
-		BoundsBase bound = getBounds(type, name);
-		if(bound != null) {
-			return bound.toLuaObject();
-		}
-		
-		return new Object[0];
+		return Optional.ofNullable(getBounds(type, name)).map(b -> b.toLuaObject()).orElse(new Object[0]);
 	}
 	
 	public BoundsBase getBounds(EnumBoundsType type, String name) {
