@@ -10,12 +10,18 @@ import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Mod.EventBusSubscriber
 public class SecurityHandler {
+	
+	@SubscribeEvent
+	public void onWorldLoad(WorldEvent.Load event) {
+		ZoneManager.get(event.getWorld());
+	}
 	
 	@SubscribeEvent
 	public static void onBreakEvent(BlockEvent.BreakEvent event) {

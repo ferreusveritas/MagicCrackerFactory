@@ -38,7 +38,7 @@ public class BoundsCylinder extends BoundsBase {
 		super(nbt);
 		
 		int[] bounds = nbt.getIntArray("bounds");
-		if(bounds.length == 6) {
+		if(bounds.length == 5) {
 			posX = bounds[0];
 			posZ = bounds[1];
 			minY = bounds[2];
