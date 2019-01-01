@@ -3,7 +3,7 @@ package com.ferreusveritas.mcf.blocks;
 import java.util.List;
 
 import com.ferreusveritas.mcf.ModConstants;
-import com.ferreusveritas.mcf.util.Util;
+import com.ferreusveritas.mcf.ModTabs;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -29,7 +29,7 @@ public class BlockPeripheral extends Block implements ITileEntityProvider, IPeri
 		this.type = type;
 		setRegistryName(type.getName());
 		setUnlocalizedName(type.getName());
-		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
+		setCreativeTab(ModTabs.mcfTab);
 		ComputerCraftAPI.registerPeripheralProvider(this);
 		GameRegistry.registerTileEntity(type.getTileEntityClass(), new ResourceLocation(ModConstants.MODID, type.getName()));
 	}

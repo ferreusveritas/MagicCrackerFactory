@@ -1,5 +1,7 @@
 package com.ferreusveritas.mcf.features;
 
+import com.ferreusveritas.mcf.FeatureableMod;
+import com.ferreusveritas.mcf.ModConstants;
 import com.ferreusveritas.mcf.blocks.BlockMapGuard;
 import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.blocks.BlockRemoteButton;
@@ -12,16 +14,26 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 
+@Mod.EventBusSubscriber(modid = ModConstants.MODID)
 public class Remote implements IFeature {
 	
 	public static Block blockRemoteReceiver;
 	public static Block blockRemoteButton;
 	public static Block blockMapGuard;
 	public static UniversalRemote universalRemote;
+	
+	private Remote() { }
+	
+	@SubscribeEvent
+	public static void register(final FeatureableMod.FeatureRegistryEvent event) {
+		event.regFeature(new Remote());
+	}
 	
 	@Override
 	public void preInit() { }

@@ -2,7 +2,7 @@ package com.ferreusveritas.mcf.blocks;
 
 import java.util.List;
 
-import com.ferreusveritas.mcf.util.Util;
+import com.ferreusveritas.mcf.ModTabs;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -21,7 +21,7 @@ public class BlockMapGuard extends Block {
 		super(Material.GLASS);
 		setRegistryName("mapguard");
 		setUnlocalizedName(getRegistryName().toString());
-		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
+		setCreativeTab(ModTabs.mcfTab);
 		setHardness(8);
 		setResistance(8);
 	}

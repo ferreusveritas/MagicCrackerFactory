@@ -9,4 +9,5 @@ tile.remotereceiver.name=Remote Receiver
 tile.mcf:mapguard.name=Map Guard
 
 item.mcf:remote.name=Universal Remote
+tile.mcf:remotebutton.name=Remote button
 

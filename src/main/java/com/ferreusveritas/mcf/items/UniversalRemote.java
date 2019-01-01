@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.util.List;
 
 import com.ferreusveritas.mcf.MCF;
+import com.ferreusveritas.mcf.ModTabs;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
-import com.ferreusveritas.mcf.util.Util;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,7 +27,7 @@ public class UniversalRemote extends Item {
 	public UniversalRemote() {
 		setRegistryName("remote");
 		setUnlocalizedName(getRegistryName().toString());
-		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
+		setCreativeTab(ModTabs.mcfTab);
 	}
 	
 	@Override

@@ -14,26 +14,34 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class FeatureableMod {
 
-	public ArrayList<IFeature> features = new ArrayList<>();
+	private ArrayList<IFeature> features = new ArrayList<>();
 	
 	public FeatureableMod() {
 		MinecraftForge.EVENT_BUS.register(new RegistrationHandler());
 	}
 	
-	public void addFeature(IFeature feature) {
-		features.add(feature);
+	public static class FeatureRegistryEvent extends Event {
+		
+		private final FeatureableMod mod;
+		
+		public FeatureRegistryEvent(FeatureableMod mod) {
+			this.mod = mod;
+		}
+		
+		public void regFeature(IFeature feature) {
+			mod.addFeature(feature);
+		}
 	}
 	
-	public void addFeatures(IFeature ... features ) {
-		for(IFeature feature : features) {
-			addFeature(feature);
-		}
+	private void addFeature(IFeature feature) {
+		features.add(feature);
 	}
 	
 	public void preInit(FMLPreInitializationEvent event) {

@@ -2,7 +2,7 @@ package com.ferreusveritas.mcf.blocks;
 
 import javax.annotation.Nullable;
 
-import com.ferreusveritas.mcf.util.Util;
+import com.ferreusveritas.mcf.ModTabs;
 
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.state.IBlockState;
@@ -31,7 +31,7 @@ public class BlockRemoteButton extends BlockButton implements IRemoteActivatable
 		setUnlocalizedName(getRegistryName().toString());
 		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(BlockButton.POWERED, Boolean.valueOf(false)));
 		this.setTickRandomly(true);
-		setCreativeTab(Util.findCreativeTab("ComputerCraft"));
+		setCreativeTab(ModTabs.mcfTab);
 	}
 	
 	@Override

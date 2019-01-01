@@ -2,16 +2,11 @@
 package com.ferreusveritas.mcf;
 
 import com.ferreusveritas.mcf.entities.EntityItemDisplay;
-import com.ferreusveritas.mcf.features.Cartographer;
-import com.ferreusveritas.mcf.features.Dendrocoil;
-import com.ferreusveritas.mcf.features.Remote;
-import com.ferreusveritas.mcf.features.Security;
-import com.ferreusveritas.mcf.features.Sentinel;
-import com.ferreusveritas.mcf.features.Terraformer;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
 import com.ferreusveritas.mcf.proxy.CommonProxy;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -59,14 +54,8 @@ public class MCF extends FeatureableMod {
 	public static CommonProxy proxy;
 	
 	protected void setupFeatures() {
-		addFeatures(
-			new Security(),
-			new Cartographer(),
-			new Terraformer(),
-			new Sentinel(),
-			new Dendrocoil(),
-			new Remote()
-		);
+		FeatureRegistryEvent featureRegEvent = new FeatureRegistryEvent(this);
+		MinecraftForge.EVENT_BUS.post(featureRegEvent);
 	};
 	
 	@Mod.EventHandler
