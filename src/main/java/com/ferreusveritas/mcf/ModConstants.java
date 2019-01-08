@@ -1,11 +1,13 @@
 package com.ferreusveritas.mcf;
 
-public class ModConstants extends ModDepend {
-
+public class ModConstants extends com.ferreusveritas.dynamictrees.ModConstants {
+	
 	public static final String MODID = "mcf";
-	public static final String VERSION = "@VERSION@";
-	//public static final String VERSION = "1.12.2-0.0.1";
+	public static final String VERSION = "1.12.2-9999.9999.9999z";//Maxed out version to satisfy dependencies during dev, Assigned from gradle during build, do not change
+	
+	//Other Mods
+	public static final String COMPUTERCRAFT = "computercraft";
 	
 	public static final String DEPENDENCIES 
-			= REQ_AFTER + COMPUTERCRAFT;
+			= REQAFTER + COMPUTERCRAFT;
 }
