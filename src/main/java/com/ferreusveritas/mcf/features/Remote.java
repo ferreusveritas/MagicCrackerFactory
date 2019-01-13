@@ -12,6 +12,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.Mod;
@@ -74,7 +75,7 @@ public class Remote implements IFeature {
 		registry.register(universalRemote);
 		registry.register( new ItemBlock(blockRemoteReceiver).setRegistryName(blockRemoteReceiver.getRegistryName()) );
 		registry.register( new ItemBlock(blockRemoteButton).setRegistryName(blockRemoteButton.getRegistryName()) );
-		registry.register( new ItemBlock(blockMapGuard).setRegistryName(blockMapGuard.getRegistryName()) );
+		registry.register( new ItemMultiTexture(blockMapGuard, blockMapGuard, stack -> stack.getItemDamage() == 0 ? "unlit" : "lit").setRegistryName(blockMapGuard.getRegistryName()));
 	}
 	
 	@Override
@@ -86,7 +87,8 @@ public class Remote implements IFeature {
 		ModelLoader.setCustomModelResourceLocation(universalRemote, 0, new ModelResourceLocation(universalRemote.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteReceiver), 0, new ModelResourceLocation(blockRemoteReceiver.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteButton), 0, new ModelResourceLocation(blockRemoteButton.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockMapGuard), 0, new ModelResourceLocation(blockMapGuard.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockMapGuard), 0, new ModelResourceLocation(blockMapGuard.getRegistryName() + "_unlit", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockMapGuard), 1, new ModelResourceLocation(blockMapGuard.getRegistryName() + "_lit", "inventory"));
 	}
 	
 }
