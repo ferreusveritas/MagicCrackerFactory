@@ -97,8 +97,10 @@ public class EntityItemDisplay extends Entity {
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		// /summon mcf:item_display 0.5 130 5.5 {item:{id:"minecraft:redstone",Count:1b},scale:4.0f}
+		// /summon mcf:item_display ~5 ~1 ~ {item:{id:"thermalexpansion:frame",Count:1b},scale:4.0f,rotation:[35f,0f,45f]}
 		// /summon mcf:item_display ~ ~ ~ {item:{id:"minecraft:redstone",Count:1b}}
-		// /kill @e[type=!Player]
+		// /summon mcf:item_display 2608 65.5 27 {item:{id:"cathedral:cathedral_gargoyle_demon_stone",Count:1b},scale:4.0f,rotation:[0f,0f,0f]}
+		// /kill @e[type=mcf:item_display]
 		
 		NBTTagCompound itemNBT = compound.getCompoundTag("item");
 		setItemStack(new ItemStack(itemNBT));
