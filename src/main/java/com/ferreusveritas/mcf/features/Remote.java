@@ -6,6 +6,7 @@ import com.ferreusveritas.mcf.blocks.BlockMapGuard;
 import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.blocks.BlockRemoteButton;
 import com.ferreusveritas.mcf.blocks.PeripheralType;
+import com.ferreusveritas.mcf.items.CommandPotion;
 import com.ferreusveritas.mcf.items.UniversalRemote;
 
 import net.minecraft.block.Block;
@@ -28,6 +29,7 @@ public class Remote implements IFeature {
 	public static Block blockRemoteButton;
 	public static Block blockMapGuard;
 	public static UniversalRemote universalRemote;
+	public static CommandPotion commandPotion;
 	
 	private Remote() { }
 	
@@ -49,6 +51,7 @@ public class Remote implements IFeature {
 	@Override
 	public void createItems() {
 		universalRemote = new UniversalRemote();
+		commandPotion = new CommandPotion();
 	}
 	
 	@Override
@@ -73,6 +76,7 @@ public class Remote implements IFeature {
 	@Override
 	public void registerItems(IForgeRegistry<Item> registry) {
 		registry.register(universalRemote);
+		registry.register(commandPotion);
 		registry.register( new ItemBlock(blockRemoteReceiver).setRegistryName(blockRemoteReceiver.getRegistryName()) );
 		registry.register( new ItemBlock(blockRemoteButton).setRegistryName(blockRemoteButton.getRegistryName()) );
 		registry.register( new ItemMultiTexture(blockMapGuard, blockMapGuard, stack -> stack.getItemDamage() == 0 ? "unlit" : "lit").setRegistryName(blockMapGuard.getRegistryName()));
@@ -85,6 +89,7 @@ public class Remote implements IFeature {
 	@SideOnly(Side.CLIENT)
 	public void registerModels() {
 		ModelLoader.setCustomModelResourceLocation(universalRemote, 0, new ModelResourceLocation(universalRemote.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(commandPotion, 0, new ModelResourceLocation(commandPotion.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteReceiver), 0, new ModelResourceLocation(blockRemoteReceiver.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteButton), 0, new ModelResourceLocation(blockRemoteButton.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockMapGuard), 0, new ModelResourceLocation(blockMapGuard.getRegistryName() + "_unlit", "inventory"));

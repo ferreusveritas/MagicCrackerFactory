@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.ferreusveritas.mcf.command.CommandProx;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
 import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
@@ -46,6 +47,22 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 		}
 	}
 	
+	public static void broadcastProxyEvents(EntityPlayer player, String[] commands) {
+		
+		Iterator<TileRemoteReceiver> i = connections.iterator();
+		
+		while(i.hasNext()) {
+			TileRemoteReceiver receiver = i.next();
+			if(receiver.isInterdimensional || player.world.provider.getDimension() == receiver.world.provider.getDimension()) { //Make sure player is in the same world as the receiver
+				if(receiver.world.isBlockLoaded(receiver.getPos())) {
+					receiver.createProxyEvent(player, commands);
+				} else {
+					i.remove();
+				}
+			}
+		}
+	}
+	
 	public void createRemoteEvent(EntityPlayer player, String remoteId, Vec3d hitPos, BlockPos blockPos, EnumFacing face) {
 		Map<String, Double> hitPosMap = new HashMap<>();
 		hitPosMap.put("x", hitPos.x);
@@ -62,6 +79,23 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 		Object arguments[] = { player.getName(), remoteId, hitPosMap, blockPosMap, faceNum };
 		for( IComputerAccess comp : computers) {
 			comp.queueEvent("remote_control", arguments);
+		}
+	}
+	
+	public void createProxyEvent(EntityPlayer player, String[] command) {
+		
+		BlockPos blockPos = player.getPosition();
+		
+		Map<String, Integer> blockPosMap = new HashMap<>();
+		blockPosMap.put("x", blockPos.getX());
+		blockPosMap.put("y", blockPos.getY());
+		blockPosMap.put("z", blockPos.getZ());
+		
+		int dim = player.world.provider.getDimension();
+		
+		Object arguments[] = { player.getName(), blockPosMap, dim, command };
+		for( IComputerAccess comp : computers) {
+			comp.queueEvent(CommandProx.PROX, arguments);
 		}
 	}
 	

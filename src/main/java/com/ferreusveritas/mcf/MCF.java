@@ -1,6 +1,7 @@
 
 package com.ferreusveritas.mcf;
 
+import com.ferreusveritas.mcf.command.CommandProx;
 import com.ferreusveritas.mcf.command.CommandSetBlockQuiet;
 import com.ferreusveritas.mcf.entities.EntityItemDisplay;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
@@ -84,6 +85,7 @@ public class MCF extends FeatureableMod {
 	@Mod.EventHandler
 	public static void serverStarting(FMLServerStartingEvent event) {
 		event.registerServerCommand(new CommandSetBlockQuiet());
+		event.registerServerCommand(new CommandProx());
 	}
 	
 	@Mod.EventHandler

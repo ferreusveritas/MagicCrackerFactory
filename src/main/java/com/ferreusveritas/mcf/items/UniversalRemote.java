@@ -63,7 +63,12 @@ public class UniversalRemote extends Item {
 		return 16;
 	}
 	
-	public int getColor(ItemStack itemStack) {
+	public int getColor(ItemStack itemStack, int tintIndex) {
+		
+		if(tintIndex != 1) {
+			return 0xFFFFFFFF;
+		}
+		
 		NBTTagCompound nbt = getNBT(itemStack);
 		
 		int color = 0x0000FFFF;
