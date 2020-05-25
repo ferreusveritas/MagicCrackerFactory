@@ -1,8 +1,5 @@
 package com.ferreusveritas.mcf.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.ferreusveritas.mcf.tileentity.MCFPeripheral;
 import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
 import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
@@ -37,7 +34,7 @@ public class CommandManager<E extends Enum<E>> {
 		return numMethods;
 	}
 	
-	private class SyncCommand {
+	public class SyncCommand {
 		private boolean fulfilled;
 		private Object[] result;
 		private Arguments args;
@@ -80,15 +77,14 @@ public class CommandManager<E extends Enum<E>> {
 				
 				MethodDescriptor md = methodDesc[methodNum];
 				if(md.validateArguments(arguments)) {
-					return serverProcess(md.getProcess(), arguments, md.isSynced());
+					return serverProcess(md.getProcess(), arguments, peripheral, md.isSynced());
 				}
 			}
 		}
 		
 		return null;
 	}
-	
-	private List<SyncCommand> syncRequests = new ArrayList<>();
+
 	
 	/**
 	 * 
@@ -97,21 +93,10 @@ public class CommandManager<E extends Enum<E>> {
 	 * @param synced Determines weather or not we wait for the function to complete.
 	 * @return
 	 */
-	public Object[] serverProcess(SyncProcess process, Arguments args, boolean synced) {
+	public Object[] serverProcess(SyncProcess process, Arguments args, MCFPeripheral peripheral, boolean synced) {
 		SyncCommand syncReq = new SyncCommand(process, args);
-		synchronized (syncRequests) {
-			syncRequests.add(syncReq);
-		}
+		peripheral.addSyncRequest(syncReq);
 		return synced ? syncReq.getResult() : new Object[0];
-	}
-	
-	public void runServerProcesses(World world, MCFPeripheral peripheral) {
-		synchronized (syncRequests) {
-			for(SyncCommand syncReq: syncRequests) {
-				syncReq.serverProcess(world, peripheral);
-			}
-			syncRequests.clear();
-		}
 	}
 	
 }

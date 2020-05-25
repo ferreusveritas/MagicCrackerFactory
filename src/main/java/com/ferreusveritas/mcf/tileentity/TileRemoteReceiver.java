@@ -18,7 +18,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class TileRemoteReceiver extends MCFPeripheral  {
+public class TileRemoteReceiver extends MCFPeripheral {
 	
 	public static final String REMOTERECEIVER = "remotereceiver";
 	
@@ -73,6 +73,10 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 		blockPosMap.put("x", blockPos.getX());
 		blockPosMap.put("y", blockPos.getY());
 		blockPosMap.put("z", blockPos.getZ());
+
+		if(isInterdimensional) {
+			blockPosMap.put("dim", player.world.provider.getDimension());
+		}
 		
 		Integer faceNum = face != null ? face.ordinal() : null;
 		
@@ -90,6 +94,10 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 		blockPosMap.put("x", blockPos.getX());
 		blockPosMap.put("y", blockPos.getY());
 		blockPosMap.put("z", blockPos.getZ());
+		
+		if(isInterdimensional) {
+			blockPosMap.put("dim", player.world.provider.getDimension());
+		}
 		
 		int dim = player.world.provider.getDimension();
 		
@@ -120,7 +128,7 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 	
 	public int connect() {
 		connections.add(this);
-		return 0;
+		return connections.size();
 	}
 	
 	public int disconnect() {
@@ -148,6 +156,11 @@ public class TileRemoteReceiver extends MCFPeripheral  {
 	@Override
 	public void detach(IComputerAccess computer) {
 		computers.remove(computer);
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.getPos().hashCode() ^ (world.provider.getDimension() * 7933711);
 	}
 	
 }

@@ -1,7 +1,11 @@
 package com.ferreusveritas.mcf.tileentity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ferreusveritas.mcf.util.Arguments;
 import com.ferreusveritas.mcf.util.CommandManager;
+import com.ferreusveritas.mcf.util.CommandManager.SyncCommand;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -14,22 +18,36 @@ public abstract class MCFPeripheral extends TileEntity implements IPeripheral, I
 
 	private final String typeName;
 	
+	protected List<SyncCommand> syncRequests = new ArrayList<>();
+	
 	public MCFPeripheral(String typeName) {
 		this.typeName = typeName;
 	}
 	
 	public abstract CommandManager getCommandManager();
-
+	
 	protected static Object[] obj(Object ... args) {
 		return args;
+	}
+
+	public void addSyncRequest(SyncCommand command) {
+		synchronized (syncRequests) {
+			syncRequests.add(command);
+		}
 	}
 	
 	@Override
 	public void update() {
 		if(!getWorld().isRemote) {
-			getCommandManager().runServerProcesses(getWorld(), this);
+			synchronized (syncRequests) {
+				for(SyncCommand syncReq: syncRequests) {
+					syncReq.serverProcess(getWorld(), this);
+				}
+				syncRequests.clear();
+			}
 		}
 	}
+		
 	
 	@Override
 	public String getType() {
