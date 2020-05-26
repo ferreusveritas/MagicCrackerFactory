@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.tileentity;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,6 +12,7 @@ import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
 import com.ferreusveritas.mcf.util.MethodDescriptor.MethodDescriptorProvider;
 import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
+import com.ferreusveritas.mcf.util.bounds.BoundsCuboid;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,50 +21,56 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public class TileRemoteReceiver extends MCFPeripheral {
-	
+
 	public static final String REMOTERECEIVER = "remotereceiver";
-	
+
 	private static Set<TileRemoteReceiver> connections = new HashSet<>();
 	private Set<IComputerAccess> computers = new HashSet<>();
-	
+
 	private boolean isInterdimensional = false;
-	
+
+	private BoundsCuboid bounds = null;
+
 	public TileRemoteReceiver() {
 		super(REMOTERECEIVER);
 	}
-	
+
 	public static void broadcastRemoteEvents(EntityPlayer player, String remoteId, Vec3d hitPos, BlockPos blockPos, EnumFacing face) {
-		
+
 		Iterator<TileRemoteReceiver> i = connections.iterator();
-		
+
 		while(i.hasNext()) {
 			TileRemoteReceiver receiver = i.next();
-			if(receiver.isInterdimensional || player.world.provider.getDimension() == receiver.world.provider.getDimension()) { //Make sure player is in the same world as the receiver
-				if(receiver.world.isBlockLoaded(receiver.getPos())) {
-					receiver.createRemoteEvent(player, remoteId, hitPos, blockPos, face);
-				} else {
-					i.remove();
+			if(receiver.isInBounds(blockPos)) {
+				if(receiver.isInterdimensional || player.world.provider.getDimension() == receiver.world.provider.getDimension()) { //Make sure player is in the same world as the receiver
+					if(receiver.world.isBlockLoaded(receiver.getPos())) {
+						receiver.createRemoteEvent(player, remoteId, hitPos, blockPos, face);
+					} else {
+						i.remove();
+					}
 				}
 			}
 		}
 	}
-	
+
 	public static void broadcastProxyEvents(EntityPlayer player, String[] commands) {
-		
+
 		Iterator<TileRemoteReceiver> i = connections.iterator();
-		
+
 		while(i.hasNext()) {
 			TileRemoteReceiver receiver = i.next();
-			if(receiver.isInterdimensional || player.world.provider.getDimension() == receiver.world.provider.getDimension()) { //Make sure player is in the same world as the receiver
-				if(receiver.world.isBlockLoaded(receiver.getPos())) {
-					receiver.createProxyEvent(player, commands);
-				} else {
-					i.remove();
+			if(receiver.isInBounds(player.getPosition())) {
+				if(receiver.isInterdimensional || player.world.provider.getDimension() == receiver.world.provider.getDimension()) { //Make sure player is in the same world as the receiver
+					if(receiver.world.isBlockLoaded(receiver.getPos())) {
+						receiver.createProxyEvent(player, commands);
+					} else {
+						i.remove();
+					}
 				}
 			}
 		}
 	}
-	
+
 	public void createRemoteEvent(EntityPlayer player, String remoteId, Vec3d hitPos, BlockPos blockPos, EnumFacing face) {
 		Map<String, Double> hitPosMap = new HashMap<>();
 		hitPosMap.put("x", hitPos.x);
@@ -77,90 +85,107 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		if(isInterdimensional) {
 			blockPosMap.put("dim", player.world.provider.getDimension());
 		}
-		
+
 		Integer faceNum = face != null ? face.ordinal() : null;
-		
+
 		Object arguments[] = { player.getName(), remoteId, hitPosMap, blockPosMap, faceNum };
 		for( IComputerAccess comp : computers) {
 			comp.queueEvent("remote_control", arguments);
 		}
 	}
-	
+
 	public void createProxyEvent(EntityPlayer player, String[] command) {
-		
+
 		BlockPos blockPos = player.getPosition();
-		
+
 		Map<String, Integer> blockPosMap = new HashMap<>();
 		blockPosMap.put("x", blockPos.getX());
 		blockPosMap.put("y", blockPos.getY());
 		blockPosMap.put("z", blockPos.getZ());
-		
+
 		if(isInterdimensional) {
 			blockPosMap.put("dim", player.world.provider.getDimension());
 		}
-		
+
 		int dim = player.world.provider.getDimension();
-		
+
 		Object arguments[] = { player.getName(), blockPosMap, dim, command };
 		for( IComputerAccess comp : computers) {
 			comp.queueEvent(CommandProx.PROX, arguments);
 		}
 	}
-	
+
 	public enum ComputerMethod implements MethodDescriptorProvider {
 		connect("", "", (world, peri, args) -> obj(getTool(peri).connect())),
 		disconnect("", "", (world, peri, args) -> obj(getTool(peri).disconnect())),
-		setInterdimensional("", "", (world, peri, args) -> obj(getTool(peri).setInterdimensional(args.b())));
-		
+		setInterdimensional("b", "value", (world, peri, args) -> obj(getTool(peri).setInterdimensional(args.b()))),
+		addCuboidBounds("nnnnnn", "minX,minY,minZ,maxX,maxY,maxZ",
+				(world, peri, args) -> obj(getTool(peri).setBounds(args.i(), args.i(), args.i(), args.i(), args.i(), args.i()))),
+		clearBounds("","", (world, peri, args) -> obj(getTool(peri).clearBounds()));
+
 		final MethodDescriptor md;
 		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(toString(), argTypes, args, process); }
-		
+
 		public static TileRemoteReceiver getTool(MCFPeripheral peripheral) {
 			return (TileRemoteReceiver) peripheral;
 		}
-		
+
 		@Override
 		public MethodDescriptor getMethodDescriptor() {
 			return md;
 		}
-		
+
 	}
-	
+
 	public int connect() {
 		connections.add(this);
 		return connections.size();
 	}
-	
+
 	public int disconnect() {
 		connections.remove(this);
-		return 0;
+		return connections.size();
 	}
-	
+
 	public int setInterdimensional(boolean isInterdimensional) {
 		this.isInterdimensional = isInterdimensional;
 		return 0;
 	}
-	
+
+	public int setBounds(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+		bounds = new BoundsCuboid(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ)));
+		return 0;
+	}
+
+	public int clearBounds() {
+		bounds = null;
+		return 0;
+	}
+
+	public boolean isInBounds(BlockPos pos) {
+		return bounds == null || bounds.inBounds(pos);
+	}
+
 	static CommandManager<ComputerMethod> commandManager = new CommandManager<>(ComputerMethod.class);
-	
+
 	@Override
 	public CommandManager getCommandManager() {
 		return commandManager;
 	}
-	
+
 	@Override
 	public void attach(IComputerAccess computer) {
 		computers.add(computer);
 	}
-	
+
 	@Override
 	public void detach(IComputerAccess computer) {
 		computers.remove(computer);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return this.getPos().hashCode() ^ (world.provider.getDimension() * 7933711);
 	}
-	
+
 }
