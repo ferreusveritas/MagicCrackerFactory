@@ -123,11 +123,19 @@ public class ZoneManager extends WorldSavedData {
 	//Tests and Filters
 	
 	public boolean testBreakBounds(EntityPlayer player, BlockPos pos) {
-		return player != null && !player.isCreative() && testBounds(pos, getBoundsStorage().breakBounds);
+		return player != null && !player.isCreative() && testBreakBounds(pos);
+	}
+	
+	public boolean testBreakBounds(BlockPos pos) {
+		return testBounds(pos, getBoundsStorage().breakBounds);
 	}
 	
 	public boolean testPlaceBounds(EntityPlayer player, BlockPos pos) {
-		return player != null && !player.isCreative() && testBounds(pos, getBoundsStorage().placeBounds);
+		return player != null && !player.isCreative() && testPlaceBounds(pos);
+	}
+	
+	public boolean testPlaceBounds(BlockPos pos) {
+		return testBounds(pos, getBoundsStorage().placeBounds);
 	}
 	
 	public boolean testBlastStart(BlockPos pos, EntityLivingBase entity) {

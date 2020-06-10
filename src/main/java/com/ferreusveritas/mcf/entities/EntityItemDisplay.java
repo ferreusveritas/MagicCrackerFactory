@@ -1,7 +1,6 @@
 package com.ferreusveritas.mcf.entities;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -26,8 +25,8 @@ public class EntityItemDisplay extends Entity {
 	private static final Rotations DEFAULT_ROTATION = new Rotations(0.0F, 0.0F, 0.0F);
 	private static final Float DEFAULT_SCALE = new Float(1.0F);
 	
-	public static final DataParameter<Rotations> ROTATION = EntityDataManager.<Rotations>createKey(EntityArmorStand.class, DataSerializers.ROTATIONS);
-	public static final DataParameter<Float> SCALE = EntityDataManager.<Float>createKey(EntityArmorStand.class, DataSerializers.FLOAT);
+	public static final DataParameter<Rotations> ROTATION = EntityDataManager.<Rotations>createKey(EntityItemDisplay.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Float> SCALE = EntityDataManager.<Float>createKey(EntityItemDisplay.class, DataSerializers.FLOAT);
 	public static final DataParameter<ItemStack> itemParameter = EntityDataManager.createKey(EntityItemDisplay.class, DataSerializers.ITEM_STACK);
 	
 	private Rotations rotation;
@@ -35,8 +34,8 @@ public class EntityItemDisplay extends Entity {
 	
 	public EntityItemDisplay(World worldIn) {
 		super(worldIn);
-		this.rotation = DEFAULT_ROTATION;
-		this.scale = DEFAULT_SCALE;
+		rotation = DEFAULT_ROTATION;
+		scale = DEFAULT_SCALE;
 	}
 	
 	@Override
@@ -44,16 +43,16 @@ public class EntityItemDisplay extends Entity {
 		super.onUpdate();
 		setSize(1.0f, 1.0f);
 		
-		Rotations rotations1 = (Rotations)this.dataManager.get(ROTATION);
+		Rotations rotations1 = (Rotations)dataManager.get(ROTATION);
 		
-		if (!this.rotation.equals(rotations1)) {
-			this.setRotation(rotations1);
+		if (!rotation.equals(rotations1)) {
+			setRotation(rotations1);
 		}
 		
-		Float scale = (Float)this.dataManager.get(SCALE);
+		Float scale = (Float)dataManager.get(SCALE);
 		
-		if (!this.scale.equals(scale)) {
-			this.setScale(scale);
+		if (!scale.equals(scale)) {
+			setScale(scale);
 		}
 		
 	}
@@ -62,28 +61,28 @@ public class EntityItemDisplay extends Entity {
 	public void onEntityUpdate() { }
 	
 	public void setRotation(Rotations vec) {
-		this.rotation = vec;
-		this.dataManager.set(ROTATION, vec);
+		rotation = vec;
+		dataManager.set(ROTATION, vec);
 	}
 	
 	public Rotations getRotation() {
-		return this.rotation;
+		return rotation;
 	}
 	
 	public void setScale(float scale) {
 		this.scale = scale;
-		this.dataManager.set(SCALE, scale);
+		dataManager.set(SCALE, scale);
 	}
 	
 	public float getScale() {
-		return this.scale;
+		return scale;
 	}
 	
 	@Override
 	protected void entityInit() { 
 		getDataManager().register(itemParameter, ItemStack.EMPTY);
-		this.dataManager.register(ROTATION, DEFAULT_ROTATION);
-		this.dataManager.register(SCALE, DEFAULT_SCALE);
+		dataManager.register(ROTATION, DEFAULT_ROTATION);
+		dataManager.register(SCALE, DEFAULT_SCALE);
 	}
 	
 	public void setItemStack(ItemStack stack) {
@@ -106,10 +105,10 @@ public class EntityItemDisplay extends Entity {
 		setItemStack(new ItemStack(itemNBT));
 		
 		NBTTagList nbttaglist1 = compound.getTagList("rotation", 5);
-		this.setRotation(nbttaglist1.hasNoTags() ? DEFAULT_ROTATION : new Rotations(nbttaglist1));
+		setRotation(nbttaglist1.hasNoTags() ? DEFAULT_ROTATION : new Rotations(nbttaglist1));
 		
 		Float scale = compound.getFloat("scale");
-		this.setScale(scale == 0.0f ? 1.0f : scale);
+		setScale(scale == 0.0f ? DEFAULT_SCALE : scale);
 	}
 	
 	@Override
@@ -124,12 +123,12 @@ public class EntityItemDisplay extends Entity {
 		
 		compound.setTag("item", itemNBT);
 		
-		if (!DEFAULT_ROTATION.equals(this.rotation)) {
-			compound.setTag("rotation", this.rotation.writeToNBT());
+		if (!DEFAULT_ROTATION.equals(rotation)) {
+			compound.setTag("rotation", rotation.writeToNBT());
 		}
 		
-		if (!DEFAULT_SCALE.equals(this.scale)) {
-			compound.setFloat("scale", this.scale);
+		if (!DEFAULT_SCALE.equals(scale)) {
+			compound.setFloat("scale", scale);
 		}
 		
 	}

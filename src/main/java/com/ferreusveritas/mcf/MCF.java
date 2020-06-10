@@ -98,7 +98,7 @@ public class MCF extends FeatureableMod {
 		@SubscribeEvent
 		public static void registerEntities(RegistryEvent.Register<EntityEntry> event) {
 			int id = 0;
-			EntityRegistry.registerModEntity(new ResourceLocation(ModConstants.MODID, "item_display"), EntityItemDisplay.class, "item_display", id++, ModConstants.MODID, 32, 1, true);
+			EntityRegistry.registerModEntity(new ResourceLocation(ModConstants.MODID, "item_display"), EntityItemDisplay.class, "item_display", id++, ModConstants.MODID, 32, 1, false);
 		}
 	}
 	

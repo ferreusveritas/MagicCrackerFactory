@@ -12,13 +12,12 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Rotations;
-import net.minecraftforge.fml.client.registry.IRenderFactory;
 
 public class RenderEntityItemDisplay extends Render<EntityItemDisplay>{
 	
     private final RenderItem itemRenderer;
 	
-	protected RenderEntityItemDisplay(RenderManager renderManager) {
+    public RenderEntityItemDisplay(RenderManager renderManager) {
 		super(renderManager);
 		itemRenderer = Minecraft.getMinecraft().getRenderItem();
 	}
@@ -56,19 +55,10 @@ public class RenderEntityItemDisplay extends Render<EntityItemDisplay>{
 		}
 		
 		ItemStack stack = entity.getItemStack();
-		//stack = new ItemStack(Items.APPLE);
-		//System.out.println(stack);
+
 		itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.NONE);
 		
 		GlStateManager.popMatrix();
 	}
-	
-	public static class Factory implements IRenderFactory<EntityItemDisplay> {
-		
-		@Override
-		public Render<EntityItemDisplay> createRenderFor(RenderManager manager) {
-			return new RenderEntityItemDisplay(manager);
-		}
-		
-	}
+
 }

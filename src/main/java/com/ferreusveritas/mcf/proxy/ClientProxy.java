@@ -33,7 +33,7 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	public void registerEntityRenderers() {
-		RenderingRegistry.registerEntityRenderingHandler(EntityItemDisplay.class, new RenderEntityItemDisplay.Factory());
+		RenderingRegistry.registerEntityRenderingHandler(EntityItemDisplay.class, manager -> new RenderEntityItemDisplay(manager));
 	}
 
 	@Override
