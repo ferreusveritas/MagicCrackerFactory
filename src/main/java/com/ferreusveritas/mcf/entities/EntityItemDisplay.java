@@ -51,7 +51,7 @@ public class EntityItemDisplay extends Entity {
 		
 		Float scale = (Float)dataManager.get(SCALE);
 		
-		if (!scale.equals(scale)) {
+		if (!this.scale.equals(scale)) {
 			setScale(scale);
 		}
 		
