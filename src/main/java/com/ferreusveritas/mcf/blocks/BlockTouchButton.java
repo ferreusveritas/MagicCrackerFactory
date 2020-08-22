@@ -4,14 +4,12 @@ import javax.annotation.Nullable;
 
 import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.ModTabs;
-import com.ferreusveritas.mcf.features.Remote;
 import com.ferreusveritas.mcf.network.PacketTouchMap;
 
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -48,15 +46,11 @@ public class BlockTouchButton extends BlockButton {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		ItemStack heldItem = playerIn.getHeldItem(hand);
-
 		if (!((Boolean)state.getValue(POWERED)).booleanValue()) {
-			if(heldItem.getItem() != Remote.universalRemote) {
-				if(worldIn.isRemote) {
-					MCF.network.sendToServer(new PacketTouchMap(new Vec3d(hitY, hitY, hitZ), pos, facing));
-				} 
-				return true;
-			}
+			if(worldIn.isRemote) {
+				MCF.network.sendToServer(new PacketTouchMap(new Vec3d(hitY, hitY, hitZ), pos, facing));
+			} 
+			return true;
 		}
 
 		return false;
