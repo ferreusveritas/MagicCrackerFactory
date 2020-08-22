@@ -5,6 +5,7 @@ import com.ferreusveritas.mcf.command.CommandProx;
 import com.ferreusveritas.mcf.command.CommandSetBlockQuiet;
 import com.ferreusveritas.mcf.entities.EntityItemDisplay;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
+import com.ferreusveritas.mcf.network.PacketTouchMap;
 import com.ferreusveritas.mcf.proxy.CommonProxy;
 
 import net.minecraft.util.ResourceLocation;
@@ -78,6 +79,7 @@ public class MCF extends FeatureableMod {
 	public void postInit(FMLPostInitializationEvent event) {
 		int disc = 0;
 		network.registerMessage(PacketRemoteClick.class, PacketRemoteClick.class, disc++, Side.SERVER);
+		network.registerMessage(PacketTouchMap.class, PacketTouchMap.class, disc++, Side.SERVER);
 		
 		super.postInit(event);
 	}

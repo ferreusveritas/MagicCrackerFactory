@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.item.ItemSkull;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Rotations;
@@ -26,13 +27,13 @@ public class RenderEntityItemDisplay extends Render<EntityItemDisplay>{
 	protected ResourceLocation getEntityTexture(EntityItemDisplay entity) {
 		return TextureMap.LOCATION_BLOCKS_TEXTURE;
 	}
-	
+		
 	@Override
 	public void doRender(EntityItemDisplay entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y + 0.5, z);
+		GlStateManager.translate(x, y, z);
 		
 		Rotations rot = entity.getRotation();
 		
@@ -55,7 +56,12 @@ public class RenderEntityItemDisplay extends Render<EntityItemDisplay>{
 		}
 		
 		ItemStack stack = entity.getItemStack();
-
+		
+		if(stack.getItem() instanceof ItemSkull) {
+			GlStateManager.translate(0.0f, 0.5f, 0.0f);
+			GlStateManager.scale(2.0f, 2.0f, 2.0f);
+		}
+		
 		itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.NONE);
 		
 		GlStateManager.popMatrix();

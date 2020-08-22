@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.ferreusveritas.mcf.blocks.BlockTouchButton;
 import com.ferreusveritas.mcf.command.CommandProx;
 import com.ferreusveritas.mcf.util.CommandManager;
 import com.ferreusveritas.mcf.util.MethodDescriptor;
@@ -15,7 +16,10 @@ import com.ferreusveritas.mcf.util.MethodDescriptor.SyncProcess;
 import com.ferreusveritas.mcf.util.bounds.BoundsCuboid;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -53,6 +57,24 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		}
 	}
 
+	public static void broadcastTouchMapEvents(EntityPlayer player, ItemStack heldItem, Vec3d hitPos, BlockPos blockPos, EnumFacing face) {
+
+		Iterator<TileRemoteReceiver> i = connections.iterator();
+
+		while(i.hasNext()) {
+			TileRemoteReceiver receiver = i.next();
+			if(receiver.isInBounds(blockPos)) {
+				if(receiver.isInterdimensional || player.world.provider.getDimension() == receiver.world.provider.getDimension()) { //Make sure player is in the same world as the receiver
+					if(receiver.world.isBlockLoaded(receiver.getPos())) {
+						receiver.createTouchMapEvent(player, heldItem, hitPos, blockPos, face);
+					} else {
+						i.remove();
+					}
+				}
+			}
+		}
+	}
+	
 	public static void broadcastProxyEvents(EntityPlayer player, String[] commands) {
 
 		Iterator<TileRemoteReceiver> i = connections.iterator();
@@ -94,6 +116,29 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		}
 	}
 
+	public void createTouchMapEvent(EntityPlayer player, ItemStack heldItem, Vec3d hitPos, BlockPos blockPos, EnumFacing face) {
+		Map<String, Double> hitPosMap = new HashMap<>();
+		hitPosMap.put("x", hitPos.x);
+		hitPosMap.put("y", hitPos.y);
+		hitPosMap.put("z", hitPos.z);
+
+		Map<String, Integer> blockPosMap = new HashMap<>();
+		blockPosMap.put("x", blockPos.getX());
+		blockPosMap.put("y", blockPos.getY());
+		blockPosMap.put("z", blockPos.getZ());
+
+		if(isInterdimensional) {
+			blockPosMap.put("dim", player.world.provider.getDimension());
+		}
+
+		Integer faceNum = face != null ? face.ordinal() : null;
+
+		Object arguments[] = { player.getName(), heldItem.getItem().getUnlocalizedName(), hitPosMap, blockPosMap, faceNum };
+		for( IComputerAccess comp : computers) {
+			comp.queueEvent("touch_map", arguments);
+		}
+	}
+	
 	public void createProxyEvent(EntityPlayer player, String[] command) {
 
 		BlockPos blockPos = player.getPosition();
@@ -121,7 +166,8 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		setInterdimensional("b", "value", (world, peri, args) -> obj(getTool(peri).setInterdimensional(args.b()))),
 		addCuboidBounds("nnnnnn", "minX,minY,minZ,maxX,maxY,maxZ",
 				(world, peri, args) -> obj(getTool(peri).setBounds(args.i(), args.i(), args.i(), args.i(), args.i(), args.i()))),
-		clearBounds("","", (world, peri, args) -> obj(getTool(peri).clearBounds()));
+		clearBounds("","", (world, peri, args) -> obj(getTool(peri).clearBounds())),
+		touchButton("nnn","x,y,z", (world, peri, args) -> obj(getTool(peri).touchButton(args.i(), args.i(), args.i())));
 
 		final MethodDescriptor md;
 		private ComputerMethod(String argTypes, String args, SyncProcess process) { md = new MethodDescriptor(toString(), argTypes, args, process); }
@@ -162,6 +208,17 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		return 0;
 	}
 
+	public int touchButton(int x, int y, int z) {
+		BlockPos pos = new BlockPos(x, y, z);
+		IBlockState state = world.getBlockState(pos);
+		Block block = state.getBlock();
+		if(block instanceof BlockTouchButton) {
+			BlockTouchButton touchButton = (BlockTouchButton) block;
+			touchButton.buttonActivate(world, pos, state);
+		}
+		return 0;
+	}
+	
 	public boolean isInBounds(BlockPos pos) {
 		return bounds == null || bounds.inBounds(pos);
 	}

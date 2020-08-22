@@ -28,4 +28,5 @@ tile.light.15.name=Light 15
 
 item.mcf:remote.name=Universal Remote
 tile.mcf:remotebutton.name=Remote button
+tile.mcf:touchbutton.name=Touch button
 

@@ -5,6 +5,7 @@ import com.ferreusveritas.mcf.ModConstants;
 import com.ferreusveritas.mcf.blocks.BlockMapGuard;
 import com.ferreusveritas.mcf.blocks.BlockPeripheral;
 import com.ferreusveritas.mcf.blocks.BlockRemoteButton;
+import com.ferreusveritas.mcf.blocks.BlockTouchButton;
 import com.ferreusveritas.mcf.blocks.PeripheralType;
 import com.ferreusveritas.mcf.items.CommandPotion;
 import com.ferreusveritas.mcf.items.UniversalRemote;
@@ -27,6 +28,7 @@ public class Remote implements IFeature {
 	
 	public static Block blockRemoteReceiver;
 	public static Block blockRemoteButton;
+	public static Block blockTouchButton;
 	public static Block blockMapGuard;
 	public static UniversalRemote universalRemote;
 	public static CommandPotion commandPotion;
@@ -45,6 +47,7 @@ public class Remote implements IFeature {
 	public void createBlocks() {
 		blockRemoteReceiver = new BlockPeripheral(PeripheralType.REMOTERECEIVER);
 		blockRemoteButton = new BlockRemoteButton();
+		blockTouchButton = new BlockTouchButton();
 		blockMapGuard = new BlockMapGuard();
 	}
 	
@@ -70,6 +73,7 @@ public class Remote implements IFeature {
 	public void registerBlocks(IForgeRegistry<Block> registry) {
 		registry.register(blockRemoteReceiver);
 		registry.register(blockRemoteButton);
+		registry.register(blockTouchButton);
 		registry.register(blockMapGuard);
 	}
 	
@@ -79,6 +83,7 @@ public class Remote implements IFeature {
 		registry.register(commandPotion);
 		registry.register( new ItemBlock(blockRemoteReceiver).setRegistryName(blockRemoteReceiver.getRegistryName()) );
 		registry.register( new ItemBlock(blockRemoteButton).setRegistryName(blockRemoteButton.getRegistryName()) );
+		registry.register( new ItemBlock(blockTouchButton).setRegistryName(blockTouchButton.getRegistryName()) );
 		registry.register( new ItemMultiTexture(blockMapGuard, blockMapGuard, stack -> stack.getItemDamage() == 0 ? "unlit" : "lit").setRegistryName(blockMapGuard.getRegistryName()));
 	}
 	
@@ -92,6 +97,7 @@ public class Remote implements IFeature {
 		ModelLoader.setCustomModelResourceLocation(commandPotion, 0, new ModelResourceLocation(commandPotion.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteReceiver), 0, new ModelResourceLocation(blockRemoteReceiver.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteButton), 0, new ModelResourceLocation(blockRemoteButton.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockTouchButton), 0, new ModelResourceLocation(blockTouchButton.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockMapGuard), 0, new ModelResourceLocation(blockMapGuard.getRegistryName() + "_unlit", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockMapGuard), 1, new ModelResourceLocation(blockMapGuard.getRegistryName() + "_lit", "inventory"));
 	}
