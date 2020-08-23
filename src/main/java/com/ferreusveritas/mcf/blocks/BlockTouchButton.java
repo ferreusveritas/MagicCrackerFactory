@@ -39,8 +39,10 @@ public class BlockTouchButton extends BlockButton {
 		super(false);
 		setRegistryName("touchbutton");
 		setUnlocalizedName(getRegistryName().toString());
-		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(BlockButton.POWERED, Boolean.valueOf(false)));
-		this.setTickRandomly(true);
+		setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(BlockButton.POWERED, Boolean.valueOf(false)));
+		setTickRandomly(true);
+		setHardness(3.0f);
+		setResistance(10.0f);
 		setCreativeTab(ModTabs.mcfTab);
 	}
 

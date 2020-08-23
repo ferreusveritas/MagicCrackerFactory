@@ -93,6 +93,23 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		}
 	}
 
+	public static void broadcastClaimEvents(EntityPlayer player, BlockPos pos, int dimension, boolean set) {
+		Iterator<TileRemoteReceiver> i = connections.iterator();
+		
+		while(i.hasNext()) {
+			TileRemoteReceiver receiver = i.next();
+			if(receiver.isInBounds(pos)) {
+				if(receiver.isInterdimensional || dimension == receiver.world.provider.getDimension()) { //Make sure player is in the same world as the receiver
+					if(receiver.world.isBlockLoaded(receiver.getPos())) {
+						receiver.createClaimEvent(player, pos, dimension, set);
+					} else {
+						i.remove();
+					}
+				}
+			}
+		}
+	}
+
 	public void createRemoteEvent(EntityPlayer player, String remoteId, Vec3d hitPos, BlockPos blockPos, EnumFacing face) {
 		Map<String, Double> hitPosMap = new HashMap<>();
 		hitPosMap.put("x", hitPos.x);
@@ -159,7 +176,19 @@ public class TileRemoteReceiver extends MCFPeripheral {
 			comp.queueEvent(CommandProx.PROX, arguments);
 		}
 	}
-
+	
+	private void createClaimEvent(EntityPlayer player, BlockPos blockPos, int dimension, boolean set) {
+		Map<String, Integer> blockPosMap = new HashMap<>();
+		blockPosMap.put("x", blockPos.getX());
+		blockPosMap.put("y", blockPos.getY());
+		blockPosMap.put("z", blockPos.getZ());
+		
+		Object arguments[] = { player != null ? player.getName() : null, blockPosMap, dimension, set };
+		for( IComputerAccess comp : computers) {
+			comp.queueEvent("claim", arguments);
+		}	
+	}
+	
 	public enum ComputerMethod implements MethodDescriptorProvider {
 		connect("", "", (world, peri, args) -> obj(getTool(peri).connect())),
 		disconnect("", "", (world, peri, args) -> obj(getTool(peri).disconnect())),

@@ -5,6 +5,7 @@ tile.terraformer.name=Terraformer
 tile.sentinel.name=Sentinel
 tile.dendrocoil.name=Dendrocoil
 tile.remotereceiver.name=Remote Receiver
+tile.claim.name=Claim Marker
 
 tile.mcf:mapguard.unlit.name=Map Guard(Normal)
 tile.mcf:mapguard.lit.name=Map Guard(Lighted)
