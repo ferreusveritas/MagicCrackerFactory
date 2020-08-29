@@ -4,13 +4,16 @@ package com.ferreusveritas.mcf;
 import com.ferreusveritas.mcf.command.CommandProx;
 import com.ferreusveritas.mcf.command.CommandSetBlockQuiet;
 import com.ferreusveritas.mcf.entities.EntityItemDisplay;
+import com.ferreusveritas.mcf.network.CommsThread;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
 import com.ferreusveritas.mcf.network.PacketTouchMap;
 import com.ferreusveritas.mcf.proxy.CommonProxy;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -18,6 +21,7 @@ import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -57,6 +61,11 @@ public class MCF extends FeatureableMod {
 	@SidedProxy(clientSide = "com.ferreusveritas.mcf.proxy.ClientProxy", serverSide = "com.ferreusveritas.mcf.proxy.CommonProxy")
 	public static CommonProxy proxy;
 	
+	private static CommsThread commsThread;
+	
+	// The port to listen on for incoming requests.
+	public static int LISTEN_PORT = 60000;
+	
 	protected void setupFeatures() {
 		FeatureRegistryEvent featureRegEvent = new FeatureRegistryEvent(this);
 		MinecraftForge.EVENT_BUS.post(featureRegEvent);
@@ -64,6 +73,20 @@ public class MCF extends FeatureableMod {
 	
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
+		Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
+		try {
+			cfg.load();
+			LISTEN_PORT = cfg.get(Configuration.CATEGORY_GENERAL, "listenPort", LISTEN_PORT).getInt();
+		}
+		catch (Exception e) {
+			FMLLog.log.warn(e.toString(), "Magic Cracker Factory has a problem loading its configuration");
+		}
+		finally	{
+			if (cfg.hasChanged()) {
+				cfg.save();
+			}
+		}
+		
 		setupFeatures();
 		super.preInit(event);
 		proxy.preInit();
@@ -88,6 +111,12 @@ public class MCF extends FeatureableMod {
 	public static void serverStarting(FMLServerStartingEvent event) {
 		event.registerServerCommand(new CommandSetBlockQuiet());
 		event.registerServerCommand(new CommandProx());
+		
+		if(LISTEN_PORT > 0) {
+			commsThread = new CommsThread(LISTEN_PORT);
+			CommsThread.setInstance(commsThread);
+			commsThread.start();
+		}
 	}
 	
 	@Mod.EventHandler
@@ -101,6 +130,17 @@ public class MCF extends FeatureableMod {
 		public static void registerEntities(RegistryEvent.Register<EntityEntry> event) {
 			int id = 0;
 			EntityRegistry.registerModEntity(new ResourceLocation(ModConstants.MODID, "item_display"), EntityItemDisplay.class, "item_display", id++, ModConstants.MODID, 32, 1, false);
+		}
+	}
+
+	@Mod.EventHandler
+	public void serverStopping(FMLServerStoppingEvent event) {
+		if(LISTEN_PORT > 0) {
+			commsThread.shutdown();
+			try {
+				commsThread.join();
+			}
+			catch (InterruptedException e) {}//We don't care, we're shutting down anyway.
 		}
 	}
 	

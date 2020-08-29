@@ -11,8 +11,11 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
+import net.minecraft.world.World;
 
 public abstract class MCFPeripheral extends TileEntity implements IPeripheral, ITickable {
 
@@ -62,6 +65,10 @@ public abstract class MCFPeripheral extends TileEntity implements IPeripheral, I
 	@Override
 	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int methodNum, Object[] arguments) throws LuaException {
 		return getCommandManager().callMethod(getWorld(), this, computer, context, methodNum, new Arguments(arguments));
+	}
+	
+	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag advanced) {
+		tooltip.add("§6ComputerCraft Peripheral");
 	}
 	
 	@Override

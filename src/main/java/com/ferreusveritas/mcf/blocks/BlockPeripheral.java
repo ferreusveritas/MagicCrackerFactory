@@ -11,6 +11,8 @@ import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -19,6 +21,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockPeripheral extends Block implements ITileEntityProvider, IPeripheralProvider {
 	
@@ -62,8 +66,17 @@ public class BlockPeripheral extends Block implements ITileEntityProvider, IPeri
 	///////////////////////////////////////////
 
 	@Override
+    @SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag advanced) {
-		tooltip.add("§6ComputerCraft Peripheral");
+		if(GameSettings.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSneak)) {
+			tooltip.add("§6ComputerCraft Peripheral");
+			String desc = type.getDesc();
+			if(!desc.isEmpty()) {
+				tooltip.add(desc);
+			}
+		} else {
+			tooltip.add("Hold §E§oShift§7§r for details");
+		}
 	}
 	
 }

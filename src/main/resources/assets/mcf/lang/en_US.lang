@@ -5,6 +5,7 @@ tile.terraformer.name=Terraformer
 tile.sentinel.name=Sentinel
 tile.dendrocoil.name=Dendrocoil
 tile.remotereceiver.name=Remote Receiver
+tile.webmodem.name=Web Modem
 tile.claim.name=Claim Marker
 
 tile.mcf:mapguard.unlit.name=Map Guard(Normal)
@@ -30,4 +31,3 @@ tile.light.15.name=Light 15
 item.mcf:remote.name=Universal Remote
 tile.mcf:remotebutton.name=Remote button
 tile.mcf:touchbutton.name=Touch button
-
