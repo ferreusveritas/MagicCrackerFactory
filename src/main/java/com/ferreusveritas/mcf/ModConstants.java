@@ -8,8 +8,5 @@ public class ModConstants extends com.ferreusveritas.dynamictrees.ModConstants {
 	//Other Mods
 	public static final String COMPUTERCRAFT = "computercraft";
 	
-	public static final String DEPENDENCIES 
-			= REQAFTER + COMPUTERCRAFT
-			+ NEXT
-			+ REQAFTER + com.ferreusveritas.dynamictrees.ModConstants.MODID;
+	public static final String DEPENDENCIES	= REQAFTER + COMPUTERCRAFT;
 }

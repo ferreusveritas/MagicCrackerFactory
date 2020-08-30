@@ -36,8 +36,8 @@ public class BlockPeripheral extends Block implements ITileEntityProvider, IPeri
 		setCreativeTab(ModTabs.mcfTab);
 		ComputerCraftAPI.registerPeripheralProvider(this);
 		GameRegistry.registerTileEntity(type.getTileEntityClass(), new ResourceLocation(ModConstants.MODID, type.getName()));
-		setHardness(8.0f);
-		setResistance(50.0f);
+		setBlockUnbreakable();
+		setResistance(6000000.0f);
 	}
 	
 	@Override

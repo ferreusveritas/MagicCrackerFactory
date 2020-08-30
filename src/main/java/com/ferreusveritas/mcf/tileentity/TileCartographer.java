@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 import net.minecraft.world.storage.MapDecoration;
 
-public class TileCartographer extends MCFPeripheral  {
+public class TileCartographer extends MCFPeripheral {
 	
 	public static final String CARTOGRAPHER = "cartographer";
 	
