@@ -1,7 +1,5 @@
 package com.ferreusveritas.mcf.event;
 
-import com.ferreusveritas.dynamictrees.event.SeedVoluntaryDropEvent;
-import com.ferreusveritas.dynamictrees.event.SeedVoluntaryPlantEvent;
 import com.ferreusveritas.mcf.util.ZoneManager;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -66,6 +64,7 @@ public class SecurityHandler {
 		}
 	}
 	
+	/*
 	@SubscribeEvent
 	public static void SeedVoluntaryPlantEvent(SeedVoluntaryPlantEvent event) {
 		if(ZoneManager.get(event.getEntityItem().world).testSeedsBounds(event.getPos())) {
@@ -78,6 +77,6 @@ public class SecurityHandler {
 		if(ZoneManager.get(event.getWorld()).testSeedsBounds(event.getRootPos())) {
 			event.setCanceled(true);
 		}
-	}
+	}*/
 	
 }

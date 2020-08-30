@@ -1,6 +1,6 @@
 package com.ferreusveritas.mcf.proxy;
 
-import com.ferreusveritas.dynamictrees.api.client.ModelHelper;
+import com.ferreusveritas.mcf.client.ModelHelper;
 import com.ferreusveritas.mcf.entities.EntityItemDisplay;
 import com.ferreusveritas.mcf.features.Remote;
 import com.ferreusveritas.mcf.render.RenderEntityItemDisplay;
