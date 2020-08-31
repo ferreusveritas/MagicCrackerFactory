@@ -120,10 +120,7 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		blockPosMap.put("x", blockPos.getX());
 		blockPosMap.put("y", blockPos.getY());
 		blockPosMap.put("z", blockPos.getZ());
-
-		if(isInterdimensional) {
-			blockPosMap.put("dim", player.world.provider.getDimension());
-		}
+		blockPosMap.put("d", player.world.provider.getDimension());
 
 		Integer faceNum = face != null ? face.ordinal() : null;
 
@@ -143,10 +140,7 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		blockPosMap.put("x", blockPos.getX());
 		blockPosMap.put("y", blockPos.getY());
 		blockPosMap.put("z", blockPos.getZ());
-
-		if(isInterdimensional) {
-			blockPosMap.put("dim", player.world.provider.getDimension());
-		}
+		blockPosMap.put("d", player.world.provider.getDimension());
 
 		Integer faceNum = face != null ? face.ordinal() : null;
 
@@ -164,14 +158,9 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		blockPosMap.put("x", blockPos.getX());
 		blockPosMap.put("y", blockPos.getY());
 		blockPosMap.put("z", blockPos.getZ());
+		blockPosMap.put("d", player.world.provider.getDimension());
 
-		if(isInterdimensional) {
-			blockPosMap.put("dim", player.world.provider.getDimension());
-		}
-
-		int dim = player.world.provider.getDimension();
-
-		Object arguments[] = { player.getName(), blockPosMap, dim, command };
+		Object arguments[] = { player.getName(), blockPosMap, command };
 		for( IComputerAccess comp : computers) {
 			comp.queueEvent(CommandProx.PROX, arguments);
 		}
@@ -182,8 +171,9 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		blockPosMap.put("x", blockPos.getX());
 		blockPosMap.put("y", blockPos.getY());
 		blockPosMap.put("z", blockPos.getZ());
+		blockPosMap.put("d", player.world.provider.getDimension());
 		
-		Object arguments[] = { player != null ? player.getName() : null, blockPosMap, dimension, set };
+		Object arguments[] = { player != null ? player.getName() : null, blockPosMap, set };
 		for( IComputerAccess comp : computers) {
 			comp.queueEvent("claim", arguments);
 		}	
