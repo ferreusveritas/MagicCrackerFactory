@@ -1,5 +1,7 @@
 package com.ferreusveritas.mcf.features;
 
+import java.util.Collections;
+
 import com.ferreusveritas.mcf.FeatureableMod;
 import com.ferreusveritas.mcf.ModConstants;
 import com.ferreusveritas.mcf.blocks.BlockMapGuard;
@@ -93,6 +95,9 @@ public class Remote implements IFeature {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerModels() {
+		
+		ModelLoader.setCustomStateMapper(blockMapGuard, b -> Collections.emptyMap());
+		
 		ModelLoader.setCustomModelResourceLocation(universalRemote, 0, new ModelResourceLocation(universalRemote.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(commandPotion, 0, new ModelResourceLocation(commandPotion.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteReceiver), 0, new ModelResourceLocation(blockRemoteReceiver.getRegistryName(), "inventory"));

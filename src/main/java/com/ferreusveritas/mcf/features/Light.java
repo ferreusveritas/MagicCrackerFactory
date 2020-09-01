@@ -1,16 +1,13 @@
 package com.ferreusveritas.mcf.features;
 
 import java.util.Collections;
-import java.util.Map;
 
 import com.ferreusveritas.mcf.FeatureableMod;
 import com.ferreusveritas.mcf.ModConstants;
 import com.ferreusveritas.mcf.blocks.BlockLight;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.ItemStack;
@@ -77,12 +74,8 @@ public class Light implements IFeature {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerModels() {
-		ModelLoader.setCustomStateMapper(blockLight, new IStateMapper() {
-			@Override
-			public Map<IBlockState, ModelResourceLocation> putStateModelLocations(Block blockIn) {
-				return Collections.emptyMap();
-			}
-		});
+		
+		ModelLoader.setCustomStateMapper(blockLight, b -> Collections.emptyMap());
 		
 		for(int meta = 0; meta < 16; meta++) {
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockLight), meta, new ModelResourceLocation(blockLight.getRegistryName() + "_" + meta, "inventory"));
