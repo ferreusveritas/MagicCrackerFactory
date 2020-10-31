@@ -1,0 +1,7 @@
+{
+	"parent": "item/handheld",
+	"textures": {
+		"layer0":"mcf:items/ring_gem",
+		"layer1":"mcf:items/ring"
+	}
+}

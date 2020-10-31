@@ -23,51 +23,49 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CommandPotion extends ItemPotion {
-
+	
 	public CommandPotion() {
 		setRegistryName("commandpotion");
 		setUnlocalizedName(getRegistryName().toString());
 		setCreativeTab(ModTabs.mcfTab);
 	}
-
+	
 	@Override
-	public ItemStack onItemUseFinish(ItemStack stack, World world, EntityLivingBase entityLiving) {
-
+	public ItemStack onItemUseFinish(ItemStack itemstack, World world, EntityLivingBase entityLiving) {
+		
 		if(entityLiving instanceof EntityPlayer) {
-
+			
 			EntityPlayer entityplayer = (EntityPlayer)entityLiving;
-
+			
 			if(world.isRemote) {
-
+				
 				String command = "";
-
-				if(stack.hasTagCompound()) {
-					NBTTagCompound nbt = stack.getTagCompound();
+				
+				if(itemstack.hasTagCompound()) {
+					NBTTagCompound nbt = itemstack.getTagCompound();
 					if(nbt.hasKey("command", NBT.TAG_STRING)) {
 						command = nbt.getString("command");
 					}
 				}
-
+				
 				if(!command.isEmpty()) {
 					MCF.proxy.sendChatMessage(command, false);
 				}
 			}
-
+			
 			if (!entityplayer.capabilities.isCreativeMode) {
-				stack.shrink(1);
+				itemstack.shrink(1);
 			}
-
-			if (stack.isEmpty()) {
+			
+			if (itemstack.isEmpty()) {
 				return new ItemStack(Items.GLASS_BOTTLE);
 			}
-
-			//entityplayer.inventory.addItemStackToInventory(new ItemStack(Items.GLASS_BOTTLE));
+			
 		}
-
-
-		return stack;
+		
+		return itemstack;
 	}
-
+	
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
 		if (this.isInCreativeTab(tab)) {
@@ -75,25 +73,25 @@ public class CommandPotion extends ItemPotion {
 			
 			ItemStack dawnPotion = new ItemStack(this);
 			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setString("label", "Dawn Potion");
+			nbt.setString("label", "Dawn Potion(Example)");
 			nbt.setString("command", "/time set 0");
 			nbt.setString("color", "#FFFF20");
 			nbt.setString("info", "§3Sets the current world time to morning§r");
 			dawnPotion.setTagCompound(nbt);
 			items.add(dawnPotion);
-
+			
 			ItemStack duskPotion = new ItemStack(this);
 			nbt = new NBTTagCompound();
-			nbt.setString("label", "Dusk Potion");
+			nbt.setString("label", "Dusk Potion(Example)");
 			nbt.setString("command", "/time set night");
 			nbt.setString("color", "#000020");
 			nbt.setString("info", "§3Sets the current world time to night§r");
 			duskPotion.setTagCompound(nbt);
 			items.add(duskPotion);
-		
+			
 			ItemStack clearPotion = new ItemStack(this);
 			nbt = new NBTTagCompound();
-			nbt.setString("label", "Clear Weather Potion");
+			nbt.setString("label", "Clear Weather Potion(Example)");
 			nbt.setString("command", "/weather clear");
 			nbt.setString("color", "#6060F0");
 			nbt.setString("info", "§3Clears the current weather conditions§r");
@@ -102,31 +100,31 @@ public class CommandPotion extends ItemPotion {
 			
 		}
 	}
-
+	
 	public String getItemStackDisplayName(ItemStack stack) {
 		NBTTagCompound nbt = getNBT(stack);
-
+		
 		if(nbt.hasKey("label", NBT.TAG_STRING)) {
 			return nbt.getString("label");
 		}
-
+		
 		return "Command Potion";
 	}
-
+	
 	public NBTTagCompound getNBT(ItemStack itemStack) {
 		return itemStack.hasTagCompound() ? itemStack.getTagCompound() : new NBTTagCompound();
 	}
-
+	
 	public int getColor(ItemStack itemStack, int tintIndex) {
-
+		
 		if(tintIndex != 0) {
 			return 0xFFFFFFFF;
 		}
-
+		
 		NBTTagCompound nbt = getNBT(itemStack);
-
-		int color = 0x0000FFFF;
-
+		
+		int color = 0xFF00FFFF;
+		
 		if(nbt.hasKey("color", NBT.TAG_STRING)) {
 			try {
 				color = Color.decode(nbt.getString("color")).getRGB();
@@ -134,17 +132,17 @@ public class CommandPotion extends ItemPotion {
 				nbt.removeTag("color");
 			}
 		}
-
+		
 		return color;
 	}
-
+	
 	public CommandPotion setColor(ItemStack itemStack, String colStr) {
 		NBTTagCompound nbt = getNBT(itemStack);
 		nbt.setString("color", colStr);
 		itemStack.setTagCompound(nbt);
 		return this;
 	}
-
+	
 	/**
 	 * allows items to add custom lines of information to the mouseover description
 	 */
@@ -156,5 +154,5 @@ public class CommandPotion extends ItemPotion {
 			tooltip.add(info);
 		}
 	}
-
+	
 }
