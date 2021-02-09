@@ -50,7 +50,7 @@ public class BlockTouchButton extends BlockButton {
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		if (!((Boolean)state.getValue(POWERED)).booleanValue()) {
 			if(worldIn.isRemote) {
-				MCF.network.sendToServer(new PacketTouchMap(new Vec3d(hitY, hitY, hitZ), pos, facing));
+				MCF.network.sendToServer(new PacketTouchMap(new Vec3d(hitX, hitY, hitZ), pos, facing));
 			} 
 			return true;
 		}
