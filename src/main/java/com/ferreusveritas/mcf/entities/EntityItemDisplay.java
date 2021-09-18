@@ -77,15 +77,15 @@ public class EntityItemDisplay extends Entity {
 	}
 	
 	@Override
-    public void setPosition(double x, double y, double z) {
-        this.posX = x;
-        this.posY = y;
-        this.posZ = z;
-        if (isAddedToWorld() && !world.isRemote) world.updateEntityWithOptionalForce(this, false); // Forge - Process chunk registration after moving.
-        double w = this.width / 2.0f;
-        double h = this.height / 2.0f;
-        setEntityBoundingBox(new AxisAlignedBB(x - w, y - h, z - w, x + w, y + h, z + w));
-    }
+	public void setPosition(double x, double y, double z) {
+		this.posX = x;
+		this.posY = y;
+		this.posZ = z;
+		if (isAddedToWorld() && !world.isRemote) world.updateEntityWithOptionalForce(this, false); // Forge - Process chunk registration after moving.
+		double w = this.width / 2.0f;
+		double h = this.height / 2.0f;
+		setEntityBoundingBox(new AxisAlignedBB(x - w, y - h, z - w, x + w, y + h, z + w));
+	}
 
 	
 	@Override

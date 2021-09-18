@@ -10,7 +10,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import net.minecraft.world.World;
 
 public class CommandManager<E extends Enum<E>> {
-
+	
 	private final int numMethods;
 	private final String[] methodNames;
 	private final MethodDescriptor[] methodDesc;
@@ -39,6 +39,7 @@ public class CommandManager<E extends Enum<E>> {
 		private Object[] result;
 		private Arguments args;
 		private final SyncProcess processor;
+		private LuaException luaException;
 		
 		public SyncCommand(SyncProcess processor, Arguments args) {
 			this.processor = processor;
@@ -47,17 +48,24 @@ public class CommandManager<E extends Enum<E>> {
 		
 		public synchronized void serverProcess(World world, MCFPeripheral peripheral) {
 			if(!fulfilled) {
-				result = processor.apply(world, peripheral, args);
+				try {
+					result = processor.apply(world, peripheral, args);
+				} catch (LuaException e) {
+					luaException = e;
+				}
 				fulfilled = true;
 				notifyAll();
 			}
 		}
 		
-		public synchronized Object[] getResult() {
+		public synchronized Object[] getResult() throws LuaException {
 			while(!fulfilled) {
 				try {
 					wait();
 				} catch (InterruptedException e) {}
+			}
+			if(luaException != null) {
+				throw luaException;
 			}
 			return result;
 		}
@@ -65,8 +73,8 @@ public class CommandManager<E extends Enum<E>> {
 	}
 	
 	/**
-	* I hear ya Dan!  Make the function threadsafe by caching the commmands to run in the main world server thread and not the lua thread.
-	*/
+	 * I hear ya Dan!  Make the function threadsafe by caching the commmands to run in the main world server thread and not the lua thread.
+	 */
 	public Object[] callMethod(World world, MCFPeripheral peripheral, IComputerAccess computer, ILuaContext context, int methodNum, Arguments arguments) throws LuaException {
 		
 		if(!world.isRemote) {
@@ -84,7 +92,6 @@ public class CommandManager<E extends Enum<E>> {
 		
 		return null;
 	}
-
 	
 	/**
 	 * 
@@ -92,8 +99,9 @@ public class CommandManager<E extends Enum<E>> {
 	 * @param args The argument data for the process
 	 * @param synced Determines weather or not we wait for the function to complete.
 	 * @return
+	 * @throws LuaException 
 	 */
-	public Object[] serverProcess(SyncProcess process, Arguments args, MCFPeripheral peripheral, boolean synced) {
+	public Object[] serverProcess(SyncProcess process, Arguments args, MCFPeripheral peripheral, boolean synced) throws LuaException {
 		SyncCommand syncReq = new SyncCommand(process, args);
 		peripheral.addSyncRequest(syncReq);
 		return synced ? syncReq.getResult() : new Object[0];

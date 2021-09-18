@@ -10,6 +10,7 @@ import com.ferreusveritas.mcf.blocks.BlockRemoteButton;
 import com.ferreusveritas.mcf.blocks.BlockTouchButton;
 import com.ferreusveritas.mcf.blocks.PeripheralType;
 import com.ferreusveritas.mcf.items.CommandPotion;
+import com.ferreusveritas.mcf.items.CommandSplashPotion;
 import com.ferreusveritas.mcf.items.UniversalRemote;
 
 import net.minecraft.block.Block;
@@ -34,6 +35,8 @@ public class Remote implements IFeature {
 	public static Block blockMapGuard;
 	public static UniversalRemote universalRemote;
 	public static CommandPotion commandPotion;
+	public static CommandSplashPotion commandSplashPotion;
+
 	
 	private Remote() { }
 	
@@ -57,6 +60,7 @@ public class Remote implements IFeature {
 	public void createItems() {
 		universalRemote = new UniversalRemote();
 		commandPotion = new CommandPotion();
+		commandSplashPotion = new CommandSplashPotion();
 	}
 	
 	@Override
@@ -83,6 +87,7 @@ public class Remote implements IFeature {
 	public void registerItems(IForgeRegistry<Item> registry) {
 		registry.register(universalRemote);
 		registry.register(commandPotion);
+		registry.register(commandSplashPotion);
 		registry.register( new ItemBlock(blockRemoteReceiver).setRegistryName(blockRemoteReceiver.getRegistryName()) );
 		registry.register( new ItemBlock(blockRemoteButton).setRegistryName(blockRemoteButton.getRegistryName()) );
 		registry.register( new ItemBlock(blockTouchButton).setRegistryName(blockTouchButton.getRegistryName()) );
@@ -100,6 +105,7 @@ public class Remote implements IFeature {
 		
 		ModelLoader.setCustomModelResourceLocation(universalRemote, 0, new ModelResourceLocation(universalRemote.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(commandPotion, 0, new ModelResourceLocation(commandPotion.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(commandSplashPotion, 0, new ModelResourceLocation(commandSplashPotion.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteReceiver), 0, new ModelResourceLocation(blockRemoteReceiver.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockRemoteButton), 0, new ModelResourceLocation(blockRemoteButton.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockTouchButton), 0, new ModelResourceLocation(blockTouchButton.getRegistryName(), "inventory"));

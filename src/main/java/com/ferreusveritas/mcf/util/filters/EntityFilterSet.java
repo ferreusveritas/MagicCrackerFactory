@@ -3,6 +3,7 @@ package com.ferreusveritas.mcf.util.filters;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -23,6 +24,14 @@ public class EntityFilterSet {
 		return entity instanceof EntityMob || entity instanceof EntitySlime;
 	}
 	
+	public IEntityFilter getFilter(String name) {
+		return filters.get(name);
+	}
+	
+	public Set<String> getFilterNames() {
+		return filters.keySet();
+	}
+	
 	public void setFilter(String name, String type, String data) {
 		setFilter(name, makeEntityFilter(type, data));
 	}
@@ -34,7 +43,7 @@ public class EntityFilterSet {
 	public void remFilter(String name) {
 		filters.remove(name);
 	}
-
+	
 	public NBTTagCompound saveFilters() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		for(Entry<String, IEntityFilter> filterEntry: filters.entrySet()) {
@@ -77,7 +86,7 @@ public class EntityFilterSet {
 	public IEntityFilter makeEntityFilter(String type, String data) {
 		return filterProviders.getOrDefault(type, d -> IEntityFilter.INVALID).apply(data);
 	}
-
+	
 	public Map<String, Map<String, String>> filtersToLuaObject() {
 		Map<String, Map<String, String>> contents = new HashMap<>();
 		

@@ -12,11 +12,9 @@ public class CommonProxy {
 	public EntityPlayer getPlayer() {
 		return null;
 	}
-
+	
 	public Minecraft getMinecraft() {
 		return null;
 	}
-
-	public void sendChatMessage(String msg, boolean addToChat) { }
 	
 }

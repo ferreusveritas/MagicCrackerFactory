@@ -13,7 +13,7 @@ public class MethodDescriptor {
 	}
 	
 	public interface SyncProcess {
-		Object[] apply(World world, MCFPeripheral peripheral, Arguments args);
+		Object[] apply(World world, MCFPeripheral peripheral, Arguments args) throws LuaException;
 	}
 	
 	private final String name;

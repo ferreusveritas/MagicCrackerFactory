@@ -24,7 +24,7 @@ public class BoundsStorage {
 		ENDER(new EntityFilterAll()),
 		IDENT,
 		SEEDS;
-
+		
 		private final IEntityFilter defaultEntityFilter;
 		
 		EnumBoundsType() {

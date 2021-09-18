@@ -3,6 +3,7 @@ package com.ferreusveritas.mcf;
 
 import com.ferreusveritas.mcf.command.CommandProx;
 import com.ferreusveritas.mcf.command.CommandSetBlockQuiet;
+import com.ferreusveritas.mcf.entities.EntityCommandPotion;
 import com.ferreusveritas.mcf.entities.EntityItemDisplay;
 import com.ferreusveritas.mcf.network.CommsThread;
 import com.ferreusveritas.mcf.network.PacketRemoteClick;
@@ -130,6 +131,7 @@ public class MCF extends FeatureableMod {
 		public static void registerEntities(RegistryEvent.Register<EntityEntry> event) {
 			int id = 0;
 			EntityRegistry.registerModEntity(new ResourceLocation(ModConstants.MODID, "item_display"), EntityItemDisplay.class, "item_display", id++, ModConstants.MODID, 32, 1, false);
+			EntityRegistry.registerModEntity(new ResourceLocation(ModConstants.MODID, "command_potion"), EntityCommandPotion.class, "command_potion", id++, ModConstants.MODID, 64, 10, true);
 		}
 	}
 

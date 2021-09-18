@@ -3,9 +3,12 @@ package com.ferreusveritas.mcf.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 
 import com.ferreusveritas.mcf.util.bounds.BoundsAny;
 import com.ferreusveritas.mcf.util.bounds.BoundsBase;
@@ -13,7 +16,10 @@ import com.ferreusveritas.mcf.util.bounds.BoundsCuboid;
 import com.ferreusveritas.mcf.util.bounds.BoundsCylinder;
 import com.ferreusveritas.mcf.util.bounds.BoundsStorage;
 import com.ferreusveritas.mcf.util.bounds.BoundsStorage.EnumBoundsType;
+import com.ferreusveritas.mcf.util.filters.EntityFilterSet;
 
+import dan200.computercraft.api.lua.LuaException;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -65,8 +71,12 @@ public class ZoneManager extends WorldSavedData {
 	
 	//Additions
 	
-	public void addBounds(EnumBoundsType type, String name, BoundsBase bb) {
+	public void addBounds(EnumBoundsType type, String name, BoundsBase bb) throws LuaException {
 		//System.out.println("Bounds Added: " + type + ", " + name + ", " + bb);
+		if(boundsExists(name)) {
+			throw new LuaException("Bounds name \"" + name + "\" already exists");
+		}
+		
 		getBoundsStorage().getByType(type).put(name, bb);
 		addDefaultFilters(type, bb);
 		markDirty();
@@ -76,48 +86,119 @@ public class ZoneManager extends WorldSavedData {
 		Optional.ofNullable(type.getDefaultEntityFilter()).ifPresent(filter -> bb.getFilterSet().setFilter("default", filter));
 	}
 	
-	public void addCuboidBounds(EnumBoundsType type, String name, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+	public void addCuboidBounds(EnumBoundsType type, String name, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) throws LuaException {
 		addBounds(type, name, new BoundsCuboid(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ))));
 	}
 	
-	public void addCylinderBounds(EnumBoundsType type, String name, int posX, int posZ, int minY, int maxY, int radius) {
+	public void addCylinderBounds(EnumBoundsType type, String name, int posX, int posZ, int minY, int maxY, int radius) throws LuaException {
 		addBounds(type, name, new BoundsCylinder(new BlockPos(posX, minY, posZ), maxY - minY, radius));
 	}
 	
-	public void addAnyBounds(EnumBoundsType type, String name) {
+	public void addAnyBounds(EnumBoundsType type, String name) throws LuaException {
 		addBounds(type, name, new BoundsAny());
 	}
 	
-	public void addEntityFilter(EnumBoundsType type, String name, String filterName, String filterType, String filterData) {
+	public void addEntityFilter(String name, String filterName, String filterType, String filterData) throws LuaException {
 		//System.out.println("Entity Filter Added: " + type + ", " + name + ", " + filterName + ", " +  filterType + ", " + filterData);
-		Optional.ofNullable(getBounds(type, name)).ifPresent(bb -> bb.getFilterSet().setFilter(filterName, filterType, filterData));
+		BoundsBase bounds = checkBoundName(name);
+		checkFilterType(filterType);
+		
+		bounds.getFilterSet().setFilter(filterName, filterType, filterData);
 		markDirty();
 	}
 	
-	public void remEntityFilter(EnumBoundsType type, String name, String filterName) {
+	public void remEntityFilter(String name, String filterName) throws LuaException {
 		//System.out.println("Entity Filter Removed: " + type + ", " + name + ", " + filterName);
-		Optional.ofNullable(getBounds(type, name)).ifPresent(bb -> bb.getFilterSet().remFilter(filterName));
+		BoundsBase bounds = checkBoundName(name);
+		
+		EntityFilterSet filterSet = getBounds(name).getFilterSet();
+		
+		if(filterSet.getFilter(filterName) == null) {
+			String valids = String.join(", ", filterSet.getFilterNames());
+			throw new LuaException("filter: \"" + filterName + "\" does not exist in this bounds. Available filters: " + valids);
+		}
+		
+		bounds.getFilterSet().remFilter(filterName);
 		markDirty();
 	}
 	
 	//Removals
 	
-	public void remBounds(EnumBoundsType type, String name) {
-		//System.out.println("Bounds Removed: " + type + ", " + name);
-		getBoundsStorage().getByType(type).remove(name);
+	public void remBounds(String name) throws LuaException {
+		//System.out.println("Bounds Removed: " + name);
+		checkBoundName(name);
+		for(EnumBoundsType type : EnumBoundsType.values()) {
+			getBoundsStorage().getByType(type).remove(name);
+		}
 		markDirty();
 	}
 	
-	public String[] listBounds(EnumBoundsType type) {
-		return getBoundsStorage().getByType(type).keySet().toArray(new String[0]);
+	public Object[] listBounds() {
+		List<Object> bounds = new ArrayList<>();
+		
+		for(EnumBoundsType type : EnumBoundsType.values()) {
+			for(Entry<String, BoundsBase> bound : getBoundsStorage().getByType(type).entrySet()) {
+				Map<String, Object> data = new HashMap<>();
+				data.put("name", bound.getKey());
+				data.put("type", type.getLabel());
+				data.put("shape", bound.getValue().getBoundType());
+				AxisAlignedBB aabb = bound.getValue().getAABB();
+				if(aabb != null) {
+					data.put("aabb", new Object[] { new Double[] { aabb.minX, aabb.minY, aabb.minZ }, new Double[] { aabb.maxX, aabb.maxY, aabb.maxZ } } );
+				}
+				data.put("filters", bound.getValue().getFilterSet().filtersToLuaObject());
+				
+				bounds.add(data);
+			}
+		}
+		
+		return bounds.toArray(new Object[0]);
 	}
 	
-	public Object[] getBoundsDataLua(EnumBoundsType type, String name) {
-		return Optional.ofNullable(getBounds(type, name)).map(b -> b.toLuaObject()).orElse(new Object[0]);
+	public Object[] getBoundsDataLua(String name) throws LuaException {
+		return checkBoundName(name).toLuaObject();
 	}
 	
-	public BoundsBase getBounds(EnumBoundsType type, String name) {
-		return getBoundsStorage().getByType(type).get(name);
+	public BoundsBase checkBoundName(String name) throws LuaException {
+		BoundsBase bound = getBounds(name);
+		if(bound == null) {
+			String valids = String.join(", ", getBoundsNames());
+			throw new LuaException("Bounds name \"" + name + "\" does not exist. Must be one of: " + valids);
+		}
+		return bound;
+	}
+	
+	public void checkFilterType(String filterType) throws LuaException {
+		if(!EntityFilterSet.filterProviders.keySet().contains(filterType)) {
+			String valids = String.join(", ", EntityFilterSet.filterProviders.keySet());
+			throw new LuaException("filterType \"" + filterType + "\" is not valid. Must be one of: " + valids );
+		}
+	}
+	
+	public boolean boundsExists(String name) {
+		return getBounds(name) != null;
+	}
+	
+	public BoundsBase getBounds(String name) {
+		
+		for(EnumBoundsType type : EnumBoundsType.values()) {
+			BoundsBase bounds = getBoundsStorage().getByType(type).get(name);
+			if(bounds != null) {
+				return bounds;
+			}
+		}
+		
+		return null;
+	}
+	
+	public Set<String> getBoundsNames() {
+		Set<String> allNames = new HashSet<>();
+		
+		for(EnumBoundsType type : EnumBoundsType.values()) {
+			allNames.addAll(getBoundsStorage().getByType(type).keySet()); 
+		}
+		
+		return allNames;
 	}
 	
 	//Tests and Filters
@@ -166,37 +247,53 @@ public class ZoneManager extends WorldSavedData {
 		return bounds.values().parallelStream().filter(bb -> bb.inBounds(pos)).anyMatch(bb -> bb.getFilterSet().isEntityDenied(entity));
 	}
 	
-	public Object[] getPlayersInBounds(World world, String boundName) {
-		
-		BoundsBase bb = getBoundsStorage().identBounds.get(boundName);
-		
-		AxisAlignedBB aabb = bb.getAABB();
-		List<EntityPlayer> players = aabb != null ? world.getEntitiesWithinAABB(EntityPlayer.class, aabb) : world.playerEntities;
-		List<Map<String, Object>> allPlayerData = new ArrayList<>();
-		
-		for(EntityPlayer p : players) {
-			if(bb.inBounds(p.getPosition())) {
-				Map<String, Object> singlePlayerData = new HashMap<>();
-				singlePlayerData.put("name", p.getName());
-
-				Map<String, Double> posMap = new HashMap<>();
-				posMap.put("x", p.posX);
-				posMap.put("y", p.posY);
-				posMap.put("z", p.posZ);
-				singlePlayerData.put("pos", posMap);
-
-				Map<String, Integer> blockPosMap = new HashMap<>();
-				BlockPos blockpos = p.getPosition();
-				blockPosMap.put("x", blockpos.getX());
-				blockPosMap.put("y", blockpos.getY());
-				blockPosMap.put("z", blockpos.getZ());
-				singlePlayerData.put("blockpos", blockPosMap);
-
-				allPlayerData.add(singlePlayerData);
+	public Object[] getPlayersInBounds(World world, String boundsName) {
+		return getPlayersInBounds(world, getBoundsStorage().identBounds.get(boundsName));
+	}
+	
+	public Object[] getPlayersInBounds(World world, BoundsBase bb) {
+		if(bb != null) {
+			if(bb.getAABB() == null) {
+				List<Entity> entities = new ArrayList<>();
+				world.playerEntities.forEach(e -> entities.add(e));
+				return getEntitiesAsObjects(entities);
+			}
+		}
+		return getEntitiesInBounds(world, bb, EntityPlayer.class);
+	}
+	
+	public Object[] getEntitiesInBounds(World world, String boundsName, Class clazz) {
+		return getEntitiesInBounds(world, getBoundsStorage().identBounds.get(boundsName), clazz);
+	}
+	
+	public Object[] getEntitiesInBounds(World world, BoundsBase bb, Class clazz) {
+		if(bb != null) {
+			AxisAlignedBB aabb = bb.getAABB();
+			if(aabb != null) {
+				List<Entity> entities = world.getEntitiesWithinAABB(clazz, aabb);
+				entities.removeIf(e -> !bb.inBounds(e.getPosition()));
+				return getEntitiesAsObjects(entities);
 			}
 		}
 		
-		return allPlayerData.toArray(new Object[0]);
+		return new Object[0];
+	}
+	
+	public Object[] getEntitiesAsObjects(List<Entity> entities) {
+		List<Map<String, Object>> allEntityData = new ArrayList<>();
+		
+		for(Entity e : entities) {
+			Map<String, Object> entityData = new HashMap<>();
+			BlockPos blockpos = e.getPosition();
+			entityData.put("name", e.getName());
+			entityData.put("pos", new Object[] { e.posX, e.posY, e.posZ } );
+			entityData.put("blockpos", new Object[] { blockpos.getX(), blockpos.getY(), blockpos.getZ() } );
+			entityData.put("id", e.getEntityId());
+			
+			allEntityData.add(entityData);
+		}
+		
+		return allEntityData.toArray(new Object[0]);
 	}
 	
 }

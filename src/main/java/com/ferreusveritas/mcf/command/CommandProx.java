@@ -33,13 +33,11 @@ public class CommandProx extends CommandBase {
 		
 		if(sender instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)sender;
-
+			
 			if(args.length > 0) {
 				TileRemoteReceiver.broadcastProxyEvents(player, args);
 			}
-			
 		}
-		
 	}
 
 	/**
