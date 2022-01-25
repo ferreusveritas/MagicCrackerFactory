@@ -33,7 +33,7 @@ public class CommandChunkRing extends CommandRing {
 			ChunkPos lastChunkPos = playerChunkPosMap.getOrDefault(playerName, originChunk);
 			
 			if(!chunkPos.equals(lastChunkPos)) {
-				lastChunkPos = chunkPos;
+				playerChunkPosMap.put(playerName, chunkPos);
 				
 				if(itemstack.hasTagCompound()) {
 					NBTTagCompound nbt = itemstack.getTagCompound();
