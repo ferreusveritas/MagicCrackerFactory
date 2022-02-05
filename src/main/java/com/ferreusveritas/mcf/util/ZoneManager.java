@@ -235,10 +235,6 @@ public class ZoneManager extends WorldSavedData {
 		return testBoundsAndEntity(pos, getBoundsStorage().enderBounds, living);
 	}
 	
-	public boolean testSeedsBounds(BlockPos pos) {
-		return testBounds(pos, getBoundsStorage().seedsBounds);
-	}
-	
 	public boolean testBounds(BlockPos pos, Map<String, BoundsBase> bounds) {
 		return bounds.values().parallelStream().anyMatch(bb -> bb.inBounds(pos));
 	}

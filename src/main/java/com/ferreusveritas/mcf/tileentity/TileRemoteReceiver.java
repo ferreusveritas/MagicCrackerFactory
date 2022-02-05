@@ -83,6 +83,10 @@ public class TileRemoteReceiver extends MCFPeripheral {
 		broadcastEvents(player, player.getPosition(), receiver -> receiver.createClaimEvent(player, pos, dimension, set));
 	}
 	
+	public static void broadcastChatEvents(EntityPlayer player, String message) {
+		broadcastEvents(player, player.getPosition(), receiver -> receiver.createChatEvent(player, message));
+	}
+	
 	private Map<String, Integer> mapBlockPos(BlockPos blockPos) {
 		return mapBlockPos(blockPos, null);
 	}
@@ -143,6 +147,11 @@ public class TileRemoteReceiver extends MCFPeripheral {
 	private void createClaimEvent(EntityPlayer player, BlockPos blockPos, int dimension, boolean set) {
 		sendEventToAllAttachedComputers("claim", 
 			new Object[] { player != null ? player.getName() : null, mapBlockPos(blockPos), set });
+	}
+	
+	private void createChatEvent(EntityPlayer player, String message) {
+		sendEventToAllAttachedComputers("chat", 
+			new Object[] { player.getName(), mapBlockPos(player.getPosition()), message });
 	}
 	
 	public enum ComputerMethod implements MethodDescriptorProvider {

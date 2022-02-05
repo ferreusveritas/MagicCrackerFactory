@@ -64,19 +64,4 @@ public class SecurityHandler {
 		}
 	}
 	
-	/*
-	@SubscribeEvent
-	public static void SeedVoluntaryPlantEvent(SeedVoluntaryPlantEvent event) {
-		if(ZoneManager.get(event.getEntityItem().world).testSeedsBounds(event.getPos())) {
-			event.setCanceled(true);
-		}
-	}
-	
-	@SubscribeEvent
-	public static void SeedVoluntaryDropEvent(SeedVoluntaryDropEvent event) {
-		if(ZoneManager.get(event.getWorld()).testSeedsBounds(event.getRootPos())) {
-			event.setCanceled(true);
-		}
-	}*/
-	
 }

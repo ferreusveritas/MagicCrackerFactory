@@ -22,8 +22,7 @@ public class BoundsStorage {
 		BLAST(new EntityFilterAll()),
 		SPAWN(new EntityFilterHostile()),
 		ENDER(new EntityFilterAll()),
-		IDENT,
-		SEEDS;
+		IDENT;
 		
 		private final IEntityFilter defaultEntityFilter;
 		
@@ -39,7 +38,7 @@ public class BoundsStorage {
 			return defaultEntityFilter;
 		}
 		
-		public final static List<EnumBoundsType> valid = Arrays.asList(BREAK, PLACE, BLAST, SPAWN, ENDER, IDENT, SEEDS);
+		public final static List<EnumBoundsType> valid = Arrays.asList(BREAK, PLACE, BLAST, SPAWN, ENDER, IDENT);
 		
 		public static EnumBoundsType getType(String type) {
 			for(EnumBoundsType t: EnumBoundsType.values()) {
@@ -74,10 +73,9 @@ public class BoundsStorage {
 	public Map<String, BoundsBase> spawnBounds = new HashMap<>();
 	public Map<String, BoundsBase> enderBounds = new HashMap<>();
 	public Map<String, BoundsBase> identBounds = new HashMap<>();
-	public Map<String, BoundsBase> seedsBounds = new HashMap<>();
 	
 	public Map<String, BoundsBase>[] allBounds = new Map[] {
-			new VoidMap<>(), breakBounds, placeBounds, blastBounds, spawnBounds, enderBounds, identBounds, seedsBounds
+			new VoidMap<>(), breakBounds, placeBounds, blastBounds, spawnBounds, enderBounds, identBounds
 	};
 	
 	public Map<String, BoundsBase> getByType(EnumBoundsType type) {

@@ -3,15 +3,11 @@ package com.ferreusveritas.mcf.items;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ferreusveritas.mcf.tileentity.TileRemoteReceiver;
-
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraftforge.common.util.Constants.NBT;
+
+// /give @p mcf:commandchunkring 1 0 {label:"Test Chunk Ring",command:"test",color:"#FFFF20",info:"Performs a test for chunk rings"}
 
 public class CommandChunkRing extends CommandRing {
 	
@@ -23,29 +19,19 @@ public class CommandChunkRing extends CommandRing {
 	}
 	
 	@Override
-	public void onWornTick(ItemStack itemstack, EntityLivingBase entityLiving) {
-		if(!entityLiving.world.isRemote) {
-			
-			EntityPlayer player = (EntityPlayer) entityLiving;
-			ChunkPos chunkPos = new ChunkPos(entityLiving.getPosition());
-			
-			String playerName = player.getName();
-			ChunkPos lastChunkPos = playerChunkPosMap.getOrDefault(playerName, originChunk);
-			
-			if(!chunkPos.equals(lastChunkPos)) {
-				playerChunkPosMap.put(playerName, chunkPos);
-				
-				if(itemstack.hasTagCompound()) {
-					NBTTagCompound nbt = itemstack.getTagCompound();
-					if(nbt.hasKey("command", NBT.TAG_STRING)) {
-						String command = nbt.getString("command");
-						if(!command.isEmpty()) {
-							TileRemoteReceiver.broadcastRingEvents((EntityPlayer) player, command);
-						}
-					}
-				}
-			}
-		}
+	public boolean shouldRun(EntityPlayer player) {
+		ChunkPos lastChunkPos = playerChunkPosMap.getOrDefault(player.getName(), originChunk);
+		return !new ChunkPos(player.getPosition()).equals(lastChunkPos);
+	}
+	
+	@Override
+	public void satisfyWorn(EntityPlayer player) {
+		playerChunkPosMap.put(player.getName(), new ChunkPos(player.getPosition()));
+	}
+	
+	@Override
+	public void processWorn(EntityPlayer player) {
+		updateAllRings(player, stack -> stack.getItem() instanceof CommandChunkRing);
 	}
 	
 }
