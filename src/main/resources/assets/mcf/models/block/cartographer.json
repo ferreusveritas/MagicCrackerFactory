@@ -1,8 +1,9 @@
 {
-	"parent": "block/cube_bottom_top",
-	"textures": {
-		"bottom": "mcf:blocks/cartographer_bottom",
-		"top": "mcf:blocks/cartographer_top",
-		"side": "mcf:blocks/cartographer_side"
-	}
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "mcf:blocks/cartographer_bottom",
+    "top": "mcf:blocks/cartographer_top",
+    "side": "mcf:blocks/cartographer_side",
+    "particle": "mcf:blocks/cartographer_side"
+  }
 }

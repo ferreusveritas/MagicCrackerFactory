@@ -1,5 +1,7 @@
 {
-	"variants": {
-		"normal": {"model":"mcf:sentinel"}
-	}
+  "variants": {
+    "": {
+      "model": "mcf:block/sentinel"
+    }
+  }
 }

@@ -1,0 +1,9 @@
+{
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "mcf:blocks/receiver_bottom",
+    "top": "mcf:blocks/receiver_top",
+    "side": "mcf:blocks/receiver_side",
+    "particle": "mcf:blocks/receiver_side"
+  }
+}

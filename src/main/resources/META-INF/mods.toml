@@ -1,0 +1,38 @@
+license = "MIT"
+modLoader = "javafml"
+loaderVersion = "[36,37)"
+issueTrackerURL = "https://github.com/ferreusveritas/MagicCrackerFactory/issues"
+
+[[mods]]
+modId = "mcf"
+version = "${file.jarVersion}"
+displayName = "Magic Cracker Factory"
+# updateJSONURL="TODO"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/magic-cracker-factory"
+logoFile = "logo.png"
+credits = "qidydl"
+authors = "FerreusVeritas"
+description = '''
+Adds ComputerCraft peripherals for creative mode world building
+'''
+
+[[dependencies.mcf]]
+modId = "forge"
+mandatory = true
+versionRange = "[36.2.34,37)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.mcf]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.5,1.17)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.mcf]]
+modId = "computercraft"
+mandatory = true
+versionRange = "[1.100.9,)"
+ordering = "NONE"
+side = "BOTH"

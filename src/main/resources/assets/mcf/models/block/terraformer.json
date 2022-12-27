@@ -1,8 +1,9 @@
 {
-	"parent": "block/cube_bottom_top",
-	"textures": {
-		"bottom": "mcf:blocks/terraformer_bottom",
-		"top": "mcf:blocks/terraformer_top",
-		"side": "mcf:blocks/terraformer_side"
-	}
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "mcf:blocks/terraformer_bottom",
+    "top": "mcf:blocks/terraformer_top",
+    "side": "mcf:blocks/terraformer_side",
+    "particle": "mcf:blocks/terraformer_side"
+  }
 }

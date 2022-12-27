@@ -1,0 +1,9 @@
+{
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "mcf:blocks/web_modem_bottom",
+    "top": "mcf:blocks/web_modem_top",
+    "side": "mcf:blocks/web_modem_side",
+    "particle": "mcf:blocks/web_modem_side"
+  }
+}

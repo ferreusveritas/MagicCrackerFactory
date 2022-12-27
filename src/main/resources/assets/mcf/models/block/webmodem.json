@@ -1,8 +1,0 @@
-{
-    "parent": "block/cube_bottom_top",
-    "textures": {
-        "bottom": "mcf:blocks/webmodem_bottom",
-        "top": "mcf:blocks/webmodem_top",
-        "side": "mcf:blocks/webmodem_side"
-    }
-}

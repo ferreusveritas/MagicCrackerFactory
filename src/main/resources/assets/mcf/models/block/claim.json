@@ -1,8 +1,9 @@
 {
-	"parent": "block/cube_bottom_top",
-	"textures": {
-		"bottom": "mcf:blocks/claim_bottom",
-		"top": "mcf:blocks/claim_top",
-		"side": "mcf:blocks/claim_side"
-	}
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "mcf:blocks/claim_bottom",
+    "top": "mcf:blocks/claim_top",
+    "side": "mcf:blocks/claim_side",
+    "particle": "mcf:blocks/claim_side"
+  }
 }

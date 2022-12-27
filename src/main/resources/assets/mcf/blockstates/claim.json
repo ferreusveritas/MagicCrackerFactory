@@ -1,5 +1,7 @@
 {
-	"variants": {
-		"normal": {"model":"mcf:claim"}
-	}
+  "variants": {
+    "": {
+      "model": "mcf:block/claim"
+    }
+  }
 }

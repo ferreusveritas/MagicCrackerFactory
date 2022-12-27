@@ -4,7 +4,7 @@ Minecraft Forge mod providing miscellaneous world building computercraft periphe
 
 ![Logo](./header.png)
 
-This branch is for the 1.12.2 version of Minecraft.
+This branch is for the 1.16.5 version of Minecraft.
 
 ### Compiling
 * Clone the repository

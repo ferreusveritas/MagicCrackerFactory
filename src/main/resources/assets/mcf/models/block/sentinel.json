@@ -1,8 +1,9 @@
 {
-	"parent": "block/cube_bottom_top",
-	"textures": {
-		"bottom": "mcf:blocks/sentinel_bottom",
-		"top": "mcf:blocks/sentinel_top",
-		"side": "mcf:blocks/sentinel_side"
-	}
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "mcf:blocks/sentinel_bottom",
+    "top": "mcf:blocks/sentinel_top",
+    "side": "mcf:blocks/sentinel_side",
+    "particle": "mcf:blocks/sentinel_side"
+  }
 }

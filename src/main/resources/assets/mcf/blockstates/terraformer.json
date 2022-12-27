@@ -1,5 +1,7 @@
 {
-	"variants": {
-		"normal": {"model":"mcf:terraformer"}
-	}
+  "variants": {
+    "": {
+      "model": "mcf:block/terraformer"
+    }
+  }
 }

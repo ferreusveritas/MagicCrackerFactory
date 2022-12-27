@@ -1,8 +1,0 @@
-{
-    "parent": "item/handheld",
-    "textures": {
-        "layer0":"mcf:items/remote",
-        "layer1":"mcf:items/remote-overlay",
-        "layer2":"mcf:items/remote-glimmer"
-    }
-}
