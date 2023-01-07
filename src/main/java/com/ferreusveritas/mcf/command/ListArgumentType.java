@@ -27,6 +27,8 @@ public class ListArgumentType implements ArgumentType<List<String>> {
 
     @Override
     public List<String> parse(StringReader reader) {
-        return Stream.of(reader.getRemaining().split(" ")).collect(Collectors.toList());
+        String[] elements = reader.getRemaining().split(" ");
+        reader.setCursor(reader.getTotalLength());
+        return Stream.of(elements).collect(Collectors.toList());
     }
 }

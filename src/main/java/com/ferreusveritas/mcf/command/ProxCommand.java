@@ -26,7 +26,6 @@ public class ProxCommand {
     private static int broadcastProxyEvents(CommandContext<CommandSource> context, List<String> args) throws CommandSyntaxException {
         Entity source = context.getSource().getEntityOrException();
         if (source instanceof PlayerEntity) {
-            LogManager.getLogger().debug(String.join(", ", args));
             RemoteReceiverPeripheral.broadcastProxyEvents(((PlayerEntity) source), args.toArray(new String[0]));
             return 1;
         }

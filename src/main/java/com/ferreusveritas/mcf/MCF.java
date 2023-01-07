@@ -55,6 +55,7 @@ public class MCF {
         modBus.addListener(this::gatherData);
 
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
+        MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
         MinecraftForge.EVENT_BUS.addListener(this::serverStopping);
     }
 
