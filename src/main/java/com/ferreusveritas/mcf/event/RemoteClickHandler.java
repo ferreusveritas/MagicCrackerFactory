@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.event;
 
+import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.block.ActivatableRemote;
 import com.ferreusveritas.mcf.peripheral.RemoteReceiverPeripheral;
 import net.minecraft.block.Block;
@@ -13,7 +14,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = MCF.MOD_ID)
 public class RemoteClickHandler {
 
     @SubscribeEvent

@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.event;
 
+import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.util.ZoneManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -16,7 +17,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = MCF.MOD_ID)
 public class SecurityHandler {
 
     @SubscribeEvent

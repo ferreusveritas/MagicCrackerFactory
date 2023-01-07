@@ -1,5 +1,6 @@
 package com.ferreusveritas.mcf.event;
 
+import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.peripheral.RemoteReceiverPeripheral;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
@@ -7,7 +8,7 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = MCF.MOD_ID)
 public class ServerChatHandler {
 
     @SubscribeEvent

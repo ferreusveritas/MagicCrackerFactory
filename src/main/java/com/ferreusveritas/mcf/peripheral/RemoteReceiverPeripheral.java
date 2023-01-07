@@ -106,35 +106,35 @@ public class RemoteReceiverPeripheral extends MCFPeripheral<RemoteReceiverTileEn
     }
 
     public void createRemoteEvent(PlayerEntity player, String remoteId, Vector3d hitPos, BlockPos blockPos, Direction face) {
-        sendEventToAllAttachedComputers("remote_control", new Object[]{player.getName(), remoteId, mapHitPos(hitPos), mapBlockPos(blockPos), face != null ? face.ordinal() : null});
+        sendEventToAllAttachedComputers("remote_control", new Object[]{player.getName().getString(), remoteId, mapHitPos(hitPos), mapBlockPos(blockPos), face != null ? face.ordinal() : null});
     }
 
     public void createTouchMapEvent(PlayerEntity player, ItemStack heldItem, Vector3d hitPos, BlockPos blockPos, Direction face) {
-        sendEventToAllAttachedComputers("touch_map", new Object[]{player.getName(), heldItem.getItem().getDescriptionId(), mapHitPos(hitPos), mapBlockPos(blockPos), face != null ? face.ordinal() : null});
+        sendEventToAllAttachedComputers("touch_map", new Object[]{player.getName().getString(), heldItem.getItem().getDescriptionId(), mapHitPos(hitPos), mapBlockPos(blockPos), face != null ? face.ordinal() : null});
     }
 
     public void createProxyEvent(PlayerEntity player, String[] command) {
-        sendEventToAllAttachedComputers(ProxCommand.PROX, new Object[]{player.getName(), mapBlockPos(player.blockPosition()), command});
+        sendEventToAllAttachedComputers(ProxCommand.PROX, new Object[]{player.getName().getString(), mapBlockPos(player.blockPosition()), command});
     }
 
     public void createPotionEvent(PlayerEntity player, String command) {
-        sendEventToAllAttachedComputers("potion", new Object[]{player.getName(), mapBlockPos(player.blockPosition()), command});
+        sendEventToAllAttachedComputers("potion", new Object[]{player.getName().getString(), mapBlockPos(player.blockPosition()), command});
     }
 
     public void createSplashEvent(PlayerEntity player, BlockPos pos, Direction face, String command) {
-        sendEventToAllAttachedComputers("splash", new Object[]{player.getName(), mapBlockPos(pos, face), command});
+        sendEventToAllAttachedComputers("splash", new Object[]{player.getName().getString(), mapBlockPos(pos, face), command});
     }
 
     public void createRingEvent(PlayerEntity player, String command) {
-        sendEventToAllAttachedComputers("ring", new Object[]{player.getName(), mapBlockPos(player.blockPosition()), command});
+        sendEventToAllAttachedComputers("ring", new Object[]{player.getName().getString(), mapBlockPos(player.blockPosition()), command});
     }
 
     private void createClaimEvent(PlayerEntity player, BlockPos blockPos, boolean set) {
-        sendEventToAllAttachedComputers("claim", new Object[]{player != null ? player.getName() : null, mapBlockPos(blockPos), set});
+        sendEventToAllAttachedComputers("claim", new Object[]{player != null ? player.getName().getString() : null, mapBlockPos(blockPos), set});
     }
 
     private void createChatEvent(PlayerEntity player, String message) {
-        sendEventToAllAttachedComputers("chat", new Object[]{player.getName(), mapBlockPos(player.blockPosition()), message});
+        sendEventToAllAttachedComputers("chat", new Object[]{player.getName().getString(), mapBlockPos(player.blockPosition()), message});
     }
 
     @LuaFunction
