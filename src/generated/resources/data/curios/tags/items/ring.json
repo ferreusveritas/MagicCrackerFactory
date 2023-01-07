@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "mcf:command_block_ring",
+    "mcf:command_chunk_ring"
+  ]
+}

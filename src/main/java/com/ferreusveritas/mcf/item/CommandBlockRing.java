@@ -28,9 +28,4 @@ public class CommandBlockRing extends CommandRing {
         PLAYER_POSITION_CACHE.put(player.getUUID(), player.blockPosition());
     }
 
-    @Override
-    public void processWorn(PlayerEntity player) {
-        updateAllRings(player, stack -> stack.getItem() instanceof CommandBlockRing);
-    }
-
 }

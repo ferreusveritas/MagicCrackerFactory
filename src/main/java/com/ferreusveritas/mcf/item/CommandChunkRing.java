@@ -30,9 +30,4 @@ public class CommandChunkRing extends CommandRing {
         PLAYER_POSITION_CACHE.put(player.getUUID(), new ChunkPos(player.blockPosition()));
     }
 
-    @Override
-    public void processWorn(PlayerEntity player) {
-        updateAllRings(player, stack -> stack.getItem() instanceof CommandChunkRing);
-    }
-
 }

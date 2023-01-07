@@ -1,53 +1,43 @@
 package com.ferreusveritas.mcf.item;
 
 import com.ferreusveritas.mcf.peripheral.RemoteReceiverPeripheral;
-import lazy.baubles.api.BaublesAPI;
-import lazy.baubles.api.bauble.BaubleType;
-import lazy.baubles.api.bauble.IBauble;
-import lazy.baubles.api.cap.IBaublesItemHandler;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Constants.NBT;
+import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.type.capability.ICurio;
 
-import java.util.function.Predicate;
-
-public abstract class CommandRing extends CommandItem implements IBauble {
+public abstract class CommandRing extends CommandItem implements ICurio {
 
     public CommandRing(Properties properties) {
         super(properties);
     }
 
     @Override
-    public BaubleType getBaubleType(ItemStack arg0) {
-        return BaubleType.RING;
-    }
-
-    @Override
-    public void onEquipped(LivingEntity entityLiving, ItemStack itemstack) {
-        IBauble.super.onEquipped(entityLiving, itemstack);
-        if (!entityLiving.level.isClientSide && entityLiving instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entityLiving;
-            satisfyWorn(player);
-            updateRing(itemstack, player);
+    public void onEquip(SlotContext slotContext, ItemStack prevStack) {
+        LivingEntity wearerEntity = slotContext.getWearer();
+        if (!wearerEntity.level.isClientSide && wearerEntity instanceof PlayerEntity) {
+            PlayerEntity wearer = (PlayerEntity) wearerEntity;
+            satisfyWorn(wearer);
+            updateRing(prevStack, wearer);
         }
     }
 
     @Override
-    public void onWornTick(LivingEntity entityLiving, ItemStack itemstack) {
-        if (!entityLiving.level.isClientSide && entityLiving instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entityLiving;
+    public void curioTick(String identifier, int index, LivingEntity livingEntity) {
+        if (!livingEntity.level.isClientSide && livingEntity instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) livingEntity;
             if (shouldRun(player)) {
-                processWorn(player);
+                updateAllRings(player);
                 satisfyWorn(player);
             }
         }
     }
 
     public abstract boolean shouldRun(PlayerEntity player);
-
-    public abstract void processWorn(PlayerEntity player);
 
     public abstract void satisfyWorn(PlayerEntity player);
 
@@ -63,17 +53,8 @@ public abstract class CommandRing extends CommandItem implements IBauble {
         }
     }
 
-    public void updateAllRings(PlayerEntity player, Predicate<ItemStack> predicate) {
-        @SuppressWarnings("deprecation")
-        IBaublesItemHandler inventory = BaublesAPI.getBaublesHandler(player).orElse(null);
-        int slots = inventory.getSlots();
-
-        for (int i = 0; i < slots; i++) {
-            ItemStack baubleItemStack = inventory.getStackInSlot(i);
-            if (predicate.test(baubleItemStack)) {
-                updateRing(baubleItemStack, player);
-            }
-        }
+    public void updateAllRings(PlayerEntity player) {
+        CuriosApi.getCuriosHelper().findCurios(player, this).forEach(slot -> updateRing(slot.getStack(), player));
     }
 
 }

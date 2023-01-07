@@ -31,6 +31,7 @@ repositories {
     maven("https://harleyoconnor.com/maven")
     maven("https://squiddev.cc/maven/")
     maven("https://jitpack.io")
+    maven("https://maven.theillusivec4.top/")
 }
 
 val modName = property("modName")
@@ -105,7 +106,8 @@ dependencies {
     compileOnly(fg.deobf("org.squiddev:cc-tweaked-$mcVersion:${property("ccVersion")}:api"))
     runtimeOnly(fg.deobf("org.squiddev:cc-tweaked-$mcVersion:${property("ccVersion")}"))
 
-    implementation(fg.deobf("com.github.lazyMods:baubles:${property("baublesVersion")}-$mcVersion"))
+    runtimeOnly(fg.deobf("top.theillusivec4.curios:curios-forge:$mcVersion-${property("curiosVersion")}"))
+    compileOnly(fg.deobf("top.theillusivec4.curios:curios-forge:$mcVersion-${property("curiosVersion")}:api"))
 
     runtimeOnly(fg.deobf("curse.maven:hwyla-253449:3033593"))
     runtimeOnly(fg.deobf("mezz.jei:jei-$mcVersion:${property("jeiVersion")}"))
