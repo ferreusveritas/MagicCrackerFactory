@@ -9,6 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import org.apache.logging.log4j.LogManager;
 
 @OnlyIn(Dist.CLIENT)
 public final class ClientSetup {
@@ -37,7 +38,7 @@ public final class ClientSetup {
     }
 
     private static <I extends Item & ColoredItem> void registerColorHandler(I item) {
-        ModelHelper.registerColorHandler(item, item::getColor);
+        ModelHelper.registerColorHandler(item, (stack, tintIndex) -> item.getColor(stack, tintIndex));
     }
 
 

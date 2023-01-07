@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ModelHelper {
+public final class ModelHelper {
 
     public static void registerColorHandler(Block block, IBlockColor blockColor) {
         Minecraft.getInstance().getBlockColors().register(blockColor, block);
