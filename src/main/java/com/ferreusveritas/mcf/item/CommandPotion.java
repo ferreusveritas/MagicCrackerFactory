@@ -6,12 +6,20 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.UseAction;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.DrinkHelper;
+import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
 public class CommandPotion extends CommandItem {
 
     public CommandPotion(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+        return DrinkHelper.useDrink(world, player, hand);
     }
 
     @Override
