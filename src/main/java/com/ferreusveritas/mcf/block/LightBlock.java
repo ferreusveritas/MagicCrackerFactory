@@ -14,7 +14,7 @@ public class LightBlock extends Block {
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 15);
 
     public LightBlock() {
-        super(Properties.of(Material.AIR).noOcclusion().noCollission());
+        super(Properties.of(Material.AIR).noOcclusion().noCollission().lightLevel(state -> state.getValue(LEVEL)));
         registerDefaultState(this.getStateDefinition().any().setValue(LEVEL, 15));
     }
 
@@ -32,11 +32,6 @@ public class LightBlock extends Block {
     @Override
     public BlockRenderType getRenderShape(BlockState state) {
         return BlockRenderType.INVISIBLE;
-    }
-
-    @Override
-    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
-        return state.getValue(LEVEL);
     }
 
 }
