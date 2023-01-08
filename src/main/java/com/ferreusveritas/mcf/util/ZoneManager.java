@@ -43,7 +43,7 @@ public class ZoneManager extends WorldSavedData {
     @Override
     public CompoundNBT save(CompoundNBT tag) {
         tag.put("zones", storageBounds.toCompoundTag());
-        return null;
+        return tag;
     }
 
     public StorageBounds getBoundsStorage() {
