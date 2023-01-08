@@ -12,7 +12,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
@@ -53,6 +55,8 @@ public class MCF {
         modBus.addListener(this::clientSetup);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::gatherData);
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MCFConfigs.SERVER_CONFIG);
 
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
