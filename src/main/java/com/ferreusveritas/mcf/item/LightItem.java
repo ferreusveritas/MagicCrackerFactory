@@ -44,7 +44,7 @@ public class LightItem extends BlockItem {
 
     @Override
     public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
-        if (this.allowdedIn(group) && this.level == 15) {
+        if (this.allowdedIn(group)) {
             items.add(new ItemStack(this));
         }
     }
