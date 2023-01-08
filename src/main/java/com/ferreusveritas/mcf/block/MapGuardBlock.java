@@ -38,7 +38,7 @@ public class MapGuardBlock extends Block {
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
 
     public MapGuardBlock() {
-        super(Properties.of(Material.GLASS).strength(-1.0F, 3600000.0F).noOcclusion());
+        super(Properties.of(Material.GLASS).strength(-1.0F, 3600000.0F).noOcclusion().lightLevel(state -> state.getValue(LIT) ? 15 : 0));
         registerDefaultState(this.getStateDefinition().any().setValue(LIT, false));
     }
 
@@ -126,11 +126,6 @@ public class MapGuardBlock extends Block {
     @Override
     public BlockRenderType getRenderShape(BlockState state) {
         return BlockRenderType.MODEL;
-    }
-
-    @Override
-    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
-        return state.getValue(LIT) ? 15 : 0;
     }
 
 }
