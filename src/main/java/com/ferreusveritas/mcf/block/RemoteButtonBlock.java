@@ -24,12 +24,6 @@ public class RemoteButtonBlock extends AbstractButtonBlock implements Activatabl
     private static final VoxelShape SOUTH_AABB = Block.box(5.0D, 5.0D, 0.0D, 11.0D, 11.0D, 2.0D);
     private static final VoxelShape WEST_AABB = Block.box(14.0D, 5.0D, 5.0D, 16.0D, 11.0D, 11.0D);
     private static final VoxelShape EAST_AABB = Block.box(0.0D, 5.0D, 5.0D, 2.0D, 11.0D, 11.0D);
-    private static final VoxelShape PRESSED_CEILING_AABB = Block.box(5.0D, 15.0D, 5.0D, 11.0D, 16.0D, 11.0D);
-    private static final VoxelShape PRESSED_FLOOR_AABB = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 1.0D, 11.0D);
-    private static final VoxelShape PRESSED_NORTH_AABB = Block.box(5.0D, 5.0D, 15.0D, 11.0D, 11.0D, 16.0D);
-    private static final VoxelShape PRESSED_SOUTH_AABB = Block.box(5.0D, 5.0D, 0.0D, 11.0D, 11.0D, 1.0D);
-    private static final VoxelShape PRESSED_WEST_AABB = Block.box(15.0D, 5.0D, 5.0D, 16.0D, 11.0D, 11.0D);
-    private static final VoxelShape PRESSED_EAST_AABB = Block.box(0.0D, 5.0D, 5.0D, 1.0D, 11.0D, 11.0D);
 
     public RemoteButtonBlock() {
         super(false, AbstractBlock.Properties.of(Material.METAL, MaterialColor.LAPIS).strength(3.0F, 10.0F).randomTicks());
@@ -38,25 +32,24 @@ public class RemoteButtonBlock extends AbstractButtonBlock implements Activatabl
 
     public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
         Direction facing = state.getValue(FACING);
-        boolean powered = state.getValue(POWERED);
         switch (state.getValue(FACE)) {
             case FLOOR:
-                return powered ? PRESSED_FLOOR_AABB : FLOOR_AABB;
+                return FLOOR_AABB;
             case WALL:
                 switch (facing) {
                     case EAST:
-                        return powered ? PRESSED_EAST_AABB : EAST_AABB;
+                        return EAST_AABB;
                     case WEST:
-                        return powered ? PRESSED_WEST_AABB : WEST_AABB;
+                        return WEST_AABB;
                     case SOUTH:
-                        return powered ? PRESSED_SOUTH_AABB : SOUTH_AABB;
+                        return SOUTH_AABB;
                     case NORTH:
                     default:
-                        return powered ? PRESSED_NORTH_AABB : NORTH_AABB;
+                        return NORTH_AABB;
                 }
             case CEILING:
             default:
-                return powered ? PRESSED_CEILING_AABB : CEILING_AABB;
+                return CEILING_AABB;
         }
     }
 
