@@ -2,8 +2,11 @@ package com.ferreusveritas.mcf.item;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.StringNBT;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -19,6 +22,16 @@ public class CommandItem extends Item implements ColoredItem {
 
     public CommandItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
+        if (allowdedIn(group)) {
+            ItemStack stack = new ItemStack(this);
+            // Add test command to command items in creative menu
+            stack.addTagElement("command", StringNBT.valueOf("test"));
+            items.add(stack);
+        }
     }
 
     @Override
