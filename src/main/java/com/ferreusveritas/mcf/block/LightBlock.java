@@ -7,6 +7,9 @@ import net.minecraft.block.material.Material;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 
 public class LightBlock extends Block {
@@ -16,6 +19,12 @@ public class LightBlock extends Block {
     public LightBlock() {
         super(Properties.of(Material.AIR).noOcclusion().noCollission().lightLevel(state -> state.getValue(LEVEL)));
         registerDefaultState(this.getStateDefinition().any().setValue(LEVEL, 15));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public VoxelShape getShape(BlockState pState, IBlockReader pLevel, BlockPos pPos, ISelectionContext pContext) {
+        return VoxelShapes.empty();
     }
 
     @Override
