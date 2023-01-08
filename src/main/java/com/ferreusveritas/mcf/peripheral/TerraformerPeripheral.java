@@ -61,7 +61,7 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
     }
 
     @LuaFunction
-    private String[] getBiomeArray(int xPos, int zPos, int xLen, int zLen, int scale) {
+    public String[] getBiomeArray(int xPos, int zPos, int xLen, int zLen, int scale) {
         scale = Math.max(1, scale);
 
         String[] biomeNames = new String[xLen * zLen];
@@ -70,14 +70,14 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
         if (scale == 1) { //Special efficiency case for scale 1
             Biome[] biomeArray = getBiomes(null, xPos, zPos, xLen, zLen);
             for (Biome b : biomeArray) {
-                biomeNames[i++] = String.valueOf(b.getRegistryName());
+                biomeNames[i++] = String.valueOf(b.getRegistryName()).intern();
             }
         } else if (scale == 2 || scale == 4 || scale == 8) { //Special efficiency case for scale 2, 4 and 8
             //On 64 bit java this can temporarily eat some big memory since an object reference is 8 bytes..
             Biome[] biomeArray = getBiomes(null, xPos, zPos, xLen * scale, zLen * scale);
             for (int z = 0; z < zLen * scale; z += scale) {
                 for (int x = 0; x < xLen * scale; x += scale) {
-                    biomeNames[i++] = String.valueOf(biomeArray[(z * xLen * scale) + x]);
+                    biomeNames[i++] = String.valueOf(biomeArray[(z * xLen * scale) + x].getRegistryName()).intern();
                 }
             }
         } else if ((scale == 16 && (zLen % 4) == 0) || (scale == 32 && (zLen % 16) == 0)) { //Special efficiency case for scale 16 and 32 to not gobble ram
@@ -87,7 +87,7 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
                 biomeArray = getBiomes(biomeArray, xPos, zPos + (q * zLen * scale / split), xLen * scale, zLen * scale / split);
                 for (int z = 0; z < zLen * scale / split; z += scale) {
                     for (int x = 0; x < xLen * scale; x += scale) {
-                        biomeNames[i++] = String.valueOf(biomeArray[(z * xLen * scale) + x].getRegistryName());
+                        biomeNames[i++] = String.valueOf(biomeArray[(z * xLen * scale) + x].getRegistryName()).intern();
                     }
                 }
             }
@@ -98,7 +98,7 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
                 for (int x = 0; x < xLen; x++) {
                     blockPos.set(xPos + (x * scale), 0, zPos + (z * scale));
                     singleBiome = getBiomes(singleBiome, blockPos.getX(), blockPos.getZ(), 1, 1);
-                    biomeNames[i++] = String.valueOf(singleBiome[0].getRegistryName());
+                    biomeNames[i++] = String.valueOf(singleBiome[0].getRegistryName()).intern();
                 }
             }
         }
