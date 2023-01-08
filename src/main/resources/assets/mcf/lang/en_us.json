@@ -1,13 +1,15 @@
 {
   "itemGroup.mcf": "Magic Cracker Factory",
+
   "item.mcf.universal_remote": "Universal Remote",
   "item.mcf.command_potion": "Command Potion",
   "item.mcf.command_splash_potion": "Command Splash Potion",
   "item.mcf.command_chunk_ring": "Command Chunk Ring",
-  "item.mcf.command_block_ring": "Command Block Potion",
+  "item.mcf.command_block_ring": "Command Block Ring",
   "item.mcf.light.tooltip": "Level: %s",
   "item.mcf.map_guard.tooltip": "§7Normal",
   "item.mcf.lit_map_guard.tooltip": "§eLit",
+
   "block.mcf.cartographer": "Cartographer",
   "block.mcf.terraformer": "Terraformer",
   "block.mcf.sentinel": "Sentinel",
@@ -18,6 +20,7 @@
   "block.mcf.remote_button": "Remote Button",
   "block.mcf.touch_button": "Touch Button",
   "block.mcf.map_guard": "Map Guard",
+
   "peripheral.mcf.tooltip": "§7Hold §E§oShift§7§r§7 for details",
   "peripheral.mcf.tooltip.cc_peripheral": "ComputerCraft Peripheral",
   "peripheral.mcf.cartographer.tooltip": "Used to manipulate maps",
