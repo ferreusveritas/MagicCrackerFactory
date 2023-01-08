@@ -3,8 +3,10 @@ package com.ferreusveritas.mcf.client;
 import com.ferreusveritas.mcf.Registry;
 import com.ferreusveritas.mcf.entity.render.ItemDisplayEntityRenderer;
 import com.ferreusveritas.mcf.item.ColoredItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.entity.SpriteRenderer;
 import net.minecraft.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,7 +18,7 @@ public final class ClientSetup {
 
     public static void registerEntityRenderers() {
         RenderingRegistry.registerEntityRenderingHandler(Registry.ITEM_DISPLAY_ENTITY.get(), ItemDisplayEntityRenderer::new);
-//        RenderingRegistry.registerEntityRenderingHandler(Registry.COMMAND_POTION_ENTITY.get(), manager -> new RenderPotion(manager, Minecraft.getMinecraft().getRenderItem()));
+        RenderingRegistry.registerEntityRenderingHandler(Registry.COMMAND_POTION_ENTITY.get(), manager -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
     }
 
     public static void registerRenderTypes() {

@@ -6,20 +6,23 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PotionEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.network.IPacket;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 public class CommandPotionEntity extends PotionEntity {
 
-    private static final DataParameter<ItemStack> ITEM = EntityDataManager.defineId(PotionEntity.class, DataSerializers.ITEM_STACK);
-
     public CommandPotionEntity(EntityType<? extends CommandPotionEntity> type, World world) {
         super(type, world);
+    }
+
+    public void setup(PlayerEntity thrower, ItemStack item) {
+        this.setOwner(thrower);
+        this.setItem(item);
+        this.setPos(thrower.getX(), thrower.getEyeY() - 0.1F, thrower.getZ());
     }
 
     @Override
@@ -38,23 +41,13 @@ public class CommandPotionEntity extends PotionEntity {
             }
 
             this.level.levelEvent(Constants.WorldEvents.POTION_IMPACT, this.blockPosition(), color);
-            this.kill();
+            this.remove();
         }
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(ITEM, ItemStack.EMPTY);
-    }
-
-    @Override
-    public ItemStack getItem() {
-        return this.getEntityData().get(ITEM);
-    }
-
-    @Override
-    public void setItem(ItemStack stack) {
-        this.getEntityData().set(ITEM, stack);
+    public IPacket<?> getAddEntityPacket() {
+        return NetworkHooks.getEntitySpawningPacket(this);
     }
 
 }
