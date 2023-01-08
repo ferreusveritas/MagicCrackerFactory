@@ -6,11 +6,13 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -27,22 +29,20 @@ public class UniversalRemote extends Item implements ColoredItem {
     }
 
     @Override
-    public ActionResultType useOn(ItemUseContext context) {
-        World world = context.getLevel();
-        PlayerEntity player = context.getPlayer();
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+        ItemStack remoteStack = player.getItemInHand(hand);
 
         if (world.isClientSide) {
-            ItemStack remoteStack = player.getItemInHand(context.getHand());
-
             double range = getRange(remoteStack);
 
-            Vector3d hitPos = context.getClickLocation();
-            BlockPos blockPos = context.getClickedPos();
-            Direction sideHit = context.getClickedFace();
-            sendPacketToServer(hitPos, blockPos, sideHit);
+            RayTraceResult result = player.pick(range, 0, false);
+            if (result.getType() == RayTraceResult.Type.BLOCK) {
+                BlockRayTraceResult blockResult = ((BlockRayTraceResult) result);
+                sendPacketToServer(blockResult.getLocation(), blockResult.getBlockPos(), blockResult.getDirection());
+            }
         }
 
-        return ActionResultType.SUCCESS;
+        return ActionResult.success(remoteStack);
     }
 
     public CompoundNBT getTag(ItemStack itemStack) {
