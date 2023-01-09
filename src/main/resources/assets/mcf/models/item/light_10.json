@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "mcf:items/light10"
+    "layer0": "mcf:items/light_10"
   }
 }
