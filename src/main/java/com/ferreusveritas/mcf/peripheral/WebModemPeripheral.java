@@ -6,8 +6,8 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class WebModemPeripheral extends MCFPeripheral<WebModemTileEntity> {
@@ -30,27 +30,22 @@ public class WebModemPeripheral extends MCFPeripheral<WebModemTileEntity> {
     /**
      * Receives a request from the outside world and passes it to a computer we're attached to.
      *
-     * @param socketHashCode The hash code of the socket the request came in on, used as a connection identifier.
-     * @param computerID     The ID of the computer the request is being sent to.
-     * @param path           The path information provided in the request.
-     * @param params         The additional parameters provided in the request.
+     * @param socketHashCode the hash code of the socket the request came in on, used as a connection identifier
+     * @param computerID     the ID of the computer the request is being sent to
+     * @param path           the path information provided in the request
+     * @param params         the additional parameters provided in the request
+     * @param headers        the header parameters provided in the request
+     * @param data           the actual data for post, put, and patch requests, or otherwise {@code null}
      */
-    public void receiveRequest(int socketHashCode, int computerID, String path, List<String> params) {
+    public void receiveRequest(int socketHashCode, String method, int computerID, String path, Map<String, String> params, Map<String, String> headers, @Nullable String data) {
         IComputerAccess computer = attachedComputers.get(computerID);
 
         if (computer == null) {
             CommsThread.getInstance().transmitResponse(socketHashCode, 404, "Computer ID " + computerID + " is not available.");
         } else {
             // Combine the path and the parameters into a single array
-            Object[] args = new Object[params.size() + 2];
-            args[0] = socketHashCode;
-            args[1] = path;
-
-            for (int i = 0; i < params.size(); i++) {
-                args[i + 2] = params.get(i);
-            }
-
-            computer.queueEvent("webModem_request", args);
+            Object[] args = new Object[]{socketHashCode, path, params, headers, data};
+            computer.queueEvent(method + "_request", args);
         }
     }
 

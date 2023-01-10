@@ -1,21 +1,22 @@
 package com.ferreusveritas.mcf.network;
 
 import com.ferreusveritas.mcf.peripheral.WebModemPeripheral;
+import com.ferreusveritas.mcf.util.StringReader;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Stream;
 
 
 /**
@@ -384,116 +385,102 @@ public class CommsThread extends Thread {
             sc.read(buffer);
         } while (buffer.position() > 0);
 
-        // We have all the data, start processing
-        String input = inputBuilder.toString();
-        String path = "";
-        List<String> params = new ArrayList<String>();
-
-        //System.out.println("Input Received [" + input + "]");
-
-        RequestType mode = RequestType.RAW;
-
-        //Process HTTP Method types
-        if (input.startsWith("GET ")) {
-            mode = RequestType.GET;
-            input = input.substring(4);//Consume "GET "
-        } else if (input.startsWith("HEAD ")) {
-            mode = RequestType.HEAD;
-            input = input.substring(5);//Consume "HEAD "
-        } else if (input.startsWith("POST ")) {
-            mode = RequestType.POST;
-            input = input.substring(5);//Consume "POST "
-        }
-
-        if (mode == RequestType.GET || mode == RequestType.HEAD) {
-            int s = input.indexOf(' ');
-            if (s > 0) {
-                input = input.substring(0, s);//Drop the header data after the URL
-                //TODO: Build request header and pass it to the modem
-            }
-        } else if (mode == RequestType.POST) {
-            transmitResponse(sc.hashCode(), 405, "Bad Request: Method Not Allowed: " + mode);
-            return true;
-        } else if (mode == RequestType.RAW) {
-            mode = RequestType.GET;//Assume GET without the proper tag
-        }
-
-
-        // First, break apart path and query string
-        int split = input.indexOf('?');
-        if (split > 0) {
-            // First part is the URL path
-            path = input.substring(0, split);
-
-            // The rest is all parameter data concatenated together
-            String paramData = input.substring(split + 1);
-            String[] paramPairs = paramData.split("&");
-            for (String pair : paramPairs) {
-                params.add(URLDecoder.decode(pair, "UTF-8"));
-            }
-        } else {
-            // No parameters specified
-            path = input;
-        }
-
-        // Remove any leading/trailing whitespace
-        path = path.trim();
-
-        // Now we have an absolute path and parameter data, next we need to examine the path.
-
-        //DEBUG
-        //System.out.println("Received request for [" + path + "] with parameters [" + params.toString() + "]");
-        //ByteBuffer test = ByteBuffer.allocate(1024);
-        //test.put("test\n".getBytes("UTF-8"));
-        //test.flip();
-        //sc.write(test);
-        //DEBUG
-
-        // Strip any leading slashes
-        if (path.length() > 0) {
-            while (path.startsWith("/")) {
-                path = path.substring(1);
-            }
-        }
-
-        // Break the path into computer ID and everything else
-        String computerID = "";
-        int computerIDint = 0;
-        String remainingPath = "";
-
-        // Path format is <computerId>[/optional further path]
-        split = path.indexOf('/');
-
-        if (split > 0) {
-            computerID = path.substring(0, split);
-            remainingPath = path.substring(split + 1);
-        } else {
-            computerID = path;
-        }
-
         try {
-            computerIDint = Integer.parseInt(computerID);
-        } catch (NumberFormatException e) {
-            //System.out.print("Bad Request: Computer ID must be a valid integer [" + computerID + "]");
-            transmitResponse(sc.hashCode(), 400, "Bad Request: Computer ID must be a valid integer");
-        }
+            // We have all the data, start processing
+            String[] input = inputBuilder.toString().split("\n");
+            StringReader firstLine = new StringReader(input[0]);
 
-        if (modems.containsKey(computerIDint)) {
-            //System.out.print("Computer ID processing [" + computerIDint + "]");
-            WebModemPeripheral modem = modems.get(computerIDint);
-            modem.receiveRequest(sc.hashCode(), computerIDint, remainingPath, params);
-        } else {
-            //System.out.print("Object Not Found: The specified computer ID does not exist or is not ready.");
-            transmitResponse(sc.hashCode(), 404, "Object Not Found: The specified computer ID does not exist or is not ready.");
+            RequestType method = RequestType.of(firstLine.readUntilAndConsume(' '));
+
+            if (method == RequestType.NONE) {
+                transmitResponse(sc.hashCode(), 405, "Bad Request: Method not allowed");
+                return true;
+            }
+
+            // Strip any leading slashes
+            firstLine.readUntilAndConsume('/');
+
+            // Break the path into computer ID and everything else
+            int computerID = readComputerID(sc, firstLine);
+            if (computerID == -1) {
+                return true;
+            }
+
+            String remainingPath = firstLine.peekLast() == '/' ? firstLine.readUntilAndConsume('?', ' ') : "";
+
+            Map<String, String> params = new HashMap<>();
+            readParams(firstLine, params);
+
+            Map<String, String> headers = new HashMap<>();
+            int dataStart = -1;
+
+            for (int i = 1; i < input.length; i++) {
+                // Empty line indicates start of content for post and put
+                String line = input[i].trim();
+                if (line.isEmpty()) {
+                    dataStart = i + 1;
+                    break;
+                }
+                StringReader lineReader = new StringReader(line);
+                String key = lineReader.readUntilAndConsume(':');
+                String value = lineReader.getRemaining().trim();
+                headers.put(key, value);
+            }
+
+            String data = dataStart > -1 ? String.join("\n", Arrays.copyOfRange(input, dataStart, input.length)) : null;
+
+            if (modems.containsKey(computerID)) {
+                WebModemPeripheral modem = modems.get(computerID);
+                modem.receiveRequest(sc.hashCode(), method.name(), computerID, remainingPath, params, headers, data);
+            } else {
+                transmitResponse(sc.hashCode(), 404, "Object Not Found: The specified computer ID does not exist or is not ready.");
+            }
+
+        } catch (Exception e) {
+            transmitResponse(sc.hashCode(), 500, "Server error: Error processing request.");
+            LogManager.getLogger().error("Error processing request data.", e);
         }
 
         return true;
     }
 
+    private int readComputerID(SocketChannel sc, StringReader firstLine) {
+        String computerID = firstLine.readUntilAndConsume('/', ' ', '?');
+        int computerIDi;
+        try {
+            computerIDi = Integer.parseInt(computerID);
+        } catch (NumberFormatException e) {
+            transmitResponse(sc.hashCode(), 400, "Bad Request: Computer ID must be a valid integer");
+            computerIDi = -1;
+        }
+        return computerIDi;
+    }
+
+    private static void readParams(StringReader firstLine, Map<String, String> params) {
+        while (firstLine.hasRemaining() && firstLine.peekLast() == '?') {
+            String key = firstLine.readUntilAndConsume('=', ' ');
+            // If we stopped because of a space, param invalid
+            if (firstLine.peekLast() == ' ') {
+                break;
+            }
+            String value = firstLine.readUntilAndConsume('&', ' ');
+            params.put(key, value);
+        }
+    }
+
     enum RequestType {
-        RAW,
-        GET,
+        NONE,
         HEAD,
-        POST
+        GET,
+        POST,
+        PUT,
+        PATCH,
+        DELETE;
+
+        static RequestType of(String name) {
+            return Stream.of(HEAD, GET, POST, PUT, PATCH, DELETE)
+                    .filter(type -> type.toString().equals(name))
+                    .findFirst().orElse(NONE);
+        }
     }
 }
