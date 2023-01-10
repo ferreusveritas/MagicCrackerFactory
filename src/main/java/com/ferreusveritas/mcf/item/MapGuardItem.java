@@ -25,10 +25,14 @@ public class MapGuardItem extends BlockItem {
         this.lit = lit;
     }
 
+    public BlockState getPlacementState() {
+        return getBlock().defaultBlockState().setValue(MapGuardBlock.LIT, this.lit);
+    }
+
     @Nullable
     @Override
     protected BlockState getPlacementState(BlockItemUseContext context) {
-        return getBlock().defaultBlockState().setValue(MapGuardBlock.LIT, this.lit);
+        return getPlacementState();
     }
 
     @Override
