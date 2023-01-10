@@ -83,8 +83,8 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int setMapScale(int mapNum, byte scale) {
-        block.getMapData(mapNum).scale = scale;
+    public int setMapScale(int mapNum, int scale) {
+        block.getMapData(mapNum).scale = (byte) scale;
         return 0;
     }
 
