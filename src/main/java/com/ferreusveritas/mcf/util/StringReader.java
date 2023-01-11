@@ -38,35 +38,13 @@ public class StringReader {
         while (hasRemaining() && peek() != character) {
             stringBuilder.append(read());
         }
+        if (hasRemaining()) {
+            this.read();
+        }
         return stringBuilder.toString();
     }
 
     public String readUntil(char character, Character... stopAfter) {
-        StringBuilder stringBuilder = new StringBuilder();
-        Set<Character> stopAfterChars = Sets.newHashSet(stopAfter);
-        while (hasRemaining()) {
-            char next = peek();
-            if (next == character) {
-                break;
-            } else if (stopAfterChars.contains(next)) {
-                skip();
-                break;
-            }
-            skip();
-            stringBuilder.append(next);
-        }
-        return stringBuilder.toString();
-    }
-
-    public String readUntilAndConsume(char character) {
-        String returnString = readUntil(character);
-        if (hasRemaining()) {
-            this.read();
-        }
-        return returnString;
-    }
-
-    public String readUntilAndConsume(char character, Character... stopAfter) {
         StringBuilder stringBuilder = new StringBuilder();
         Set<Character> stopAfterChars = Sets.newHashSet(stopAfter);
         while (hasRemaining()) {
@@ -90,7 +68,7 @@ public class StringReader {
     }
 
     public void skipUntil(char character) {
-        while (hasRemaining() && read() == character) {
+        while (hasRemaining() && read() != character) {
         }
     }
 
