@@ -3,7 +3,6 @@ package com.ferreusveritas.mcf.peripheral;
 import com.ferreusveritas.mcf.tileentity.TerraformerTileEntity;
 import com.ferreusveritas.mcf.util.biome.BiomeSetter;
 import com.ferreusveritas.mcf.util.biome.DefaultMagnifierBiomeSetter;
-import com.ferreusveritas.mcf.util.biome.FuzzedMagnifierBiomeSetter;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -12,6 +11,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -35,6 +35,11 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
     }
 
     @LuaFunction
+    public String[] getBiomeNames() {
+        return getBiomeRegistry().stream().map(Biome::getRegistryName).map(ResourceLocation::toString).toArray(String[]::new);
+    }
+
+    @LuaFunction
     public void setBiome(int xStart, int zStart, int xEnd, int zEnd, String biomeName) throws LuaException {
         setBiome3D(xStart, 0, zStart, xEnd, 0, zEnd, biomeName);
     }
@@ -54,7 +59,11 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
     }
 
     private Biome getBiome(ResourceLocation biomeName) {
-        return block.getLevel().getServer().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).get(biomeName);
+        return getBiomeRegistry().get(biomeName);
+    }
+
+    private MutableRegistry<Biome> getBiomeRegistry() {
+        return block.getLevel().getServer().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
     }
 
     /**
