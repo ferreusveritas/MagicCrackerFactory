@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class WebModemPeripheral extends MCFPeripheral<WebModemTileEntity> {
 
@@ -57,7 +58,7 @@ public class WebModemPeripheral extends MCFPeripheral<WebModemTileEntity> {
 
     @Override
     public void detach(@Nonnull IComputerAccess computer) {
-        CommsThread.getInstance().unregisterModem(computer.getID());
+        Optional.ofNullable(CommsThread.getInstance()).ifPresent(comms -> comms.unregisterModem(computer.getID()));
         attachedComputers.remove(computer.getID());
     }
 }
