@@ -390,7 +390,7 @@ public class CommsThread extends Thread {
             String[] input = inputBuilder.toString().split("\n");
             StringReader firstLine = new StringReader(input[0]);
 
-            RequestType method = RequestType.of(firstLine.readUntilAndConsume(' '));
+            RequestType method = RequestType.of(firstLine.readUntil(' '));
 
             if (method == RequestType.NONE) {
                 transmitResponse(sc.hashCode(), 405, "Bad Request: Method not allowed");
@@ -398,7 +398,7 @@ public class CommsThread extends Thread {
             }
 
             // Strip any leading slashes
-            firstLine.readUntilAndConsume('/');
+            firstLine.skipWhile('/');
 
             // Break the path into computer ID and everything else
             int computerID = readComputerID(sc, firstLine);
@@ -406,11 +406,16 @@ public class CommsThread extends Thread {
                 return true;
             }
 
-            String remainingPath = firstLine.peekLast() == '/' ? firstLine.readUntilAndConsume('?', ' ') : "";
+            String remainingPath = firstLine.peekLast() == '/' ? firstLine.readUntil('?', ' ') : "";
 
+            // Reads GET params. Expected format is, for example, `key1=value1&key2=value2`
             Map<String, String> params = new HashMap<>();
-            readParams(firstLine, params);
+            if (firstLine.peekLast() == '?') {
+                readParams(firstLine, params);
+            }
 
+            // Reads headers. Expected format is for each new header to be on a new line and each formatted `Header-Key: Header-Value`
+            // A blank line indicates the end of the header.
             Map<String, String> headers = new HashMap<>();
             int dataStart = -1;
 
@@ -422,11 +427,12 @@ public class CommsThread extends Thread {
                     break;
                 }
                 StringReader lineReader = new StringReader(line);
-                String key = lineReader.readUntilAndConsume(':');
+                String key = lineReader.readUntil(':');
                 String value = lineReader.getRemaining().trim();
                 headers.put(key, value);
             }
 
+            // Collects data, if any is included
             String data = dataStart > -1 ? String.join("\n", Arrays.copyOfRange(input, dataStart, input.length)) : null;
 
             if (modems.containsKey(computerID)) {
@@ -437,7 +443,7 @@ public class CommsThread extends Thread {
             }
 
         } catch (Exception e) {
-            transmitResponse(sc.hashCode(), 500, "Server error: Error processing request.");
+            transmitResponse(sc.hashCode(), 500, "Server error: Exception thrown whilst processing request.");
             LogManager.getLogger().error("Error processing request data.", e);
         }
 
@@ -445,7 +451,7 @@ public class CommsThread extends Thread {
     }
 
     private int readComputerID(SocketChannel sc, StringReader firstLine) {
-        String computerID = firstLine.readUntilAndConsume('/', ' ', '?');
+        String computerID = firstLine.readUntil('/', ' ', '?');
         int computerIDi;
         try {
             computerIDi = Integer.parseInt(computerID);
@@ -457,13 +463,17 @@ public class CommsThread extends Thread {
     }
 
     private static void readParams(StringReader firstLine, Map<String, String> params) {
-        while (firstLine.hasRemaining() && firstLine.peekLast() == '?') {
-            String key = firstLine.readUntilAndConsume('=', ' ');
+        while (firstLine.hasRemaining() && firstLine.peekLast() != ' ') {
+            String key = firstLine.readUntil('=', ' ', '&');
             // If we stopped because of a space, param invalid
             if (firstLine.peekLast() == ' ') {
                 break;
             }
-            String value = firstLine.readUntilAndConsume('&', ' ');
+            // If we stopped because of an &, param invalid so move on to next
+            if (firstLine.peekLast() == '&') {
+                continue;
+            }
+            String value = firstLine.readUntil('&', ' ');
             params.put(key, value);
         }
     }
