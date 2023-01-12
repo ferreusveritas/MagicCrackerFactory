@@ -1,8 +1,17 @@
 package com.ferreusveritas.mcf.peripheral;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import com.ferreusveritas.mcf.tileentity.TerraformerTileEntity;
 import com.ferreusveritas.mcf.util.biome.BiomeSetter;
 import com.ferreusveritas.mcf.util.biome.DefaultMagnifierBiomeSetter;
+
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -19,10 +28,9 @@ import net.minecraft.world.chunk.IChunkLightProvider;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerChunkProvider;
 
-import javax.annotation.Nullable;
-import java.util.*;
-
 public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> {
+
+    private final Map<Biome, Byte> byteMap = new HashMap<>();
 
     public TerraformerPeripheral(TerraformerTileEntity block) {
         super(block);
@@ -99,56 +107,55 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
         String[] biomeNames = new String[xLen * zLen];
         int i = 0;//Java arrays start with 0
 
-        if (scale == 1) { //Special efficiency case for scale 1
-            Biome[] biomeArray = getBiomes(null, xPos, zPos, xLen, zLen);
-            for (Biome b : biomeArray) {
-                biomeNames[i++] = String.valueOf(b.getRegistryName()).intern();
-            }
-        } else if (scale == 2 || scale == 4 || scale == 8) { //Special efficiency case for scale 2, 4 and 8
-            //On 64 bit java this can temporarily eat some big memory since an object reference is 8 bytes..
-            Biome[] biomeArray = getBiomes(null, xPos, zPos, xLen * scale, zLen * scale);
-            for (int z = 0; z < zLen * scale; z += scale) {
-                for (int x = 0; x < xLen * scale; x += scale) {
-                    biomeNames[i++] = String.valueOf(biomeArray[(z * xLen * scale) + x].getRegistryName()).intern();
-                }
-            }
-        } else if ((scale == 16 && (zLen % 4) == 0) || (scale == 32 && (zLen % 16) == 0)) { //Special efficiency case for scale 16 and 32 to not gobble ram
-            int split = scale == 16 ? 4 : 16;
-            Biome[] biomeArray = new Biome[xLen * scale * zLen * scale / split];
-            for (int q = 0; q < split; q++) {
-                biomeArray = getBiomes(biomeArray, xPos, zPos + (q * zLen * scale / split), xLen * scale, zLen * scale / split);
-                for (int z = 0; z < zLen * scale / split; z += scale) {
-                    for (int x = 0; x < xLen * scale; x += scale) {
-                        biomeNames[i++] = String.valueOf(biomeArray[(z * xLen * scale) + x].getRegistryName()).intern();
-                    }
-                }
-            }
-        } else { //Diminishing returns on the above strategy after this point.  Just sample each biome by individual block
-            BlockPos.Mutable blockPos = new BlockPos.Mutable();
-            Biome[] singleBiome = new Biome[1];
-            for (int z = 0; z < zLen; z++) {
-                for (int x = 0; x < xLen; x++) {
-                    blockPos.set(xPos + (x * scale), 0, zPos + (z * scale));
-                    singleBiome = getBiomes(singleBiome, blockPos.getX(), blockPos.getZ(), 1, 1);
-                    biomeNames[i++] = String.valueOf(singleBiome[0].getRegistryName()).intern();
-                }
+        for (int z = 0; z < zLen; ++z) {
+            for (int x = 0; x < xLen; ++x) {
+                Biome biome = block.getLevel().getBiome(new BlockPos(xPos + x * scale, 0, zPos + z * scale));
+                biomeNames[i++] = String.valueOf(biome.getRegistryName()).intern();
             }
         }
 
         return biomeNames;
     }
 
-    private Biome[] getBiomes(@Nullable Biome[] biomes, int startX, int startZ, int xLen, int zLen) {
-        int size = xLen * zLen;
-        if (biomes == null) {
-            biomes = new Biome[size];
-        }
-        for (int x = 0; x < xLen; ++x) {
-            for (int z = 0; z < zLen; ++z) {
-                biomes[z * xLen + x] = block.getLevel().getBiome(new BlockPos(startX + x, 0, startZ + z));
+    @SuppressWarnings("rawtypes")
+    @LuaFunction
+    public int setBiomeByteMapping(Map mapping) {
+        byteMap.clear();
+        @SuppressWarnings("unchecked")
+        Map<Object, Object> objMapping = mapping;
+        for(Entry<Object, Object> entry : objMapping.entrySet()) {
+            Object key = entry.getKey();
+            if(key instanceof String) {
+                String biomeName = (String)entry.getKey();
+                Biome biome = getBiome(new ResourceLocation(biomeName));
+                if(biome != null) {
+                    Object val = entry.getValue();
+                    if(val instanceof Number) {
+                        Number num = (Number)val;
+                        byte bVal = num.byteValue();
+                        byteMap.put(biome, bVal);
+                    }
+                }
             }
         }
-        return biomes;
+        return 0;
+    }
+
+    @LuaFunction
+    public String getBiomeByteArray(int xPos, int zPos, int xLen, int zLen, int scale) {
+        scale = Math.max(1, scale);
+
+        byte[] bytes = new byte[xLen * zLen];
+        int i = 0;
+
+        for (int z = 0; z < zLen; ++z) {
+            for (int x = 0; x < xLen; ++x) {
+                Biome biome = block.getLevel().getBiome(new BlockPos(xPos + x * scale, 0, zPos + z * scale));
+                byte bVal = byteMap.getOrDefault(biome, (byte)0);
+                bytes[i++] = bVal;
+            }
+        }
+        return new String(bytes, StandardCharsets.ISO_8859_1);
     }
 
     @LuaFunction
