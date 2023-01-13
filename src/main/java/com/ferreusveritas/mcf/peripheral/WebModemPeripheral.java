@@ -23,7 +23,7 @@ public class WebModemPeripheral extends MCFPeripheral<WebModemTileEntity> {
      * Send a reply back to the outside world.
      */
     @LuaFunction
-    public int sendReply(int socketHashCode, int responseCode, String responseData) {
+    public final int sendReply(int socketHashCode, int responseCode, String responseData) {
         CommsThread.getInstance().transmitResponse(socketHashCode, responseCode, responseData);
         return 0;
     }

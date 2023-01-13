@@ -116,65 +116,65 @@ public class SentinelPeripheral extends MCFPeripheral<SentinelTileEntity> {
     }
 
     @LuaFunction
-    public void addCuboidBounds(String name, String boundsType, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) throws LuaException {
+    public final void addCuboidBounds(String name, String boundsType, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) throws LuaException {
         StorageBounds.BoundsType type = validateBoundsType(boundsType);
         getZoneManager().addCuboidBounds(type, name, minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     @LuaFunction
-    public void addCylinderBounds(String name, String boundsType, int x, int z, int minY, int maxY, int radius) throws LuaException {
+    public final void addCylinderBounds(String name, String boundsType, int x, int z, int minY, int maxY, int radius) throws LuaException {
         StorageBounds.BoundsType type = validateBoundsType(boundsType);
         getZoneManager().addCylinderBounds(type, name, x, z, minY, maxY, radius);
     }
 
     @LuaFunction
-    public void addAnyBounds(String name, String boundsType) throws LuaException {
+    public final void addAnyBounds(String name, String boundsType) throws LuaException {
         StorageBounds.BoundsType type = validateBoundsType(boundsType);
         getZoneManager().addAnyBounds(type, name);
     }
 
     @LuaFunction
-    public void remBounds(String name) throws LuaException {
+    public final void remBounds(String name) throws LuaException {
         getZoneManager().remBounds(name);
     }
 
     @LuaFunction
-    public Object[] listBounds() {
+    public final Object[] listBounds() {
         return getZoneManager().listBounds();
     }
 
     @LuaFunction
-    public void addEntityFilter(String boundsName, String filterName, String filterType, String filterData) throws LuaException {
+    public final void addEntityFilter(String boundsName, String filterName, String filterType, String filterData) throws LuaException {
         getZoneManager().addEntityFilter(boundsName, filterName, filterType, filterData);
     }
 
     @LuaFunction
-    public void remEntityFilter(String boundsName, String filterName) throws LuaException {
+    public final void remEntityFilter(String boundsName, String filterName) throws LuaException {
         getZoneManager().remEntityFilter(boundsName, filterName);
     }
 
     @LuaFunction
-    public Map<String, Object> getBoundsData(String name) throws LuaException {
+    public final Map<String, Object> getBoundsData(String name) throws LuaException {
         return getZoneManager().getBoundsDataLua(name);
     }
 
     @LuaFunction
-    public Object[] getEntitiesInBounds(String name) {
+    public final Object[] getEntitiesInBounds(String name) {
         return getZoneManager().getEntitiesInBounds(block.getLevel(), name, Entity.class);
     }
 
     @LuaFunction
-    public Object[] getPlayersInBounds(String name) {
+    public final Object[] getPlayersInBounds(String name) {
         return getZoneManager().getPlayersInBounds(block.getLevel(), name);
     }
 
     @LuaFunction
-    public Map<String, Object> rayTrace(int startX, int startY, int startZ, int endX, int endY, int endZ, boolean checkEntities) {
+    public final Map<String, Object> rayTrace(int startX, int startY, int startZ, int endX, int endY, int endZ, boolean checkEntities) {
         return doRayTrace(block.getLevel(), new Vector3d(startX, startY, startX), new Vector3d(endX, endY, endZ), checkEntities);
     }
 
     @LuaFunction
-    public Object[] rayTraceBatch(Object lineSegmentArray, boolean checkEntities) {
+    public final Object[] rayTraceBatch(Object lineSegmentArray, boolean checkEntities) {
         ArrayList<Tuple<Vector3d, Vector3d>> lineSegments = getLineSegmentsFromLuaObject(lineSegmentArray);
         return doRayTraceBatch(block.getLevel(), lineSegments, checkEntities);
     }

@@ -27,7 +27,7 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int getMapPixel(int mapNum, int x, int z) {
+    public final int getMapPixel(int mapNum, int x, int z) {
         if (x >= 0 && x < 128 && z >= 0 && z < 128) {
             return block.getMapData(mapNum).colors[x + z * 128];
         }
@@ -35,7 +35,7 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int setMapPixel(int mapNum, int x, int z, int colorFull) {
+    public final int setMapPixel(int mapNum, int x, int z, int colorFull) {
         if (x >= 0 && x < 128 && z >= 0 && z < 128) {
             block.getMapData(mapNum).colors[x + z * 128] = (byte) (colorFull >= 0 && colorFull <= (51 * 4) ? colorFull : 0);
         }
@@ -43,13 +43,13 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public Object[] getMapPixels(int mapNum) {
+    public final Object[] getMapPixels(int mapNum) {
         byte[] colors = block.getMapData(mapNum).colors;
         return new Object[]{Arrays.copyOf(colors, colors.length)};
     }
 
     @LuaFunction
-    public int setMapPixels(int mapNum, String data) {
+    public final int setMapPixels(int mapNum, String data) {
         char[] charArray = data.toCharArray();
         MapData mapData = block.getMapData(mapNum);
         byte[] byteArray = mapData.colors;
@@ -65,12 +65,12 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int getMapCenter(int mapNum) {
+    public final int getMapCenter(int mapNum) {
         return block.getMapData(mapNum).x;
     }
 
     @LuaFunction
-    public int setMapCenter(int mapNum, int x, int z) {
+    public final int setMapCenter(int mapNum, int x, int z) {
         MapData mapData = block.getMapData(mapNum);
         mapData.x = x;
         mapData.z = z;
@@ -78,34 +78,34 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int getMapScale(int mapNum) {
+    public final int getMapScale(int mapNum) {
         return block.getMapData(mapNum).scale;
     }
 
     @LuaFunction
-    public int setMapScale(int mapNum, int scale) {
+    public final int setMapScale(int mapNum, int scale) {
         block.getMapData(mapNum).scale = (byte) scale;
         return 0;
     }
 
     @LuaFunction
-    public boolean getMapLocked(int mapNum) {
+    public final boolean getMapLocked(int mapNum) {
         return block.getMapData(mapNum).locked;
     }
 
     @LuaFunction
-    public int setMapLocked(int mapNum, boolean locked) {
+    public final int setMapLocked(int mapNum, boolean locked) {
         block.getMapData(mapNum).locked = locked;
         return 0;
     }
 
     @LuaFunction
-    public String getMapDimension(int mapNum) {
+    public final String getMapDimension(int mapNum) {
         return block.getMapData(mapNum).dimension.location().toString();
     }
 
     @LuaFunction
-    public int setMapDimension(int mapNum, String dimension) throws LuaException {
+    public final int setMapDimension(int mapNum, String dimension) throws LuaException {
         ResourceLocation dimensionLocation = ResourceLocation.tryParse(dimension);
         if (dimensionLocation == null) {
             throw new LuaException("Invalid resource location for dimension argument");
@@ -115,7 +115,7 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int copyMap(int srcMapNum, int destMapNum) {
+    public final int copyMap(int srcMapNum, int destMapNum) {
         MapData srcMapData = block.getMapData(srcMapNum);
         MapData destMapData = block.getMapData(destMapNum);
 
@@ -141,7 +141,7 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int swapMapData(int mapNumA, int mapNumB) {
+    public final int swapMapData(int mapNumA, int mapNumB) {
         MapData mapDataA = block.getMapData(mapNumA);
         MapData mapDataB = block.getMapData(mapNumB);
 
@@ -206,7 +206,7 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int updateMap(int mapNum) {
+    public final int updateMap(int mapNum) {
         MapData mapData = block.getMapData(mapNum);
         mapData.setDirty(); // Mark as dirty so the changes save to disk
         IPacket<?> packet = new SMapDataPacket(mapNum, mapData.scale, mapData.trackingPosition, mapData.locked, mapData.decorations.values(), mapData.colors, 0, 0, 128, 128);
@@ -221,13 +221,13 @@ public class CartographerPeripheral extends MCFPeripheral<CartographerTileEntity
     }
 
     @LuaFunction
-    public int getBlockMapColor(int x, int y, int z) {
+    public final int getBlockMapColor(int x, int y, int z) {
         BlockPos pos = new BlockPos(x, y, z);
         return block.getLevel().getBlockState(pos).getMapColor(block.getLevel(), pos).col;
     }
 
     @LuaFunction
-    public Object[] getRGBfromMapColor(int i) {
+    public final Object[] getRGBfromMapColor(int i) {
         int arg = i;
         int color = arg >> 2;
         int index = arg & 3;

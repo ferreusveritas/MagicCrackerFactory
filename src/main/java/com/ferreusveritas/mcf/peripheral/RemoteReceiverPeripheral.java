@@ -138,39 +138,40 @@ public class RemoteReceiverPeripheral extends MCFPeripheral<RemoteReceiverTileEn
     }
 
     @LuaFunction
-    public int connect() {
+    public final int connect() {
         CONNECTIONS.add(this);
         return CONNECTIONS.size();
     }
 
     @LuaFunction
-    public int disconnect() {
+    public final int disconnect() {
         CONNECTIONS.remove(this);
         return CONNECTIONS.size();
     }
 
     @LuaFunction
-    public int setBounds(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    public final int setBounds(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         bounds = new CuboidBounds(Arrays.asList(new BlockPos(minX, minY, minZ), new BlockPos(maxX, maxY, maxZ)));
         return 0;
     }
 
     @LuaFunction
-    public int clearBounds() {
+    public final int clearBounds() {
         bounds = null;
         return 0;
     }
 
     @LuaFunction
-    public int touchButton(int x, int y, int z) {
+    public final int touchButton(int x, int y, int z) {
         BlockPos pos = new BlockPos(x, y, z);
         BlockState state = block.getLevel().getBlockState(pos);
         Block block = state.getBlock();
         if (block instanceof TouchButtonBlock) {
             TouchButtonBlock touchButton = (TouchButtonBlock) block;
             touchButton.touchPress(this.block.getLevel(), pos, state);
+            return 0;
         }
-        return 0;
+        return 1;
     }
 
     public boolean isInBounds(BlockPos pos) {

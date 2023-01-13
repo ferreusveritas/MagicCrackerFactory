@@ -37,23 +37,23 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
     }
 
     @LuaFunction
-    public String getBiome(int x, int z) {
+    public final String getBiome(int x, int z) {
         Biome biome = block.getLevel().getBiome(new BlockPos(x, 0, z));
         return String.valueOf(biome == null ? null : biome.getRegistryName());
     }
 
     @LuaFunction
-    public String[] getBiomeNames() {
+    public final String[] getBiomeNames() {
         return getBiomeRegistry().stream().map(Biome::getRegistryName).map(ResourceLocation::toString).toArray(String[]::new);
     }
 
     @LuaFunction
-    public void setBiome(int xStart, int zStart, int xEnd, int zEnd, String biomeName) throws LuaException {
+    public final void setBiome(int xStart, int zStart, int xEnd, int zEnd, String biomeName) throws LuaException {
         setBiome3D(xStart, 0, zStart, xEnd, 0, zEnd, biomeName);
     }
 
     @LuaFunction
-    public void setBiome3D(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, String biomeName) throws LuaException {
+    public final void setBiome3D(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, String biomeName) throws LuaException {
         try {
             Biome biome = getBiome(new ResourceLocation(biomeName));
             if (biome != null) {
@@ -101,7 +101,7 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
     }
 
     @LuaFunction
-    public String[] getBiomeArray(int xPos, int zPos, int xLen, int zLen, int scale) {
+    public final String[] getBiomeArray(int xPos, int zPos, int xLen, int zLen, int scale) {
         scale = Math.max(1, scale);
 
         String[] biomeNames = new String[xLen * zLen];
@@ -119,7 +119,7 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
 
     @SuppressWarnings("rawtypes")
     @LuaFunction
-    public int setBiomeByteMapping(Map mapping) {
+    public final int setBiomeByteMapping(Map mapping) {
         byteMap.clear();
         @SuppressWarnings("unchecked")
         Map<Object, Object> objMapping = mapping;
@@ -142,7 +142,7 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
     }
 
     @LuaFunction
-    public String getBiomeByteArray(int xPos, int zPos, int xLen, int zLen, int scale) {
+    public final String getBiomeByteArray(int xPos, int zPos, int xLen, int zLen, int scale) {
         scale = Math.max(1, scale);
 
         byte[] bytes = new byte[xLen * zLen];
@@ -159,12 +159,12 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
     }
 
     @LuaFunction
-    public int getYTop(int x, int z, boolean solid) {
+    public final int getYTop(int x, int z, boolean solid) {
         return block.getLevel().getHeight(solid ? Heightmap.Type.MOTION_BLOCKING : Heightmap.Type.WORLD_SURFACE, x, z);
     }
 
     @LuaFunction
-    public Object getYTopArray(int xPos, int zPos, int xLen, int zLen, int scale, boolean solid) {
+    public final Object getYTopArray(int xPos, int zPos, int xLen, int zLen, int scale, boolean solid) {
         scale = MathHelper.clamp(scale, 1, scale);
 
         Map<Integer, Integer> heights = new HashMap<>();
@@ -185,16 +185,16 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
     }
 
     @LuaFunction
-    public float getTemperature(int x, int y, int z) {
+    public final float getTemperature(int x, int y, int z) {
         BlockPos pos = new BlockPos(x, y, z);
         return block.getLevel().getBiome(pos).getTemperature(pos);
     }
 
-    @LuaFunction
-    public void generateChunk(int x, int z) {
-        IChunkLightProvider chunkSource = block.getLevel().getChunkSource();
-        if (chunkSource instanceof ServerChunkProvider) {
-            ServerChunkProvider chunkProvider = (ServerChunkProvider) chunkSource;
+//    @LuaFunction
+//    public final void generateChunk(int x, int z) {
+//        IChunkLightProvider chunkSource = block.getLevel().getChunkSource();
+//        if (chunkSource instanceof ServerChunkProvider) {
+//            ServerChunkProvider chunkProvider = (ServerChunkProvider) chunkSource;
 //            Chunk chunk = chunkProvider.generator.generate(x, z);
 //            long encChunkPos = ChunkPos.asLong(x, z);
 //            chunkProvider.id2ChunkMap.put(encChunkPos, chunk);
@@ -207,7 +207,7 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
 //                    ((EntityPlayerMP) player).connection.sendPacket(packet);
 //                }
 //            }
-        }
-    }
+//        }
+//    }
 
 }
