@@ -4,10 +4,14 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.arguments.ArgumentSerializer;
+import net.minecraft.command.arguments.ArgumentTypes;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.ferreusveritas.mcf.MCF.MOD_ID;
 
 public class ListArgumentType implements ArgumentType<List<String>> {
 
@@ -18,6 +22,10 @@ public class ListArgumentType implements ArgumentType<List<String>> {
 
     public static ListArgumentType list() {
         return INSTANCE;
+    }
+
+    public static void register() {
+        ArgumentTypes.register(MOD_ID + ":list", ListArgumentType.class, new ArgumentSerializer<>(ListArgumentType::list));
     }
 
     @SuppressWarnings("unchecked")

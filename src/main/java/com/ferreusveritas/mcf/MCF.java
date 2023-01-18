@@ -1,6 +1,7 @@
 package com.ferreusveritas.mcf;
 
 import com.ferreusveritas.mcf.client.ClientSetup;
+import com.ferreusveritas.mcf.command.ListArgumentType;
 import com.ferreusveritas.mcf.command.ProxCommand;
 import com.ferreusveritas.mcf.datagen.MCFBlockTagProvider;
 import com.ferreusveritas.mcf.datagen.MCFItemTagProvider;
@@ -61,6 +62,8 @@ public class MCF {
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
         MinecraftForge.EVENT_BUS.addListener(this::serverStopping);
+
+        ListArgumentType.register();
     }
 
     public static ResourceLocation location(String path) {
