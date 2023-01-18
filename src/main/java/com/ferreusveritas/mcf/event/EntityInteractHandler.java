@@ -5,7 +5,6 @@ import com.ferreusveritas.mcf.Registry;
 import com.ferreusveritas.mcf.item.MapGuardItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.SoundCategory;
@@ -27,8 +26,10 @@ public class EntityInteractHandler {
         if (event.getTarget() instanceof ItemFrameEntity &&
                 event.getItemStack().getItem() instanceof MapGuardItem &&
                 event.getWorld().getBlockState(event.getPos()).getBlock() != Registry.MAP_GUARD_BLOCK.get() &&
-                !Screen.hasShiftDown()) {
-            placeBlock(event);
+                !event.getPlayer().isShiftKeyDown()) {
+            if (!event.getWorld().isClientSide) {
+                placeBlock(event);
+            }
             event.setCanceled(true);
             event.setCancellationResult(ActionResultType.SUCCESS);
         }
