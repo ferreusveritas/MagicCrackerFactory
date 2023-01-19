@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class MapGuardItem extends BlockItem {
+public class MapGuardItem extends BlockItem implements ColoredItem {
 
     private final boolean lit;
 
@@ -47,4 +47,11 @@ public class MapGuardItem extends BlockItem {
         }
     }
 
+    @Override
+    public int getColor(ItemStack stack, int tintIndex) {
+        if (tintIndex == 1) {
+            return -12173266;
+        }
+        return -1;
+    }
 }

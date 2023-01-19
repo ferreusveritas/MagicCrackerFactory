@@ -141,8 +141,8 @@ public class Registry {
     //////////////////////////////////////////////
 
     public static final RegistryObject<Block> MAP_GUARD_BLOCK = BLOCKS.register("map_guard", MapGuardBlock::new);
-    public static final RegistryObject<Item> MAP_GUARD_ITEM = ITEMS.register("map_guard", () -> new MapGuardItem(MAP_GUARD_BLOCK.get(), itemProperties(), false));
-    public static final RegistryObject<Item> LIT_MAP_GUARD_ITEM = ITEMS.register("lit_map_guard", () -> new MapGuardItem(MAP_GUARD_BLOCK.get(), itemProperties(), true));
+    public static final RegistryObject<MapGuardItem> MAP_GUARD_ITEM = ITEMS.register("map_guard", () -> new MapGuardItem(MAP_GUARD_BLOCK.get(), itemProperties(), false));
+    public static final RegistryObject<MapGuardItem> LIT_MAP_GUARD_ITEM = ITEMS.register("lit_map_guard", () -> new MapGuardItem(MAP_GUARD_BLOCK.get(), itemProperties(), true));
 
     public static final RegistryObject<CommandPotion> COMMAND_POTION = ITEMS.register("command_potion", () -> new CommandPotion(itemProperties()));
     public static final RegistryObject<CommandSplashPotion> COMMAND_SPLASH_POTION = ITEMS.register("command_splash_potion", () -> new CommandSplashPotion(itemProperties()));

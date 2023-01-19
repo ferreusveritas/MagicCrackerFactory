@@ -27,16 +27,16 @@ public final class ClientSetup {
     }
 
     public static void registerColorHandlers() {
-        // Register Universal Remote Colorizer
         registerColorHandler(Registry.UNIVERSAL_REMOTE.get());
 
-        // Register Command Potion Colorizer
         registerColorHandler(Registry.COMMAND_POTION.get());
         registerColorHandler(Registry.COMMAND_SPLASH_POTION.get());
 
-        // Register Command Ring Colorizers
         registerColorHandler(Registry.COMMAND_CHUNK_RING.get());
         registerColorHandler(Registry.COMMAND_BLOCK_RING.get());
+
+        registerColorHandler(Registry.MAP_GUARD_ITEM.get());
+        registerColorHandler(Registry.LIT_MAP_GUARD_ITEM.get());
     }
 
     private static <I extends Item & ColoredItem> void registerColorHandler(I item) {
