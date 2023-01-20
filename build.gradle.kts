@@ -166,6 +166,70 @@ curseforge {
     }
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifactId = "$modName-$mcVersion"
+            version = modVersion
+
+            from(components["java"])
+
+            pom {
+                name.set(modName)
+                url.set("https://github.com/ferreusveritas/$modName")
+                licenses {
+                    license {
+                        name.set("MIT")
+                        url.set("https://mit-license.org")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("Harleyoc1")
+                        name.set("Harley O'Connor")
+                        email.set("Harleyoc1@gmail.com")
+                    }
+                    developer {
+                        id.set("ferreusveritas")
+                        name.set("Ferreus Veritas")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/ferreusveritas/$modName.git")
+                    developerConnection.set("scm:git:ssh://github.com/ferreusveritas/$modName.git")
+                    url.set("https://github.com/ferreusveritas/$modName")
+                }
+            }
+
+            pom.withXml {
+                val element = asElement()
+
+                // Clear dependencies.
+                for (i in 0 until element.childNodes.length) {
+                    val node = element.childNodes.item(i)
+                    if (node?.nodeName == "dependencies") {
+                        element.removeChild(node)
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven("file:///${project.projectDir}/mcmodsrepo")
+        if (hasProperty("harleyOConnorMavenUsername") && hasProperty("harleyOConnorMavenPassword")) {
+            maven("https://harleyoconnor.com/maven") {
+                name = "HarleyOConnor"
+                credentials {
+                    username = property("harleyOConnorMavenUsername")
+                    password = property("harleyOConnorMavenPassword")
+                }
+            }
+        } else {
+            logger.log(LogLevel.WARN, "Credentials for maven not detected; it will be disabled.")
+        }
+    }
+}
+
 fun RunConfig.applyDefaultConfiguration(runDirectory: String = "run") {
     workingDirectory = file(runDirectory).absolutePath
 

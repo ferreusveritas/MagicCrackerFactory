@@ -1,8 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "item/filled_map",
-    "layer1": "item/filled_map_markings",
-    "layer2": "mcf:items/map_guard_lock_overlay"
+    "layer0": "mcf:items/filled_map",
+    "layer1": "mcf:items/map_guard_lock_overlay"
   }
 }

@@ -3,20 +3,15 @@ package com.ferreusveritas.mcf.item;
 import com.ferreusveritas.mcf.block.MapGuardBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
-public class MapGuardItem extends BlockItem implements ColoredItem {
+public class MapGuardItem extends BlockItem {
 
     private final boolean lit;
 
@@ -36,8 +31,8 @@ public class MapGuardItem extends BlockItem implements ColoredItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        tooltip.add(new TranslationTextComponent(this.getOrCreateDescriptionId() + ".tooltip"));
+    public String getDescriptionId() {
+        return getOrCreateDescriptionId();
     }
 
     @Override
@@ -47,11 +42,4 @@ public class MapGuardItem extends BlockItem implements ColoredItem {
         }
     }
 
-    @Override
-    public int getColor(ItemStack stack, int tintIndex) {
-        if (tintIndex == 1) {
-            return -12173266;
-        }
-        return -1;
-    }
 }

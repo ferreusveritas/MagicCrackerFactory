@@ -11,7 +11,6 @@ import net.minecraft.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import org.apache.logging.log4j.LogManager;
 
 @OnlyIn(Dist.CLIENT)
 public final class ClientSetup {
@@ -34,9 +33,6 @@ public final class ClientSetup {
 
         registerColorHandler(Registry.COMMAND_CHUNK_RING.get());
         registerColorHandler(Registry.COMMAND_BLOCK_RING.get());
-
-        registerColorHandler(Registry.MAP_GUARD_ITEM.get());
-        registerColorHandler(Registry.LIT_MAP_GUARD_ITEM.get());
     }
 
     private static <I extends Item & ColoredItem> void registerColorHandler(I item) {

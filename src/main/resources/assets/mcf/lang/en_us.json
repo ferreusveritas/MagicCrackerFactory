@@ -7,8 +7,8 @@
   "item.mcf.command_chunk_ring": "Command Chunk Ring",
   "item.mcf.command_block_ring": "Command Block Ring",
   "item.mcf.light.tooltip": "Level: %s",
-  "item.mcf.map_guard.tooltip": "§7Normal",
-  "item.mcf.lit_map_guard.tooltip": "§eLit",
+  "item.mcf.map_guard": "Map Guard",
+  "item.mcf.lit_map_guard": "Lit Map Guard",
 
   "block.mcf.cartographer": "Cartographer",
   "block.mcf.terraformer": "Terraformer",

@@ -114,6 +114,11 @@ public class MapGuardBlock extends Block {
     }
 
     @Override
+    public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, BlockState state) {
+        return new ItemStack(state.getValue(LIT) ? Registry.LIT_MAP_GUARD_ITEM.get() : Registry.MAP_GUARD_ITEM.get());
+    }
+
+    @Override
     public boolean propagatesSkylightDown(BlockState state, IBlockReader level, BlockPos pos) {
         return true;
     }
