@@ -40,12 +40,7 @@ public class CartographerTileEntity extends MCFPeripheralTileEntity {
     public MapData newMap(World world, String dataId) {
         MapData mapData = new MapData(dataId);
         world.setMapData(mapData);
-        mapData.scale = (byte) 0;
-        mapData.setOrigin(mapData.scale, 0, 0);
-        mapData.dimension = world.dimension();
-        mapData.trackingPosition = true;
-        mapData.unlimitedTracking = false;
-        mapData.setDirty();
+        mapData.setProperties(0, 0, mapData.scale, true, false, mapData.dimension);
         return mapData;
     }
 
