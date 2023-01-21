@@ -38,6 +38,11 @@ public class TerraformerPeripheral extends MCFPeripheral<TerraformerTileEntity> 
 
     @LuaFunction
     public final String getBiome(int x, int z) {
+        return getBiome3D(x, 0, z);
+    }
+
+    @LuaFunction
+    public final String getBiome3D(int x, int y, int z) {
         Biome biome = block.getLevel().getBiome(new BlockPos(x, 0, z));
         return String.valueOf(biome == null ? null : biome.getRegistryName());
     }
