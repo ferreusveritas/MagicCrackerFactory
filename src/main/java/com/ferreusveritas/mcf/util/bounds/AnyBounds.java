@@ -1,15 +1,15 @@
 package com.ferreusveritas.mcf.util.bounds;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
 
 public class AnyBounds extends Bounds {
 
     public AnyBounds() {
     }
 
-    public AnyBounds(CompoundNBT tag) {
+    public AnyBounds(CompoundTag tag) {
         super(tag);
     }
 
@@ -24,7 +24,7 @@ public class AnyBounds extends Bounds {
     }
 
     @Override
-    public AxisAlignedBB getAABB() {
+    public AABB getAABB() {
         return null;
     }
 

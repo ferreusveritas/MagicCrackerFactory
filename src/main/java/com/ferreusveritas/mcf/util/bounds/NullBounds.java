@@ -1,7 +1,7 @@
 package com.ferreusveritas.mcf.util.bounds;
 
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 
 public class NullBounds extends Bounds {
 
@@ -16,8 +16,8 @@ public class NullBounds extends Bounds {
     }
 
     @Override
-    public AxisAlignedBB getAABB() {
-        return new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    public AABB getAABB() {
+        return new AABB(0, 0, 0, 0, 0, 0);
     }
 
 }

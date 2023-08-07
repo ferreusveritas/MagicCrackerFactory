@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package com.ferreusveritas.mcf.block;
+package com.ferreusveritas.mcf.datagen;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

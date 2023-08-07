@@ -1,7 +1,7 @@
 package com.ferreusveritas.mcf.util;
 
 import dan200.computercraft.api.lua.IArguments;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public class Arguments {
 
@@ -73,7 +73,7 @@ public class Arguments {
     }
 
     public Double dCheck(int arg) {
-        return o(arg) instanceof Double ? (Double) o(arg) : new Double(0);
+        return o(arg) instanceof Double ? (Double) o(arg) : Double.valueOf(0);
     }
 
     public Object o(int arg) {

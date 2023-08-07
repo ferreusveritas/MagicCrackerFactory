@@ -1,28 +1,31 @@
 package com.ferreusveritas.mcf.client;
 
+import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.Registry;
-import com.ferreusveritas.mcf.entity.render.ItemDisplayEntityRenderer;
+import com.ferreusveritas.mcf.entity.renderer.ItemDisplayEntityRenderer;
 import com.ferreusveritas.mcf.item.ColoredItem;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.entity.SpriteRenderer;
-import net.minecraft.item.Item;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 @OnlyIn(Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = MCF.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ClientSetup {
 
-    public static void registerEntityRenderers() {
-        RenderingRegistry.registerEntityRenderingHandler(Registry.ITEM_DISPLAY_ENTITY.get(), ItemDisplayEntityRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(Registry.COMMAND_POTION_ENTITY.get(), manager -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
+    @SubscribeEvent
+    public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(Registry.ITEM_DISPLAY_ENTITY.get(), ItemDisplayEntityRenderer::new);
+        event.registerEntityRenderer(Registry.COMMAND_POTION_ENTITY.get(), ThrownItemRenderer::new);
     }
 
     public static void registerRenderTypes() {
-        RenderTypeLookup.setRenderLayer(Registry.LIGHT_BLOCK.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(Registry.MAP_GUARD_BLOCK.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(Registry.MAP_GUARD_BLOCK.get(), RenderType.cutout());
     }
 
     public static void registerColorHandlers() {

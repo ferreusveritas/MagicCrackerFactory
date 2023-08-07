@@ -2,13 +2,13 @@ package com.ferreusveritas.mcf.event;
 
 import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.util.ZoneManager;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.gen.WorldGenRegion;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.event.entity.living.EntityTeleportEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
@@ -50,8 +50,8 @@ public class SecurityHandler {
 
     @SubscribeEvent
     public static void onSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
-        IWorld world = event.getWorld();
-        if (!world.isClientSide() && getZoneManager(world).testSpawnBounds(new BlockPos(event.getX(), event.getY(), event.getZ()), event.getEntityLiving())) {
+        LevelAccessor level = event.getWorld();
+        if (!level.isClientSide() && getZoneManager(level).testSpawnBounds(new BlockPos(event.getX(), event.getY(), event.getZ()), event.getEntityLiving())) {
             event.setResult(Event.Result.DENY);
         }
     }
@@ -66,19 +66,24 @@ public class SecurityHandler {
 
     @SubscribeEvent
     public static void onEnderPearlTeleportEvent(EntityTeleportEvent.EnderPearl event) {
-        ServerPlayerEntity player = event.getPlayer();
+        ServerPlayer player = event.getPlayer();
         if (getZoneManager(player.level).testEnderBounds(new BlockPos(event.getTargetX(), event.getTargetY(), event.getTargetZ()), player)) {
             event.setCanceled(true);
         }
     }
 
-    private static ZoneManager getZoneManager(IWorld world) {
-        return ZoneManager.get(getServerWorld(world));
+    private static ZoneManager getZoneManager(LevelAccessor level) {
+        return ZoneManager.get(asServerLevel(level));
     }
 
-    private static ServerWorld getServerWorld(IWorld world) {
-        return world instanceof ServerWorld ? ((ServerWorld) world) :
-                world instanceof WorldGenRegion ? ((WorldGenRegion) world).getLevel() : null;
+    private static ServerLevel asServerLevel(LevelAccessor level) {
+        if (level instanceof ServerLevel serverLevel) {
+            return serverLevel;
+        }
+        if (level instanceof WorldGenRegion worldGenRegion) {
+            return worldGenRegion.getLevel();
+        }
+        throw new IllegalStateException("Cannot get server level for level " + level);
     }
 
     @SubscribeEvent

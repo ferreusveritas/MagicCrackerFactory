@@ -2,12 +2,12 @@ package com.ferreusveritas.mcf.event;
 
 import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.peripheral.RemoteReceiverPeripheral;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -16,15 +16,15 @@ public class TouchMapHandler {
 
     @SubscribeEvent
     public static void onTouchMapEvent(TouchMapEvent event) {
-        PlayerEntity player = event.getPlayer();
-        World world = player.level;
+        Player player = event.getPlayer();
+        Level level = player.level;
         BlockPos pos = event.getBlockPos();
-        Vector3d hitPos = event.getHitPos();
-        Direction side = event.getSideHit();
+        Vec3 hitPos = event.getHitPos();
+        Direction sideHit = event.getSideHit();
         ItemStack heldItem = event.getHeldItem();
 
-        if (!world.isClientSide) {
-            RemoteReceiverPeripheral.broadcastTouchMapEvents(player, heldItem, hitPos, pos, side);
+        if (!level.isClientSide) {
+            RemoteReceiverPeripheral.broadcastTouchMapEvents(player, heldItem, hitPos, pos, sideHit);
         }
     }
 

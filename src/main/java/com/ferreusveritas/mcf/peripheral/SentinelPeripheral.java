@@ -1,37 +1,38 @@
 package com.ferreusveritas.mcf.peripheral;
 
-import com.ferreusveritas.mcf.tileentity.SentinelTileEntity;
+import com.ferreusveritas.mcf.block.entity.SentinelBlockEntity;
 import com.ferreusveritas.mcf.util.ZoneManager;
 import com.ferreusveritas.mcf.util.bounds.StorageBounds;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SentinelPeripheral extends MCFPeripheral<SentinelTileEntity> {
+public class SentinelPeripheral extends MCFPeripheral<SentinelBlockEntity> {
 
-    public SentinelPeripheral(SentinelTileEntity block) {
+    public SentinelPeripheral(SentinelBlockEntity block) {
         super(block);
     }
 
     public static StorageBounds.BoundsType validateBoundsType(String boundsType) throws LuaException {
         StorageBounds.BoundsType type = StorageBounds.BoundsType.getType(boundsType);
         if (type == StorageBounds.BoundsType.EMPTY) {
-            String valids = String.join(", ", StorageBounds.BoundsType.valid.stream().map(t -> t.getLabel()).collect(Collectors.toList()));
+            String valids = String.join(", ", StorageBounds.BoundsType.VALID.stream().map(t -> t.getLabel()).collect(Collectors.toList()));
             throw new LuaException("boundsType \"" + boundsType + "\" is not valid. Must be one of: " + valids);
         }
         return type;
     }
 
-    public static ArrayList<Tuple<Vector3d, Vector3d>> getLineSegmentsFromLuaObject(Object obj) {
-        ArrayList<Tuple<Vector3d, Vector3d>> lineSegments = new ArrayList<Tuple<Vector3d, Vector3d>>();
+    public static ArrayList<Tuple<Vec3, Vec3>> getLineSegmentsFromLuaObject(Object obj) {
+        ArrayList<Tuple<Vec3, Vec3>> lineSegments = new ArrayList<>();
 
         if (obj instanceof HashMap) {
             HashMap<?, ?> arrayMap = (HashMap<?, ?>) obj;
@@ -48,10 +49,10 @@ public class SentinelPeripheral extends MCFPeripheral<SentinelTileEntity> {
                             vecPrims[i] = val instanceof Double ? (Double) val : 0.0;
                         }
 
-                        Vector3d start = new Vector3d(vecPrims[0], vecPrims[1], vecPrims[2]);
-                        Vector3d end = new Vector3d(vecPrims[3], vecPrims[4], vecPrims[5]);
+                        Vec3 start = new Vec3(vecPrims[0], vecPrims[1], vecPrims[2]);
+                        Vec3 end = new Vec3(vecPrims[3], vecPrims[4], vecPrims[5]);
 
-                        lineSegments.add(new Tuple<Vector3d, Vector3d>(start, end));
+                        lineSegments.add(new Tuple<>(start, end));
                     }
                 }
             });
@@ -60,50 +61,49 @@ public class SentinelPeripheral extends MCFPeripheral<SentinelTileEntity> {
         return lineSegments;
     }
 
-    public static Object[] doRayTraceBatch(World world, ArrayList<Tuple<Vector3d, Vector3d>> lineSegments, boolean checkEntities) {
+    public static Object[] doRayTraceBatch(Level level, ArrayList<Tuple<Vec3, Vec3>> lineSegments, boolean checkEntities) {
         ArrayList<Object> results = new ArrayList<>();
-        lineSegments.forEach(tuple -> results.add(doRayTrace(world, tuple.getA(), tuple.getB(), checkEntities)));
+        lineSegments.forEach(tuple -> results.add(doRayTrace(level, tuple.getA(), tuple.getB(), checkEntities)));
         return results.toArray();
     }
 
-    public static Map<String, Object> doRayTrace(World world, Vector3d start, Vector3d end, boolean checkEntities) {
+    public static Map<String, Object> doRayTrace(Level level, Vec3 start, Vec3 end, boolean checkEntities) {
         Map<String, Object> values = new HashMap<>();
 
-        RayTraceResult result = world.clip(new RayTraceContext(start, end, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null));
-        RayTraceResult.Type hitType = (result != null && result.getType() == RayTraceResult.Type.BLOCK) ? RayTraceResult.Type.BLOCK : RayTraceResult.Type.MISS;
+        HitResult hit = level.clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
+        BlockHitResult.Type hitType = (hit != null && hit.getType() == BlockHitResult.Type.BLOCK) ? BlockHitResult.Type.BLOCK : BlockHitResult.Type.MISS;
 
-        if (hitType == RayTraceResult.Type.BLOCK) {
-            end = result.getLocation();
+        if (hitType == BlockHitResult.Type.BLOCK) {
+            end = hit.getLocation();
         }
 
         if (checkEntities) {
-            AxisAlignedBB aabb = new AxisAlignedBB(start.x, start.y, start.z, end.x, end.y, end.z);
-            List<Entity> entities = world.getEntitiesOfClass(Entity.class, aabb, entity -> true);
+            AABB aabb = new AABB(start.x, start.y, start.z, end.x, end.y, end.z);
+            List<Entity> entities = level.getEntitiesOfClass(Entity.class, aabb, entity -> true);
 
             double closestDistance = Double.POSITIVE_INFINITY;
             for (Entity e : entities) {
-                Optional<Vector3d> entityResult = e.getBoundingBox().clip(start, end);
+                Optional<Vec3> entityResult = e.getBoundingBox().clip(start, end);
                 if (entityResult.isPresent()) {
-                    hitType = RayTraceResult.Type.ENTITY;
+                    hitType = BlockHitResult.Type.ENTITY;
                     double dist = start.distanceTo(entityResult.get());
                     if (dist < closestDistance) {
                         closestDistance = dist;
-                        result = new EntityRayTraceResult(e, entityResult.get());
+                        hit = new EntityHitResult(e, entityResult.get());
                     }
                 }
             }
         }
 
-        if (result != null) {
-            end = result.getLocation();
+        if (hit != null) {
+            end = hit.getLocation();
             values.put("hitPos", new Object[]{end.x, end.y, end.z});
-            if (result instanceof BlockRayTraceResult) {
-                BlockRayTraceResult blockResult = (BlockRayTraceResult) result;
+            if (hit instanceof BlockHitResult blockResult) {
                 BlockPos blockPos = blockResult.getBlockPos();
                 values.put("blockPos", new Object[]{blockPos.getX(), blockPos.getY(), blockPos.getZ()});
                 values.put("side", (double) blockResult.getDirection().ordinal());
             } else {
-                Entity entity = ((EntityRayTraceResult) result).getEntity();
+                Entity entity = ((EntityHitResult) hit).getEntity();
                 values.put("entity", entity.getName());
                 values.put("class", entity.getClass().getSimpleName());
                 values.put("id", entity.getId());
@@ -170,17 +170,17 @@ public class SentinelPeripheral extends MCFPeripheral<SentinelTileEntity> {
 
     @LuaFunction
     public final Map<String, Object> rayTrace(int startX, int startY, int startZ, int endX, int endY, int endZ, boolean checkEntities) {
-        return doRayTrace(block.getLevel(), new Vector3d(startX, startY, startX), new Vector3d(endX, endY, endZ), checkEntities);
+        return doRayTrace(block.getLevel(), new Vec3(startX, startY, startX), new Vec3(endX, endY, endZ), checkEntities);
     }
 
     @LuaFunction
     public final Object[] rayTraceBatch(Object lineSegmentArray, boolean checkEntities) {
-        ArrayList<Tuple<Vector3d, Vector3d>> lineSegments = getLineSegmentsFromLuaObject(lineSegmentArray);
+        ArrayList<Tuple<Vec3, Vec3>> lineSegments = getLineSegmentsFromLuaObject(lineSegmentArray);
         return doRayTraceBatch(block.getLevel(), lineSegments, checkEntities);
     }
 
     private ZoneManager getZoneManager() {
-        return ZoneManager.get(((ServerWorld) block.getLevel()));
+        return ZoneManager.get(((ServerLevel) block.getLevel()));
     }
 
 }

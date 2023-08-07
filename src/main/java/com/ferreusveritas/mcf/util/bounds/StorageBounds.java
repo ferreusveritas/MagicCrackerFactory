@@ -4,7 +4,7 @@ import com.ferreusveritas.mcf.util.VoidMap;
 import com.ferreusveritas.mcf.util.filter.EntityFilter;
 import com.ferreusveritas.mcf.util.filter.EntityFilterAll;
 import com.ferreusveritas.mcf.util.filter.HostileEntityFilter;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,12 +15,12 @@ import java.util.function.Function;
 public class StorageBounds {
 
     //Simple Bounds type factory registry
-    public static Map<String, Function<CompoundNBT, Bounds>> boundsProviders = new HashMap<>();
+    public static Map<String, Function<CompoundTag, Bounds>> boundsProviders = new HashMap<>();
 
     static { //This gives us the ability to add new bound types in the future
-        boundsProviders.put("cuboid", n -> new CuboidBounds(n));
-        boundsProviders.put("cylinder", n -> new CylinderBounds(n));
-        boundsProviders.put("any", n -> new AnyBounds(n));
+        boundsProviders.put("cuboid", CuboidBounds::new);
+        boundsProviders.put("cylinder", CylinderBounds::new);
+        boundsProviders.put("any", AnyBounds::new);
     }
 
     public Map<String, Bounds> breakBounds = new HashMap<>();
@@ -32,18 +32,18 @@ public class StorageBounds {
     public Map<String, Bounds>[] allBounds = new Map[]{
             new VoidMap<>(), breakBounds, placeBounds, blastBounds, spawnBounds, enderBounds, identBounds
     };
-    public StorageBounds(CompoundNBT tag) {
+    public StorageBounds(CompoundTag tag) {
 
-        BoundsType.valid.forEach(
+        BoundsType.VALID.forEach(
                 type -> {
-                    CompoundNBT n = tag.getCompound(type.getLabel());
+                    CompoundTag n = tag.getCompound(type.getLabel());
                     n.getAllKeys().forEach(key -> getByType(type).put(key, loadBounds(n.getCompound(key))));
                 }
         );
 
     }
 
-    public static Bounds loadBounds(CompoundNBT nbt) {
+    public static Bounds loadBounds(CompoundTag nbt) {
         return boundsProviders.getOrDefault(nbt.getString("type").toLowerCase(), n -> Bounds.INVALID).apply(nbt);
     }
 
@@ -55,12 +55,12 @@ public class StorageBounds {
         return allBounds[BoundsType.getType(type).ordinal()];
     }
 
-    public CompoundNBT toCompoundTag() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag toCompoundTag() {
+        CompoundTag tag = new CompoundTag();
 
-        BoundsType.valid.forEach(
+        BoundsType.VALID.forEach(
                 type -> {
-                    CompoundNBT n = new CompoundNBT();
+                    CompoundTag n = new CompoundTag();
                     getByType(type).forEach((key, value) -> n.put(key, value.toCompoundTag()));
                     tag.put(type.getLabel(), n);
                 }
@@ -78,7 +78,7 @@ public class StorageBounds {
         ENDER(new EntityFilterAll()),
         IDENT;
 
-        public final static List<BoundsType> valid = Arrays.asList(BREAK, PLACE, BLAST, SPAWN, ENDER, IDENT);
+        public final static List<BoundsType> VALID = Arrays.asList(BREAK, PLACE, BLAST, SPAWN, ENDER, IDENT);
         private final EntityFilter defaultEntityFilter;
 
         BoundsType() {

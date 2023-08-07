@@ -1,8 +1,8 @@
 package com.ferreusveritas.mcf.util.bounds;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
 
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class CylinderBounds extends Bounds {
         radius = other.radius;
     }
 
-    public CylinderBounds(CompoundNBT tag) {
+    public CylinderBounds(CompoundTag tag) {
         super(tag);
 
         int[] bounds = tag.getIntArray("bounds");
@@ -94,13 +94,13 @@ public class CylinderBounds extends Bounds {
     }
 
     @Override
-    public AxisAlignedBB getAABB() {
-        return new AxisAlignedBB(new BlockPos(posX - radius, minY, posZ - radius), new BlockPos(posX + radius, maxY, posZ + radius));
+    public AABB getAABB() {
+        return new AABB(new BlockPos(posX - radius, minY, posZ - radius), new BlockPos(posX + radius, maxY, posZ + radius));
     }
 
     @Override
-    public CompoundNBT toCompoundTag() {
-        CompoundNBT nbt = super.toCompoundTag();
+    public CompoundTag toCompoundTag() {
+        CompoundTag nbt = super.toCompoundTag();
         nbt.putIntArray("bounds", new int[]{posX, posZ, minY, maxY, radius});
         return nbt;
     }

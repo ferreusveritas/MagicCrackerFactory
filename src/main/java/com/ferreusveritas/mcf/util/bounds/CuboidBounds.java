@@ -1,10 +1,10 @@
 package com.ferreusveritas.mcf.util.bounds;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class CuboidBounds extends Bounds {
         union(blockPosList);
     }
 
-    public CuboidBounds(CompoundNBT tag) {
+    public CuboidBounds(CompoundTag tag) {
         super(tag);
 
         int[] bounds = tag.getIntArray("bounds");
@@ -174,13 +174,13 @@ public class CuboidBounds extends Bounds {
     }
 
     @Override
-    public AxisAlignedBB getAABB() {
-        return new AxisAlignedBB(getMin(), getMax());
+    public AABB getAABB() {
+        return new AABB(getMin(), getMax());
     }
 
     @Override
-    public CompoundNBT toCompoundTag() {
-        CompoundNBT tag = super.toCompoundTag();
+    public CompoundTag toCompoundTag() {
+        CompoundTag tag = super.toCompoundTag();
         tag.putIntArray("bounds", new int[]{minX, minY, minZ, maxX, maxY, maxZ});
         return tag;
     }

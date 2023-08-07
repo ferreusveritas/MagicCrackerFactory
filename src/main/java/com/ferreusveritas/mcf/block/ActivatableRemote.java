@@ -1,12 +1,12 @@
 package com.ferreusveritas.mcf.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 public interface ActivatableRemote {
-    ActionResultType activate(World world, BlockPos pos, BlockState state, PlayerEntity player, BlockRayTraceResult result);
+    InteractionResult activate(Level level, BlockPos pos, BlockState state, Player player, BlockHitResult hit);
 }

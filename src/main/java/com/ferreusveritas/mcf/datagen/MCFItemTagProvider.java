@@ -1,12 +1,12 @@
 package com.ferreusveritas.mcf.datagen;
 
 import com.ferreusveritas.mcf.Registry;
-import net.minecraft.data.BlockTagsProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.ItemTagsProvider;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 import javax.annotation.Nullable;
@@ -24,10 +24,10 @@ public class MCFItemTagProvider extends ItemTagsProvider {
 
     private static final class Tags {
 
-        private static final ITag.INamedTag<Item> RING = bind("curios:ring");
+        private static final TagKey<Item> RING = bind("curios:ring");
 
-        private static ITag.INamedTag<Item> bind(String identifier) {
-            return ItemTags.bind(identifier);
+        private static TagKey<Item> bind(String name) {
+            return TagKey.create(net.minecraft.core.Registry.ITEM_REGISTRY, new ResourceLocation(name));
         }
 
     }

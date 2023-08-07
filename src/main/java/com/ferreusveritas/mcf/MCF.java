@@ -7,21 +7,21 @@ import com.ferreusveritas.mcf.datagen.MCFBlockTagProvider;
 import com.ferreusveritas.mcf.datagen.MCFItemTagProvider;
 import com.ferreusveritas.mcf.network.CommsThread;
 import com.ferreusveritas.mcf.network.Networking;
-import net.minecraft.data.BlockTagsProvider;
-import net.minecraft.data.ItemTagsProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
-import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 /**
  * <p><pre><tt><b>
@@ -71,7 +71,6 @@ public class MCF {
     }
 
     private void clientSetup(FMLClientSetupEvent event) {
-        ClientSetup.registerEntityRenderers();
         ClientSetup.registerRenderTypes();
         event.enqueueWork(ClientSetup::registerColorHandlers);
     }
@@ -88,7 +87,7 @@ public class MCF {
         event.getGenerator().addProvider(itemTagsProvider);
     }
 
-    private void serverStarting(FMLServerStartingEvent event) {
+    private void serverStarting(ServerStartingEvent event) {
         int port = MCFConfigs.LISTEN_PORT.get();
         if (port > 0) {
             commsThread = new CommsThread(port);
@@ -101,7 +100,7 @@ public class MCF {
         ProxCommand.register(event.getDispatcher());
     }
 
-    private void serverStopping(FMLServerStoppingEvent event) {
+    private void serverStopping(ServerStoppingEvent event) {
         if (MCFConfigs.LISTEN_PORT.get() > 0) {
             commsThread.shutdown();
             try {

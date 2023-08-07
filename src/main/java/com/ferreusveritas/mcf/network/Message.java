@@ -1,7 +1,7 @@
 package com.ferreusveritas.mcf.network;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -10,12 +10,12 @@ import java.util.function.Supplier;
  */
 public interface Message {
 
-    void toBytes(PacketBuffer buffer);
+    void toBytes(FriendlyByteBuf buffer);
 
     boolean handle(Supplier<NetworkEvent.Context> context);
 
     interface Decoder<P extends Message> {
-        P fromBytes(PacketBuffer buffer);
+        P fromBytes(FriendlyByteBuf buffer);
     }
 
 }

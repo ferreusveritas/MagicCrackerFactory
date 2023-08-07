@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package com.ferreusveritas.mcf.block;
+package com.ferreusveritas.mcf.entity.renderer;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

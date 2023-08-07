@@ -1,22 +1,22 @@
 package com.ferreusveritas.mcf.event;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
 public class RemoteClickEvent extends PlayerEvent {
 
-    protected final Vector3d hitPos;
+    protected final Vec3 hitPos;
     protected final BlockPos blockPos;
     protected final Direction sideHit;
     protected final String remoteId;
 
-    public RemoteClickEvent(PlayerEntity player, String remoteId, Vector3d clickPos, BlockPos blockPos, Direction sideHit) {
+    public RemoteClickEvent(Player player, String remoteId, Vec3 hitPos, BlockPos blockPos, Direction sideHit) {
         super(player);
         this.remoteId = remoteId;
-        this.hitPos = clickPos;
+        this.hitPos = hitPos;
         this.blockPos = blockPos;
         this.sideHit = sideHit;
     }
@@ -25,7 +25,7 @@ public class RemoteClickEvent extends PlayerEvent {
         return remoteId;
     }
 
-    public Vector3d getHitPos() {
+    public Vec3 getHitPos() {
         return hitPos;
     }
 

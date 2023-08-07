@@ -1,13 +1,13 @@
 package com.ferreusveritas.mcf.network;
 
 import com.ferreusveritas.mcf.event.TouchMapEvent;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -15,26 +15,26 @@ public class ServerBoundTouchMapMessage implements Message {
 
     public static final Decoder DECODER = new Decoder();
 
-    private final Vector3d hitPos;
+    private final Vec3 hitPos;
     private final BlockPos blockPos;
     private final Direction sideHit;
 
-    public ServerBoundTouchMapMessage(Vector3d hitPos, BlockPos blockPos, Direction sideHit) {
+    public ServerBoundTouchMapMessage(Vec3 hitPos, BlockPos blockPos, Direction sideHit) {
         this.hitPos = hitPos;
         this.blockPos = blockPos;
         this.sideHit = sideHit;
     }
-
+  
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> context) {
-        PlayerEntity player = context.get().getSender();
+        Player player = context.get().getSender();
         TouchMapEvent touchMapEvent = new TouchMapEvent(player, player.getMainHandItem(), hitPos, blockPos, sideHit);
         MinecraftForge.EVENT_BUS.post(touchMapEvent);
         return true;
     }
 
     @Override
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeDouble(hitPos.x);
         buffer.writeDouble(hitPos.y);
         buffer.writeDouble(hitPos.z);
@@ -48,11 +48,11 @@ public class ServerBoundTouchMapMessage implements Message {
 
     private static final class Decoder implements Message.Decoder<ServerBoundTouchMapMessage> {
         @Override
-        public ServerBoundTouchMapMessage fromBytes(PacketBuffer buffer) {
+        public ServerBoundTouchMapMessage fromBytes(FriendlyByteBuf buffer) {
             double hx = buffer.readDouble();
             double hy = buffer.readDouble();
             double hz = buffer.readDouble();
-            Vector3d hitPos = new Vector3d(hx, hy, hz);
+            Vec3 hitPos = new Vec3(hx, hy, hz);
 
             int bx = buffer.readInt();
             int by = buffer.readInt();

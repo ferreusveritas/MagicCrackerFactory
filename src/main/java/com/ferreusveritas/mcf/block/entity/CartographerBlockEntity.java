@@ -1,19 +1,21 @@
-package com.ferreusveritas.mcf.tileentity;
+package com.ferreusveritas.mcf.block.entity;
 
 import com.ferreusveritas.mcf.Registry;
 import com.ferreusveritas.mcf.peripheral.CartographerPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.world.World;
-import net.minecraft.world.storage.MapData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
-public class CartographerTileEntity extends MCFPeripheralTileEntity {
+public class CartographerBlockEntity extends MCFPeripheralBlockEntity {
 
     // Cache the last accessed map data for efficiency
     private int lastMapNum = -1;
-    private MapData lastMapData = null;
+    private MapItemSavedData lastMapData = null;
 
-    public CartographerTileEntity() {
-        super(Registry.CARTOGRAPHER_TILE_ENTITY.get());
+    public CartographerBlockEntity(BlockPos pos, BlockState state) {
+        super(Registry.CARTOGRAPHER_TILE_ENTITY.get(), pos, state);
     }
 
     @Override
@@ -21,7 +23,7 @@ public class CartographerTileEntity extends MCFPeripheralTileEntity {
         return new CartographerPeripheral(this);
     }
 
-    public MapData getMapData(int mapNum) {
+    public MapItemSavedData getMapData(int mapNum) {
         if (lastMapData != null && lastMapNum == mapNum) {
             return lastMapData;
         } else {
@@ -37,10 +39,9 @@ public class CartographerTileEntity extends MCFPeripheralTileEntity {
         }
     }
 
-    public MapData newMap(World world, String dataId) {
-        MapData mapData = new MapData(dataId);
-        world.setMapData(mapData);
-        mapData.setProperties(0, 0, mapData.scale, true, false, mapData.dimension);
+    public MapItemSavedData newMap(Level level, String mapName) {
+        MapItemSavedData mapData = MapItemSavedData.createFresh(0, 0, (byte) 0, true, false, level.dimension());
+        level.setMapData(mapName, mapData);
         return mapData;
     }
 

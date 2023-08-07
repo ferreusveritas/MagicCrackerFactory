@@ -1,9 +1,9 @@
 package com.ferreusveritas.mcf.peripheral;
 
-import com.ferreusveritas.mcf.tileentity.MCFPeripheralTileEntity;
+import com.ferreusveritas.mcf.block.entity.MCFPeripheralBlockEntity;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-public abstract class MCFPeripheral<T extends MCFPeripheralTileEntity> implements IPeripheral {
+public abstract class MCFPeripheral<T extends MCFPeripheralBlockEntity> implements IPeripheral {
 
     protected final T block;
 

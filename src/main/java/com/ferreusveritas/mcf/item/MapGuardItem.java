@@ -1,13 +1,13 @@
 package com.ferreusveritas.mcf.item;
 
 import com.ferreusveritas.mcf.block.MapGuardBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
@@ -26,7 +26,7 @@ public class MapGuardItem extends BlockItem {
 
     @Nullable
     @Override
-    protected BlockState getPlacementState(BlockItemUseContext context) {
+    protected BlockState getPlacementState(BlockPlaceContext context) {
         return getPlacementState();
     }
 
@@ -36,8 +36,8 @@ public class MapGuardItem extends BlockItem {
     }
 
     @Override
-    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
-        if (this.allowdedIn(group)) {
+    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> items) {
+        if (this.allowdedIn(tab)) {
             items.add(new ItemStack(this));
         }
     }

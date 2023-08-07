@@ -1,20 +1,20 @@
 package com.ferreusveritas.mcf.event;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
 public class TouchMapEvent extends PlayerEvent {
 
-    protected final Vector3d hitPos;
+    protected final Vec3 hitPos;
     protected final BlockPos blockPos;
     protected final Direction sideHit;
     protected final ItemStack heldItem;
 
-    public TouchMapEvent(PlayerEntity player, ItemStack heldItem, Vector3d clickPos, BlockPos blockPos, Direction sideHit) {
+    public TouchMapEvent(Player player, ItemStack heldItem, Vec3 clickPos, BlockPos blockPos, Direction sideHit) {
         super(player);
         this.heldItem = heldItem;
         this.hitPos = clickPos;
@@ -26,7 +26,7 @@ public class TouchMapEvent extends PlayerEvent {
         return heldItem;
     }
 
-    public Vector3d getHitPos() {
+    public Vec3 getHitPos() {
         return hitPos;
     }
 

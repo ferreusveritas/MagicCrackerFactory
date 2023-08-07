@@ -3,14 +3,14 @@ package com.ferreusveritas.mcf.event;
 import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.block.ActivatableRemote;
 import com.ferreusveritas.mcf.peripheral.RemoteReceiverPeripheral;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -19,20 +19,20 @@ public class RemoteClickHandler {
 
     @SubscribeEvent
     public static void onRemoteClickEvent(RemoteClickEvent event) {
-        PlayerEntity player = event.getPlayer();
-        World world = event.getPlayer().level;
+        Player player = event.getPlayer();
+        Level level = event.getPlayer().level;
         BlockPos blockPos = event.getBlockPos();
-        Vector3d hitPos = event.getHitPos();
-        Direction side = event.getSideHit();
+        Vec3 hitPos = event.getHitPos();
+        Direction sideHit = event.getSideHit();
 
-        if (!world.isClientSide) {
-            RemoteReceiverPeripheral.broadcastRemoteEvents(player, event.getRemoteId(), hitPos, blockPos, side);
+        if (!level.isClientSide) {
+            RemoteReceiverPeripheral.broadcastRemoteEvents(player, event.getRemoteId(), hitPos, blockPos, sideHit);
 
-            BlockState state = world.getBlockState(blockPos);
+            BlockState state = level.getBlockState(blockPos);
             Block block = state.getBlock();
-            if (block instanceof ActivatableRemote) {
-                ((ActivatableRemote) block).activate(
-                        world, blockPos, state, player, new BlockRayTraceResult(hitPos, side, blockPos, false)
+            if (block instanceof ActivatableRemote remote) {
+                remote.activate(
+                        level, blockPos, state, player, new BlockHitResult(hitPos, sideHit, blockPos, false)
                 );
             }
 

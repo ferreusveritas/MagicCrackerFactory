@@ -1,18 +1,18 @@
 package com.ferreusveritas.mcf.item;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants.NBT;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -25,11 +25,11 @@ public class CommandItem extends Item implements ColoredItem {
     }
 
     @Override
-    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
-        if (allowdedIn(group)) {
+    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> items) {
+        if (allowdedIn(tab)) {
             ItemStack stack = new ItemStack(this);
             // Add test command to command items in creative menu
-            stack.addTagElement("command", StringNBT.valueOf("test"));
+            stack.addTagElement("command", StringTag.valueOf("test"));
             items.add(stack);
         }
     }
@@ -37,10 +37,10 @@ public class CommandItem extends Item implements ColoredItem {
     @Override
     public int getColor(ItemStack stack, int tintIndex) {
         if (tintIndex == 0) {
-            CompoundNBT tag = getTag(stack);
+            CompoundTag tag = getTag(stack);
             int color = 0xFF00FFFF;// 0xAARRGGBB
 
-            if (tag.contains("color", NBT.TAG_STRING)) {
+            if (tag.contains("color", Tag.TAG_STRING)) {
                 try {
                     color = Color.decode(tag.getString("color")).getRGB();
                 } catch (NumberFormatException e) {
@@ -55,29 +55,29 @@ public class CommandItem extends Item implements ColoredItem {
     }
 
     public CommandItem setColor(ItemStack stack, String colStr) {
-        CompoundNBT tag = getTag(stack);
+        CompoundTag tag = getTag(stack);
         tag.putString("color", colStr);
         stack.setTag(tag); // TODO: Is this really necessary?
         return this;
     }
 
-    public CompoundNBT getTag(ItemStack stack) {
-        return stack.hasTag() ? stack.getTag() : new CompoundNBT();
+    public CompoundTag getTag(ItemStack stack) {
+        return stack.hasTag() ? stack.getTag() : new CompoundTag();
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public ITextComponent getName(ItemStack stack) {
-        CompoundNBT tag = getTag(stack);
-        if (tag.contains("label", NBT.TAG_STRING)) {
-            return new StringTextComponent(tag.getString("label"));
+    public Component getName(ItemStack stack) {
+        CompoundTag tag = getTag(stack);
+        if (tag.contains("label", Tag.TAG_STRING)) {
+            return new TextComponent(tag.getString("label"));
         }
         return super.getName(stack);
     }
 
     public String getCommand(ItemStack commandPotion) {
-        CompoundNBT tag = getTag(commandPotion);
-        if (tag.contains("command", NBT.TAG_STRING)) {
+        CompoundTag tag = getTag(commandPotion);
+        if (tag.contains("command", Tag.TAG_STRING)) {
             return tag.getString("command");
         }
         return "";
@@ -88,11 +88,11 @@ public class CommandItem extends Item implements ColoredItem {
      */
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        CompoundNBT tag = getTag(stack);
-        if (tag.contains("info", NBT.TAG_STRING)) {
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        CompoundTag tag = getTag(stack);
+        if (tag.contains("info", Tag.TAG_STRING)) {
             String info = tag.getString("info");
-            tooltip.add(new StringTextComponent(info));
+            tooltip.add(new TextComponent(info));
         }
     }
 

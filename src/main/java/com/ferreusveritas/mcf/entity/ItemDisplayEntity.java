@@ -1,21 +1,21 @@
 package com.ferreusveritas.mcf.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Rotations;
-import net.minecraft.world.World;
+import net.minecraft.core.Rotations;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
 /**
  * This Entity shows a single item in space.
@@ -27,15 +27,15 @@ import net.minecraftforge.fml.network.NetworkHooks;
  */
 public class ItemDisplayEntity extends Entity {
 
-    public static final DataParameter<Rotations> ROTATION = EntityDataManager.defineId(ItemDisplayEntity.class, DataSerializers.ROTATIONS);
-    public static final DataParameter<Float> SCALE = EntityDataManager.defineId(ItemDisplayEntity.class, DataSerializers.FLOAT);
-    public static final DataParameter<ItemStack> ITEM = EntityDataManager.defineId(ItemDisplayEntity.class, DataSerializers.ITEM_STACK);
+    public static final EntityDataAccessor<Rotations> ROTATION = SynchedEntityData.defineId(ItemDisplayEntity.class, EntityDataSerializers.ROTATIONS);
+    public static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(ItemDisplayEntity.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<ItemStack> ITEM = SynchedEntityData.defineId(ItemDisplayEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final Rotations DEFAULT_ROTATION = new Rotations(0.0F, 0.0F, 0.0F);
     private static final Float DEFAULT_SCALE = 1.0F;
     private Rotations rotation = DEFAULT_ROTATION;
     private Float scale = DEFAULT_SCALE;
 
-    public ItemDisplayEntity(EntityType<?> type, World level) {
+    public ItemDisplayEntity(EntityType<?> type, Level level) {
         super(type, level);
     }
 
@@ -53,21 +53,21 @@ public class ItemDisplayEntity extends Entity {
             setScale(scale);
         }
 
-        dimensions = EntitySize.scalable(scale, scale);
+        dimensions = EntityDimensions.scalable(scale, scale);
 
         //setEntityBoundingBox(new AxisAlignedBB(posX - 0.5, posY - 0.5, posZ - 0.5D, posX + 0.5, posY + 0.5, posZ + 0.5));
     }
 
     @Override
     public void refreshDimensions() {
-        EntitySize oldSize = this.dimensions;
-        EntitySize newSize = this.getDimensions(this.getPose());
+        EntityDimensions oldSize = this.dimensions;
+        EntityDimensions newSize = this.getDimensions(this.getPose());
         EntityEvent.Size sizeEvent = ForgeEventFactory.getEntitySizeForge(this, this.getPose(), oldSize, newSize, this.getEyeHeight(this.getPose(), newSize));
         newSize = sizeEvent.getNewSize();
         this.dimensions = newSize;
         float w = newSize.width / 2.0f;
         float h = newSize.height / 2.0f;
-        setBoundingBox(new AxisAlignedBB(getX() - w, getY() - h, getZ() - w, getX() + w, getY() + h, getZ() + w));
+        setBoundingBox(new AABB(getX() - w, getY() - h, getZ() - w, getX() + w, getY() + h, getZ() + w));
 
     }
 
@@ -76,7 +76,7 @@ public class ItemDisplayEntity extends Entity {
         super.setPos(x, y, z);
         float w = dimensions.width / 2.0f;
         float h = dimensions.height / 2.0f;
-        setBoundingBox(new AxisAlignedBB(getX() - w, getY() - h, getZ() - w, getX() + w, getY() + h, getZ() + w));
+        setBoundingBox(new AABB(getX() - w, getY() - h, getZ() - w, getX() + w, getY() + h, getZ() + w));
     }
 
     public Rotations getRotation() {
@@ -113,17 +113,17 @@ public class ItemDisplayEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT tag) {
+    protected void readAdditionalSaveData(CompoundTag tag) {
         // /summon mcf:item_display 0.5 130 5.5 {item:{id:"minecraft:redstone",Count:1b},scale:4.0f}
         // /summon mcf:item_display ~5 ~1 ~ {item:{id:"thermalexpansion:frame",Count:1b},scale:4.0f,rotation:[35f,0f,45f]}
         // /summon mcf:item_display ~ ~ ~ {item:{id:"minecraft:redstone",Count:1b}}
         // /summon mcf:item_display 2608 65.5 27 {item:{id:"cathedral:cathedral_gargoyle_demon_stone",Count:1b},scale:4.0f,rotation:[0f,0f,0f]}
         // /kill @e[type=mcf:item_display]
 
-        CompoundNBT itemTag = tag.getCompound("item");
+        CompoundTag itemTag = tag.getCompound("item");
         setItemStack(ItemStack.of(itemTag));
 
-        ListNBT rotations = tag.getList("rotation", 5);
+        ListTag rotations = tag.getList("rotation", 5);
         setRotation(rotations.isEmpty() ? DEFAULT_ROTATION : new Rotations(rotations));
 
         float scale = tag.getFloat("scale");
@@ -131,8 +131,8 @@ public class ItemDisplayEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT tag) {
-        CompoundNBT itemTag = new CompoundNBT();
+    protected void addAdditionalSaveData(CompoundTag tag) {
+        CompoundTag itemTag = new CompoundTag();
         ItemStack stack = getItemStack();
 
         if (!stack.isEmpty()) {
@@ -151,7 +151,7 @@ public class ItemDisplayEntity extends Entity {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 

@@ -1,7 +1,7 @@
 package com.ferreusveritas.mcf.item;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,13 +18,13 @@ public class CommandBlockRing extends CommandRing {
     }
 
     @Override
-    public boolean shouldRun(PlayerEntity player) {
+    public boolean shouldRun(Player player) {
         BlockPos lastBlockPos = PLAYER_POSITION_CACHE.getOrDefault(player.getUUID(), BlockPos.ZERO);
         return !player.blockPosition().equals(lastBlockPos);
     }
 
     @Override
-    public void satisfyWorn(PlayerEntity player) {
+    public void satisfyWorn(Player player) {
         PLAYER_POSITION_CACHE.put(player.getUUID(), player.blockPosition());
     }
 

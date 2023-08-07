@@ -1,7 +1,7 @@
 package com.ferreusveritas.mcf.peripheral;
 
 import com.ferreusveritas.mcf.network.CommsThread;
-import com.ferreusveritas.mcf.tileentity.WebModemTileEntity;
+import com.ferreusveritas.mcf.block.entity.WebModemBlockEntity;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 
@@ -11,11 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class WebModemPeripheral extends MCFPeripheral<WebModemTileEntity> {
+public class WebModemPeripheral extends MCFPeripheral<WebModemBlockEntity> {
 
     private final Map<Integer, IComputerAccess> attachedComputers = new HashMap<>();
 
-    public WebModemPeripheral(WebModemTileEntity block) {
+    public WebModemPeripheral(WebModemBlockEntity block) {
         super(block);
     }
 

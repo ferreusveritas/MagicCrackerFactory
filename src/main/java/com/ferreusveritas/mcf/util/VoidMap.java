@@ -37,15 +37,15 @@ public class VoidMap<K, V> implements Map<K, V> {
     public void clear() {
     }
 
-    public Set keySet() {
+    public Set<K> keySet() {
         return new HashSet<K>();
     }
 
-    public Collection values() {
+    public Collection<V> values() {
         return new ArrayList<V>(0);
     }
 
-    public Set entrySet() {
+    public Set<Entry<K, V>> entrySet() {
         return new HashSet<Map.Entry<K, V>>();
     }
 }

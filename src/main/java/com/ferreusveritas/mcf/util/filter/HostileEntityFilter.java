@@ -1,7 +1,7 @@
 package com.ferreusveritas.mcf.util.filter;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.IMob;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Enemy;
 
 public class HostileEntityFilter implements EntityFilter {
 
@@ -12,7 +12,7 @@ public class HostileEntityFilter implements EntityFilter {
 
     @Override
     public boolean isEntityDenied(LivingEntity entity) {
-        return entity instanceof IMob;
+        return entity instanceof Enemy;
     }
 
     @Override

@@ -1,30 +1,26 @@
 package com.ferreusveritas.mcf;
 
 import com.ferreusveritas.mcf.block.*;
+import com.ferreusveritas.mcf.block.entity.*;
 import com.ferreusveritas.mcf.entity.CommandPotionEntity;
 import com.ferreusveritas.mcf.entity.ItemDisplayEntity;
 import com.ferreusveritas.mcf.item.*;
-import com.ferreusveritas.mcf.tileentity.*;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Util;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.ArrayList;
-import java.util.List;
+import net.minecraftforge.registries.RegistryObject;
 
 public class Registry {
 
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MCF.MOD_ID);
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MCF.MOD_ID);
-    private static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, MCF.MOD_ID);
+    private static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, MCF.MOD_ID);
     private static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, MCF.MOD_ID);
 
     public static void setup(IEventBus modEventBus) {
@@ -40,8 +36,8 @@ public class Registry {
 
     public static final RegistryObject<Block> CARTOGRAPHER_BLOCK = BLOCKS.register("cartographer", () -> new PeripheralBlock(PeripheralType.CARTOGRAPHER));
 
-    public static final RegistryObject<TileEntityType<CartographerTileEntity>> CARTOGRAPHER_TILE_ENTITY = TILE_ENTITIES.register("cartographer",
-            () -> TileEntityType.Builder.of(CartographerTileEntity::new, CARTOGRAPHER_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<CartographerBlockEntity>> CARTOGRAPHER_TILE_ENTITY = TILE_ENTITIES.register("cartographer",
+            () -> BlockEntityType.Builder.of(CartographerBlockEntity::new, CARTOGRAPHER_BLOCK.get()).build(null));
 
     //////////////////////////////////////////////
     /// CLAIM
@@ -59,26 +55,8 @@ public class Registry {
 
     public static final RegistryObject<Item> SENTINEL_ITEM = ITEMS.register("sentinel", () -> blockItem(SENTINEL_BLOCK));
 
-    public static final RegistryObject<TileEntityType<SentinelTileEntity>> SENTINEL_TILE_ENTITY = TILE_ENTITIES.register("sentinel",
-            () -> TileEntityType.Builder.of(SentinelTileEntity::new, SENTINEL_BLOCK.get()).build(null));
-
-    //////////////////////////////////////////////
-    /// LIGHT
-    //////////////////////////////////////////////
-
-    public static final RegistryObject<Block> LIGHT_BLOCK = BLOCKS.register("light", LightBlock::new);
-
-    public static final List<RegistryObject<Item>> LIGHT_ITEMS = Util.make(() -> {
-        List<RegistryObject<Item>> items = new ArrayList<>();
-        for (int level = 0; level <= 15; level++) {
-            items.add(createLightItem(level));
-        }
-        return items;
-    });
-
-    private static RegistryObject<Item> createLightItem(int level) {
-        return ITEMS.register("light_" + level, () -> new LightItem(LIGHT_BLOCK.get(), itemProperties(), level));
-    }
+    public static final RegistryObject<BlockEntityType<SentinelBlockEntity>> SENTINEL_TILE_ENTITY = TILE_ENTITIES.register("sentinel",
+            () -> BlockEntityType.Builder.of(SentinelBlockEntity::new, SENTINEL_BLOCK.get()).build(null));
 
     public static final RegistryObject<Item> CARTOGRAPHER_ITEM = ITEMS.register("cartographer", () -> blockItem(CARTOGRAPHER_BLOCK));
 
@@ -87,8 +65,8 @@ public class Registry {
     //////////////////////////////////////////////
 
     public static final RegistryObject<Block> REMOTE_RECEIVER_BLOCK = BLOCKS.register("remote_receiver", () -> new PeripheralBlock(PeripheralType.REMOTE_RECEIVER));
-    public static final RegistryObject<TileEntityType<RemoteReceiverTileEntity>> REMOTE_RECEIVER_TILE_ENTITY = TILE_ENTITIES.register("remote_receiver",
-            () -> TileEntityType.Builder.of(RemoteReceiverTileEntity::new, REMOTE_RECEIVER_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<RemoteReceiverBlockEntity>> REMOTE_RECEIVER_TILE_ENTITY = TILE_ENTITIES.register("remote_receiver",
+            () -> BlockEntityType.Builder.of(RemoteReceiverBlockEntity::new, REMOTE_RECEIVER_BLOCK.get()).build(null));
     public static final RegistryObject<Block> TOUCH_BUTTON_BLOCK = BLOCKS.register("touch_button", TouchButtonBlock::new);
     public static final RegistryObject<Block> REMOTE_BUTTON_BLOCK = BLOCKS.register("remote_button", RemoteButtonBlock::new);
 
@@ -107,11 +85,11 @@ public class Registry {
 
     public static final RegistryObject<EntityType<CommandPotionEntity>> COMMAND_POTION_ENTITY = ENTITIES.register(
             "command_potion",
-            () -> EntityType.Builder.of(CommandPotionEntity::new, EntityClassification.MISC).build("command_potion")
+            () -> EntityType.Builder.of(CommandPotionEntity::new, MobCategory.MISC).build("command_potion")
     );
     public static final RegistryObject<EntityType<ItemDisplayEntity>> ITEM_DISPLAY_ENTITY = ENTITIES.register(
             "item_display",
-            () -> EntityType.Builder.of(ItemDisplayEntity::new, EntityClassification.MISC).build("item_display")
+            () -> EntityType.Builder.of(ItemDisplayEntity::new, MobCategory.MISC).build("item_display")
     );
 
     //////////////////////////////////////////////
@@ -120,8 +98,8 @@ public class Registry {
 
     public static final RegistryObject<Block> TERRAFORMER_BLOCK = BLOCKS.register("terraformer", () -> new PeripheralBlock(PeripheralType.TERRAFORMER));
 
-    public static final RegistryObject<TileEntityType<TerraformerTileEntity>> TERRAFORMER_TILE_ENTITY = TILE_ENTITIES.register("terraformer",
-            () -> TileEntityType.Builder.of(TerraformerTileEntity::new, TERRAFORMER_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TerraformerBlockEntity>> TERRAFORMER_TILE_ENTITY = TILE_ENTITIES.register("terraformer",
+            () -> BlockEntityType.Builder.of(TerraformerBlockEntity::new, TERRAFORMER_BLOCK.get()).build(null));
 
     public static final RegistryObject<Item> TERRAFORMER_ITEM = ITEMS.register("terraformer", () -> blockItem(TERRAFORMER_BLOCK));
 
@@ -131,8 +109,8 @@ public class Registry {
 
     public static final RegistryObject<Block> WEB_MODEM_BLOCK = BLOCKS.register("web_modem", () -> new PeripheralBlock(PeripheralType.WEB_MODEM));
 
-    public static final RegistryObject<TileEntityType<WebModemTileEntity>> WEB_MODEM_TILE_ENTITY = TILE_ENTITIES.register("web_modem",
-            () -> TileEntityType.Builder.of(WebModemTileEntity::new, WEB_MODEM_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<WebModemBlockEntity>> WEB_MODEM_TILE_ENTITY = TILE_ENTITIES.register("web_modem",
+            () -> BlockEntityType.Builder.of(WebModemBlockEntity::new, WEB_MODEM_BLOCK.get()).build(null));
 
     public static final RegistryObject<Item> WEB_MODEM_ITEM = ITEMS.register("web_modem", () -> blockItem(WEB_MODEM_BLOCK));
 
@@ -148,7 +126,7 @@ public class Registry {
     public static final RegistryObject<CommandSplashPotion> COMMAND_SPLASH_POTION = ITEMS.register("command_splash_potion", () -> new CommandSplashPotion(itemProperties()));
 
     private static Item.Properties itemProperties() {
-        return new Item.Properties().tab(ItemGroups.MAIN);
+        return new Item.Properties().tab(CreativeModeTabs.MAIN);
     }
 
     private static BlockItem blockItem(RegistryObject<Block> block) {

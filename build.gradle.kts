@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter
 fun property(key: String) = project.findProperty(key).toString()
 fun optionalProperty(key: String) = project.findProperty(key)?.toString()
 
+apply(from = "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle")
 apply(from = "https://gist.githubusercontent.com/Harleyoc1/4d23d4e991e868d98d548ac55832381e/raw/applesiliconfg.gradle")
 
 plugins {
@@ -22,7 +23,6 @@ plugins {
 
 repositories {
     maven("https://ldtteam.jfrog.io/ldtteam/modding/")
-    maven("https://maven.tehnut.info")
     maven("https://www.cursemaven.com") {
         content {
             includeGroup("curse.maven")
@@ -109,9 +109,9 @@ dependencies {
     runtimeOnly(fg.deobf("top.theillusivec4.curios:curios-forge:$mcVersion-${property("curiosVersion")}"))
     compileOnly(fg.deobf("top.theillusivec4.curios:curios-forge:$mcVersion-${property("curiosVersion")}:api"))
 
-    runtimeOnly(fg.deobf("curse.maven:hwyla-253449:3033593"))
+    implementation(fg.deobf("curse.maven:jade-324717:4575623"))
     runtimeOnly(fg.deobf("mezz.jei:jei-$mcVersion:${property("jeiVersion")}"))
-    runtimeOnly(fg.deobf("com.harleyoconnor.suggestionproviderfix:SuggestionProviderFix:$mcVersion-${property("suggestionProviderFixVersion")}"))
+    runtimeOnly(fg.deobf("com.harleyoconnor.suggestionproviderfix:SuggestionProviderFix-1.18.1:${property("suggestionProviderFixVersion")}"))
 }
 
 tasks.jar {
@@ -133,36 +133,34 @@ java {
     withSourcesJar()
 
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
 curseforge {
-    if (project.hasProperty("curseApiKey") && project.hasProperty("curseFileType")) {
-        apiKey = property("curseApiKey")
+    if (!project.hasProperty("curseApiKey")) {
+        project.logger.warn("API Key for CurseForge not detected; uploading will be disabled.")
+        return@curseforge
+    }
 
-        project {
-            id = "405502"
+    apiKey = property("curseApiKey")
 
-            addGameVersion(mcVersion)
+    project {
+        id = "405502"
 
-            changelog = "No changelog provided."
-            changelogType = "markdown"
-            releaseType = property("curseFileType")
+        addGameVersion(mcVersion)
 
-            addArtifact(tasks.findByName("sourcesJar"))
+        changelog = "No changelog provided."
+        changelogType = "markdown"
+        releaseType = optionalProperty("curseFileType") ?: "release"
 
-            mainArtifact(tasks.findByName("jar")) {
-                relations {
-                    requiredDependency("cc-tweaked")
-                }
+        addArtifact(tasks.findByName("sourcesJar"))
+
+        mainArtifact(tasks.findByName("jar")) {
+            relations {
+                requiredDependency("cc-tweaked")
             }
         }
-    } else {
-        project.logger.log(
-            LogLevel.WARN,
-            "API Key and file type for CurseForge not detected; uploading will be disabled."
-        )
     }
 }
 

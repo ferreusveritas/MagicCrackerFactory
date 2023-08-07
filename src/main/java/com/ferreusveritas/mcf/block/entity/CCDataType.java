@@ -1,4 +1,4 @@
-package com.ferreusveritas.mcf.tileentity;
+package com.ferreusveritas.mcf.block.entity;
 
 public enum CCDataType {
     NUMBER(Number.class),

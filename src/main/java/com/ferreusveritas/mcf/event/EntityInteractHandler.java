@@ -3,13 +3,13 @@ package com.ferreusveritas.mcf.event;
 import com.ferreusveritas.mcf.MCF;
 import com.ferreusveritas.mcf.Registry;
 import com.ferreusveritas.mcf.item.MapGuardItem;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,7 +23,7 @@ public class EntityInteractHandler {
      */
     @SubscribeEvent
     public static void onEntityInteract(PlayerInteractEvent.EntityInteractSpecific event) {
-        if (event.getTarget() instanceof ItemFrameEntity &&
+        if (event.getTarget() instanceof ItemFrame &&
                 event.getItemStack().getItem() instanceof MapGuardItem &&
                 event.getWorld().getBlockState(event.getPos()).getBlock() != Registry.MAP_GUARD_BLOCK.get() &&
                 !event.getPlayer().isShiftKeyDown()) {
@@ -31,19 +31,19 @@ public class EntityInteractHandler {
                 placeBlock(event);
             }
             event.setCanceled(true);
-            event.setCancellationResult(ActionResultType.SUCCESS);
+            event.setCancellationResult(InteractionResult.SUCCESS);
         }
     }
 
     private static void placeBlock(PlayerInteractEvent.EntityInteractSpecific event) {
-        World world = event.getWorld();
+        Level level = event.getWorld();
         BlockPos pos = event.getPos();
         BlockState state = ((MapGuardItem) event.getItemStack().getItem()).getPlacementState();
-        world.setBlock(pos, state, 11);
+        level.setBlock(pos, state, 11);
 
-        SoundType sound = state.getSoundType(world, pos, event.getPlayer());
-        world.playSound(event.getPlayer(), pos, sound.getPlaceSound(), SoundCategory.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
-        if (!event.getPlayer().abilities.instabuild) {
+        SoundType sound = state.getSoundType(level, pos, event.getPlayer());
+        level.playSound(event.getPlayer(), pos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
+        if (!event.getPlayer().getAbilities().instabuild) {
             event.getItemStack().shrink(1);
         }
     }

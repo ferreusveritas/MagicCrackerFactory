@@ -2,22 +2,26 @@ package com.ferreusveritas.mcf.block;
 
 import com.ferreusveritas.mcf.network.Networking;
 import com.ferreusveritas.mcf.network.ServerBoundTouchMapMessage;
-import net.minecraft.block.AbstractButtonBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.properties.AttachFace;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class TouchButtonBlock extends AbstractButtonBlock {
+public class TouchButtonBlock extends ButtonBlock {
 
     private static final VoxelShape CEILING_AABB = Block.box(5.0D, 14.0D, 5.0D, 11.0D, 16.0D, 11.0D);
     private static final VoxelShape FLOOR_AABB = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 2.0D, 11.0D);
@@ -34,36 +38,36 @@ public class TouchButtonBlock extends AbstractButtonBlock {
 
     public TouchButtonBlock() {
         super(false, Properties.of(Material.HEAVY_METAL, MaterialColor.METAL).strength(3.0F, 10.0F).randomTicks());
-        registerDefaultState(getStateDefinition().any().setValue(FACE, AttachFace.WALL).setValue(FACING, Direction.NORTH).setValue(AbstractButtonBlock.POWERED, Boolean.FALSE));
+        registerDefaultState(getStateDefinition().any().setValue(FACE, AttachFace.WALL).setValue(FACING, Direction.NORTH).setValue(ButtonBlock.POWERED, Boolean.FALSE));
     }
 
     @Override
-    public void press(BlockState state, World world, BlockPos pos) {
-        super.press(state, world, pos);
+    public void press(BlockState state, Level level, BlockPos pos) {
+        super.press(state, level, pos);
     }
 
-    public void touchPress(World world, BlockPos pos, BlockState state) {
+    public void touchPress(Level level, BlockPos pos, BlockState state) {
         if (!state.getValue(POWERED)) {
-            this.press(state, world, pos);
-            this.playSound(null, world, pos, true);
+            this.press(state, level, pos);
+            this.playSound(null, level, pos, true);
         }
     }
 
     @Override
-    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (state.getValue(POWERED)) {
-            return ActionResultType.CONSUME;
+            return InteractionResult.CONSUME;
         } else {
-            this.press(state, world, pos);
-            this.playSound(player, world, pos, true);
-            if (world.isClientSide) {
-                Networking.sendToServer(new ServerBoundTouchMapMessage(hitResult.getLocation(), pos, hitResult.getDirection()));
+            this.press(state, level, pos);
+            this.playSound(player, level, pos, true);
+            if (level.isClientSide) {
+                Networking.sendToServer(new ServerBoundTouchMapMessage(hit.getLocation(), pos, hit.getDirection()));
             }
-            return ActionResultType.sidedSuccess(world.isClientSide);
+            return InteractionResult.sidedSuccess(level.isClientSide);
         }
     }
 
-    public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Direction facing = state.getValue(FACING);
         boolean powered = state.getValue(POWERED);
         switch (state.getValue(FACE)) {

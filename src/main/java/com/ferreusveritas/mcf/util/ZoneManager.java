@@ -4,15 +4,15 @@ import com.ferreusveritas.mcf.util.bounds.*;
 import com.ferreusveritas.mcf.util.bounds.StorageBounds.BoundsType;
 import com.ferreusveritas.mcf.util.filter.SetEntityFilter;
 import dan200.computercraft.api.lua.LuaException;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,28 +20,25 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class ZoneManager extends WorldSavedData {
+public class ZoneManager extends SavedData {
 
     private static final Logger LOGGER = LogManager.getLogger();
     private final static String ID = "SecurityZones";
-    protected StorageBounds storageBounds = new StorageBounds(new CompoundNBT());
+    protected StorageBounds storageBounds = new StorageBounds(new CompoundTag());
 
-    public ZoneManager(String id) {
-        super(id);
+    public static ZoneManager get(ServerLevel level) {
+        return level.getDataStorage().computeIfAbsent(ZoneManager::load, ZoneManager::new, ID);
     }
 
-    public static ZoneManager get(ServerWorld world) {
-        return world.getDataStorage().computeIfAbsent(() -> new ZoneManager(ID), ID);
-    }
-
-    @Override
-    public void load(CompoundNBT tag) {
+    public static ZoneManager load(CompoundTag tag) {
         LOGGER.info("Reading tag from disk for ZoneManager");
-        storageBounds = new StorageBounds(tag.getCompound("zones"));
+        ZoneManager zoneManager = new ZoneManager();
+        zoneManager.setBoundsStorage(new StorageBounds(tag.getCompound("zones")));
+        return zoneManager;
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT tag) {
+    public CompoundTag save(CompoundTag tag) {
         tag.put("zones", storageBounds.toCompoundTag());
         return tag;
     }
@@ -129,7 +126,7 @@ public class ZoneManager extends WorldSavedData {
                 data.put("name", bound.getKey());
                 data.put("type", type.getLabel());
                 data.put("shape", bound.getValue().getBoundType());
-                AxisAlignedBB aabb = bound.getValue().getAABB();
+                AABB aabb = bound.getValue().getAABB();
                 if (aabb != null) {
                     data.put("aabb", new Object[]{new Double[]{aabb.minX, aabb.minY, aabb.minZ}, new Double[]{aabb.maxX, aabb.maxY, aabb.maxZ}});
                 }
@@ -156,8 +153,8 @@ public class ZoneManager extends WorldSavedData {
     }
 
     public void checkFilterType(String filterType) throws LuaException {
-        if (!SetEntityFilter.filterProviders.containsKey(filterType)) {
-            String valids = String.join(", ", SetEntityFilter.filterProviders.keySet());
+        if (!SetEntityFilter.FILTER_PROVIDERS.containsKey(filterType)) {
+            String valids = String.join(", ", SetEntityFilter.FILTER_PROVIDERS.keySet());
             throw new LuaException("filterType \"" + filterType + "\" is not valid. Must be one of: " + valids);
         }
     }
@@ -190,7 +187,7 @@ public class ZoneManager extends WorldSavedData {
 
     //Tests and Filters
 
-    public boolean testBreakBounds(PlayerEntity player, BlockPos pos) {
+    public boolean testBreakBounds(Player player, BlockPos pos) {
         return player != null && !player.isCreative() && testBreakBounds(pos);
     }
 
@@ -199,7 +196,7 @@ public class ZoneManager extends WorldSavedData {
     }
 
     public boolean testPlaceBounds(@Nullable Entity placer, BlockPos pos) {
-        return placer != null && (!(placer instanceof PlayerEntity) || !((PlayerEntity) placer).isCreative()) && testPlaceBounds(pos);
+        return placer != null && (!(placer instanceof Player) || !((Player) placer).isCreative()) && testPlaceBounds(pos);
     }
 
     public boolean testPlaceBounds(BlockPos pos) {
@@ -230,29 +227,29 @@ public class ZoneManager extends WorldSavedData {
         return bounds.values().parallelStream().filter(bb -> bb.inBounds(pos)).anyMatch(bb -> bb.getFilterSet().isEntityDenied(entity));
     }
 
-    public Object[] getPlayersInBounds(World world, String boundsName) {
-        return getPlayersInBounds(world, getBoundsStorage().identBounds.get(boundsName));
+    public Object[] getPlayersInBounds(Level level, String boundsName) {
+        return getPlayersInBounds(level, getBoundsStorage().identBounds.get(boundsName));
     }
 
-    public Object[] getPlayersInBounds(World world, Bounds bb) {
+    public Object[] getPlayersInBounds(Level level, Bounds bb) {
         if (bb != null) {
             if (bb.getAABB() == null) {
-                List<Entity> entities = new ArrayList<>(world.players());
+                List<Entity> entities = new ArrayList<>(level.players());
                 return getEntitiesAsObjects(entities);
             }
         }
-        return getEntitiesInBounds(world, bb, PlayerEntity.class);
+        return getEntitiesInBounds(level, bb, Player.class);
     }
 
-    public Object[] getEntitiesInBounds(World world, String boundsName, Class<? extends Entity> clazz) {
-        return getEntitiesInBounds(world, getBoundsStorage().identBounds.get(boundsName), clazz);
+    public <E extends Entity> Object[] getEntitiesInBounds(Level level, String boundsName, Class<E> clazz) {
+        return getEntitiesInBounds(level, getBoundsStorage().identBounds.get(boundsName), clazz);
     }
 
-    public Object[] getEntitiesInBounds(World world, Bounds bb, Class<? extends Entity> clazz) {
+    public <E extends Entity> Object[] getEntitiesInBounds(Level level, Bounds bb, Class<E> clazz) {
         if (bb != null) {
-            AxisAlignedBB aabb = bb.getAABB();
+            AABB aabb = bb.getAABB();
             if (aabb != null) {
-                List<Entity> entities = world.getEntitiesOfClass(clazz, aabb);
+                List<E> entities = level.getEntitiesOfClass(clazz, aabb);
                 entities.removeIf(e -> !bb.inBounds(e.blockPosition()));
                 return getEntitiesAsObjects(entities);
             }
@@ -261,10 +258,10 @@ public class ZoneManager extends WorldSavedData {
         return new Object[0];
     }
 
-    public Object[] getEntitiesAsObjects(List<Entity> entities) {
+    public <E extends Entity> Object[] getEntitiesAsObjects(List<E> entities) {
         List<Map<String, Object>> allEntityData = new ArrayList<>();
 
-        for (Entity e : entities) {
+        for (E e : entities) {
             Map<String, Object> entityData = new HashMap<>();
             BlockPos blockpos = e.blockPosition();
             entityData.put("name", e.getName());

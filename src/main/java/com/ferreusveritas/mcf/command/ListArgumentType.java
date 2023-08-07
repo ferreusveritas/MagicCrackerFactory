@@ -3,9 +3,9 @@ package com.ferreusveritas.mcf.command;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.arguments.ArgumentSerializer;
-import net.minecraft.command.arguments.ArgumentTypes;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.synchronization.ArgumentTypes;
+import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,11 +25,11 @@ public class ListArgumentType implements ArgumentType<List<String>> {
     }
 
     public static void register() {
-        ArgumentTypes.register(MOD_ID + ":list", ListArgumentType.class, new ArgumentSerializer<>(ListArgumentType::list));
+        ArgumentTypes.register(MOD_ID + ":list", ListArgumentType.class, new EmptyArgumentSerializer<>(ListArgumentType::list));
     }
 
     @SuppressWarnings("unchecked")
-    public static List<String> getList(CommandContext<CommandSource> context, String name) {
+    public static List<String> getList(CommandContext<CommandSourceStack> context, String name) {
         return context.getArgument(name, (Class<List<String>>) (Class<?>) List.class);
     }
 

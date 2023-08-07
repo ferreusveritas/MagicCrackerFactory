@@ -1,9 +1,9 @@
 package com.ferreusveritas.mcf.util.filter;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.IMob;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Enemy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,20 +14,20 @@ import java.util.function.Function;
 public class SetEntityFilter {
 
     // Simple EntityFilter type factory registry
-    public static Map<String, Function<String, EntityFilter>> filterProviders = new HashMap<>();
+    public final static Map<String, Function<String, EntityFilter>> FILTER_PROVIDERS = new HashMap<>();
 
     static { // This gives us the ability to add new EntityFilter types in the future
-        filterProviders.put("hostile", d -> new HostileEntityFilter());
-        filterProviders.put("peaceful", d -> new PeacefulEntityFilter());
-        filterProviders.put("entity", d -> new EntityTypeFilter(d));
-        filterProviders.put("all", d -> new EntityFilterAll());
-        filterProviders.put("none", d -> new NoneEntityFilter());
+        FILTER_PROVIDERS.put("hostile", d -> new HostileEntityFilter());
+        FILTER_PROVIDERS.put("peaceful", d -> new PeacefulEntityFilter());
+        FILTER_PROVIDERS.put("entity", EntityTypeFilter::new);
+        FILTER_PROVIDERS.put("all", d -> new EntityFilterAll());
+        FILTER_PROVIDERS.put("none", d -> new NoneEntityFilter());
     }
 
     public Map<String, EntityFilter> filters = new HashMap<>();
 
     public static boolean isMobHostile(LivingEntity entity) {
-        return entity instanceof IMob;
+        return entity instanceof Enemy;
     }
 
     public boolean isEntityDenied(LivingEntity entity) {
@@ -54,12 +54,12 @@ public class SetEntityFilter {
         filters.remove(name);
     }
 
-    public CompoundNBT saveFilters() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag saveFilters() {
+        CompoundTag tag = new CompoundTag();
         for (Entry<String, EntityFilter> filterEntry : filters.entrySet()) {
             String name = filterEntry.getKey();
             EntityFilter filter = filterEntry.getValue();
-            CompoundNBT filterTag = new CompoundNBT();
+            CompoundTag filterTag = new CompoundTag();
             filterTag.putString("type", filter.getType());
             filterTag.putString("data", filter.getFilterData());
             tag.put(name, filterTag);
@@ -67,14 +67,14 @@ public class SetEntityFilter {
         return tag;
     }
 
-    public void loadFilters(CompoundNBT tag) {
+    public void loadFilters(CompoundTag tag) {
         if (tag.contains("filters")) {
-            CompoundNBT list = (CompoundNBT) tag.get("filters");
+            CompoundTag list = (CompoundTag) tag.get("filters");
             for (String name : list.getAllKeys()) {
-                INBT nbtFilter = list.get(name);
-                if (nbtFilter instanceof CompoundNBT) {
-                    String type = ((CompoundNBT) nbtFilter).getString("type");
-                    String data = ((CompoundNBT) nbtFilter).getString("data");
+                Tag filterTag = list.get(name);
+                if (filterTag instanceof CompoundTag) {
+                    String type = ((CompoundTag) filterTag).getString("type");
+                    String data = ((CompoundTag) filterTag).getString("data");
                     EntityFilter filter = makeEntityFilter(type, data);
                     setFilter(name, filter);
                 }
@@ -83,7 +83,7 @@ public class SetEntityFilter {
     }
 
     public EntityFilter makeEntityFilter(String type, String data) {
-        return filterProviders.getOrDefault(type, d -> EntityFilter.INVALID).apply(data);
+        return FILTER_PROVIDERS.getOrDefault(type, d -> EntityFilter.INVALID).apply(data);
     }
 
     public Map<String, Map<String, String>> filtersToLuaObject() {

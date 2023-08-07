@@ -1,9 +1,9 @@
 package com.ferreusveritas.mcf.util.bounds;
 
 import com.ferreusveritas.mcf.util.filter.SetEntityFilter;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ public abstract class Bounds {
     public Bounds() {
     }
 
-    public Bounds(CompoundNBT tag) {
+    public Bounds(CompoundTag tag) {
         filterSet.loadFilters(tag);
     }
 
@@ -25,10 +25,10 @@ public abstract class Bounds {
 
     public abstract String getBoundType();
 
-    public abstract AxisAlignedBB getAABB();
+    public abstract AABB getAABB();
 
-    public CompoundNBT toCompoundTag() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag toCompoundTag() {
+        CompoundTag tag = new CompoundTag();
         tag.putString("type", getBoundType());
         tag.put("filters", filterSet.saveFilters());
         return tag;

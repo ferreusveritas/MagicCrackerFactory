@@ -1,8 +1,8 @@
 package com.ferreusveritas.mcf.item;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,13 +20,13 @@ public class CommandChunkRing extends CommandRing {
     }
 
     @Override
-    public boolean shouldRun(PlayerEntity player) {
+    public boolean shouldRun(Player player) {
         ChunkPos lastChunkPos = PLAYER_POSITION_CACHE.getOrDefault(player.getUUID(), ZERO_CHUNK_POS);
         return !new ChunkPos(player.blockPosition()).equals(lastChunkPos);
     }
 
     @Override
-    public void satisfyWorn(PlayerEntity player) {
+    public void satisfyWorn(Player player) {
         PLAYER_POSITION_CACHE.put(player.getUUID(), new ChunkPos(player.blockPosition()));
     }
 

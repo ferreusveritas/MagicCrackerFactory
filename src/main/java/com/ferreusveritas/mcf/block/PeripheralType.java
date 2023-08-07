@@ -1,8 +1,10 @@
 package com.ferreusveritas.mcf.block;
 
 import com.ferreusveritas.mcf.Registry;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -15,16 +17,16 @@ public enum PeripheralType {
     REMOTE_RECEIVER(Registry.REMOTE_RECEIVER_TILE_ENTITY::get, "peripheral.mcf.remote_receiver.tooltip"),
     WEB_MODEM(Registry.WEB_MODEM_TILE_ENTITY::get, "peripheral.mcf.web_modem.tooltip");
 
-    private final Supplier<TileEntityType<?>> tileEntityType;
+    private final Supplier<BlockEntityType<?>> blockEntityType;
     private final String descriptionId;
 
-    PeripheralType(Supplier<TileEntityType<?>> tileEntityType, String descriptionId) {
-        this.tileEntityType = tileEntityType;
+    PeripheralType(Supplier<BlockEntityType<?>> blockEntityType, String descriptionId) {
+        this.blockEntityType = blockEntityType;
         this.descriptionId = descriptionId;
     }
 
-    public TileEntityType<?> getTileEntityType() {
-        return tileEntityType.get();
+    public BlockEntityType<?> getBlockEntityType() {
+        return blockEntityType.get();
     }
 
     public String getName() {
@@ -36,7 +38,7 @@ public enum PeripheralType {
     }
 
     @Nullable
-    public TileEntity createTileEntity() {
-        return tileEntityType.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return blockEntityType.get().create(pos, state);
     }
 }
